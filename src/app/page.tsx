@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Calendar, Trophy, Target, MapPin, Heart, Home, Car, DollarSign, Plus, Users, Edit2, Trash2, User } from 'lucide-react';
 
 const LifeTimelineApp = () => {
@@ -31,6 +31,8 @@ const LifeTimelineApp = () => {
 
   const [showAddFriend, setShowAddFriend] = useState(false);
   const [newFriend, setNewFriend] = useState({ name: '', birthDate: '', color: '#8B5CF6' });
+  const [secondsLeft, setSecondsLeft] = useState(0);
+  const [currentTime, setCurrentTime] = useState(new Date());
 
   // Utility functions
   const calculateAge = (birthDateStr) => {
@@ -49,11 +51,11 @@ const LifeTimelineApp = () => {
     return gregorianYear + 543;
   };
 
-  const isPersonAliveInYear = (personBirthDate, year) => {
+  const isPersonAliveInYear = (personBirthDate, year, personMaxAge = maxAge) => {
     if (!personBirthDate) return false;
     try {
       const birthYear = new Date(personBirthDate).getFullYear();
-      const deathYear = birthYear + maxAge;
+      const deathYear = birthYear + personMaxAge;
       return year >= birthYear && year <= deathYear;
     } catch (error) {
       return false;
@@ -87,7 +89,7 @@ const LifeTimelineApp = () => {
       const youngestBirthYear = Math.max(...birthYears);
       
       const startYear = oldestBirthYear;
-      const endYear = youngestBirthYear + 100;
+      const endYear = youngestBirthYear + maxAge;
       
       const years = [];
       for (let year = startYear; year <= endYear; year++) {
@@ -112,6 +114,28 @@ const LifeTimelineApp = () => {
     }
   }, [birthDate, maxAge]);
 
+  // Countdown timer and current time update
+  useEffect(() => {
+    const updateTimeAndCountdown = () => {
+      const now = new Date();
+      setCurrentTime(now);
+      
+      const midnight = new Date();
+      midnight.setHours(24, 0, 0, 0); // Next midnight
+      const millisecondsLeft = midnight - now;
+      const secondsLeft = Math.floor(millisecondsLeft / 1000);
+      setSecondsLeft(secondsLeft);
+    };
+
+    // Update immediately
+    updateTimeAndCountdown();
+
+    // Update every second
+    const interval = setInterval(updateTimeAndCountdown, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   // Friend management
   const addFriend = () => {
     if (newFriend.name && newFriend.birthDate) {
@@ -125,8 +149,8 @@ const LifeTimelineApp = () => {
     setFriends(friends.filter(friend => friend.id !== id));
   };
 
-  // Get timeline data
-  const timelineYears = getTimelineYears();
+  // Get timeline data with memoization
+  const timelineYears = useMemo(() => getTimelineYears(), [birthDate, friends, maxAge]);
   const currentYear = new Date().getFullYear();
 
   // Auto scroll to current year
@@ -143,7 +167,7 @@ const LifeTimelineApp = () => {
         }
       }, 100);
     }
-  }, [birthDate, currentYear, timelineYears.length]);
+  }, [birthDate, currentYear, timelineYears.length, maxAge, friends]);
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-6">
@@ -189,9 +213,147 @@ const LifeTimelineApp = () => {
           </div>
         </div>
 
-        {/* Life Stages Visualization */}
+        {/* Time & Life Visualization */}
         {birthDate && (
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-6">
+            {/* Clock Dialog */}
+            <div className="mb-8 text-center">
+              <div className="flex justify-center items-center space-x-8">
+                {/* Countdown Timer */}
+                <div className="flex flex-col items-center">
+                  <div className="bg-red-100 dark:bg-red-900/30 border-2 border-red-300 dark:border-red-600/50 rounded-lg p-4 mb-2">
+                    <div className="text-2xl font-mono font-bold text-red-600 dark:text-red-400">
+                      {secondsLeft.toLocaleString()}
+                    </div>
+                    <div className="text-xs text-red-500 dark:text-red-400 mt-1">
+                      วินาทีเหลือ
+                    </div>
+                  </div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400 text-center">
+                    <div>⏳ วันนี้</div>
+                    <div className="text-xs opacity-75">/86,400 วิ</div>
+                  </div>
+                  
+                  {/* Progress bar for day */}
+                  <div className="w-16 h-1 bg-gray-200 dark:bg-gray-600 rounded-full mt-2 overflow-hidden">
+                    <div 
+                      className="h-full bg-gradient-to-r from-red-500 to-orange-500 transition-all duration-1000"
+                      style={{ 
+                        width: `${((86400 - secondsLeft) / 86400) * 100}%` 
+                      }}
+                    ></div>
+                  </div>
+                </div>
+
+                <div className="relative inline-block">
+                  {/* Animated Clock */}
+                  <div className="relative w-20 h-20 mx-auto mb-4">
+                  {/* Clock Face */}
+                  <div className="w-20 h-20 border-4 border-gray-400 rounded-full bg-white relative shadow-inner">
+                    {/* Roman numerals */}
+                    <div className="absolute top-0.5 left-1/2 transform -translate-x-1/2 text-xs font-bold text-gray-800">
+                      XII
+                    </div>
+                    <div className="absolute top-1/2 right-0.5 transform -translate-y-1/2 text-xs font-bold text-gray-800">
+                      III
+                    </div>
+                    <div className="absolute bottom-0.5 left-1/2 transform -translate-x-1/2 text-xs font-bold text-gray-800">
+                      VI
+                    </div>
+                    <div className="absolute top-1/2 left-0.5 transform -translate-y-1/2 text-xs font-bold text-gray-800">
+                      IX
+                    </div>
+                    
+                    {/* Hour markers for other positions */}
+                    <div className="absolute top-1.5 right-3 w-1 h-1 bg-gray-400 rounded-full"></div>
+                    <div className="absolute top-3 right-1.5 w-1 h-1 bg-gray-400 rounded-full"></div>
+                    <div className="absolute bottom-3 right-1.5 w-1 h-1 bg-gray-400 rounded-full"></div>
+                    <div className="absolute bottom-1.5 right-3 w-1 h-1 bg-gray-400 rounded-full"></div>
+                    <div className="absolute bottom-1.5 left-3 w-1 h-1 bg-gray-400 rounded-full"></div>
+                    <div className="absolute bottom-3 left-1.5 w-1 h-1 bg-gray-400 rounded-full"></div>
+                    <div className="absolute top-3 left-1.5 w-1 h-1 bg-gray-400 rounded-full"></div>
+                    <div className="absolute top-1.5 left-3 w-1 h-1 bg-gray-400 rounded-full"></div>
+                    
+                    {/* Clock hands - showing actual current time */}
+                    {(() => {
+                      const hours = currentTime.getHours() % 12;
+                      const minutes = currentTime.getMinutes();
+                      const seconds = currentTime.getSeconds();
+                      
+                      // Calculate angles (0 degrees = 12 o'clock)
+                      const hourAngle = (hours * 30) + (minutes * 0.5); // 30 degrees per hour + minute adjustment
+                      const minuteAngle = minutes * 6; // 6 degrees per minute
+                      const secondAngle = seconds * 6; // 6 degrees per second
+                      
+                      return (
+                        <>
+                          {/* Hour hand */}
+                          <div 
+                            className="absolute top-1/2 left-1/2 origin-bottom w-0.5 h-4 bg-black transform -translate-x-1/2 transition-transform duration-300 ease-in-out"
+                            style={{ 
+                              transform: `translate(-50%, -100%) rotate(${hourAngle}deg)`,
+                              transformOrigin: 'bottom center'
+                            }}
+                          ></div>
+                          {/* Minute hand */}
+                          <div 
+                            className="absolute top-1/2 left-1/2 origin-bottom w-0.5 h-6 bg-gray-800 transform -translate-x-1/2 transition-transform duration-300 ease-in-out"
+                            style={{ 
+                              transform: `translate(-50%, -100%) rotate(${minuteAngle}deg)`,
+                              transformOrigin: 'bottom center'
+                            }}
+                          ></div>
+                          {/* Second hand */}
+                          <div 
+                            className="absolute top-1/2 left-1/2 origin-bottom w-0.5 h-7 bg-red-500 transform -translate-x-1/2 transition-transform duration-75 ease-linear"
+                            style={{ 
+                              transform: `translate(-50%, -100%) rotate(${secondAngle}deg)`,
+                              transformOrigin: 'bottom center'
+                            }}
+                          ></div>
+                        </>
+                      );
+                    })()}
+                    
+                    {/* Center dot */}
+                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-black border border-white rounded-full shadow-sm"></div>
+                  </div>
+                  
+                  {/* Time ripples */}
+                  <div className="absolute inset-0 rounded-full border-2 border-blue-300 opacity-20 animate-ping"></div>
+                  <div className="absolute inset-2 rounded-full border border-blue-400 opacity-30 animate-pulse"></div>
+                </div>
+
+                {/* Speech bubble */}
+                <div className="relative">
+                  <div className="bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200 px-4 py-2 rounded-lg inline-block relative shadow-lg">
+                    <div className="text-sm font-medium">
+                      "เวลาเดินไปเรื่อยๆ..."
+                    </div>
+                    <div className="text-xs mt-1 opacity-80">
+                      🕐 ชีวิตก็เปลี่ยนไปทุกวัน
+                    </div>
+                    {/* Speech bubble tail */}
+                    <div className="absolute top-full left-1/2 transform -translate-x-1/2">
+                      <div className="border-l-8 border-r-8 border-t-8 border-transparent border-t-blue-100 dark:border-t-blue-900/50"></div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+              </div>
+
+              {/* Age progression message */}
+              <div className="mt-6 text-center">
+                <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                  เวลาผ่านไป <span className="font-semibold text-blue-600 dark:text-blue-400">{currentAge} ปี</span> แล้ว<br/>
+                  <span className="text-xs opacity-75">
+                    ⏳ แต่ละวินาทีคือประสบการณ์ใหม่ในชีวิต
+                  </span>
+                </p>
+              </div>
+            </div>
+
             <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-6 text-center">ช่วงชีวิตของมนุษย์</h2>
             <div className="flex justify-center items-end space-x-6 overflow-x-auto">
               {/* Baby (0-2) */}
