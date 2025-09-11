@@ -398,11 +398,71 @@ const LifeTimelineApp = () => {
                         </p>
                       </div>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-3 mb-2">
-                      <div 
-                        className="bg-gradient-to-r from-blue-500 to-green-500 h-3 rounded-full transition-all duration-500"
-                        style={{ width: `${Math.min(progress, 100)}%` }}
-                      ></div>
+                    {/* Piggy Bank Visualization */}
+                    <div className="relative w-full h-24 mb-4">
+                      {/* Piggy Bank Container */}
+                      <div className="relative mx-auto w-20 h-16 bg-gradient-to-b from-pink-100 to-pink-200 dark:from-pink-200/20 dark:to-pink-300/20 border-2 border-pink-300 dark:border-pink-400/50 rounded-full overflow-hidden">
+                        {/* Piggy Bank Body */}
+                        <div className="absolute inset-0 rounded-full">
+                          {/* Water/Money fill */}
+                          <div 
+                            className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-yellow-400 to-yellow-300 transition-all duration-1000 ease-out"
+                            style={{ 
+                              height: `${Math.min(progress, 100)}%`,
+                              borderRadius: progress >= 100 ? '50%' : '0 0 50% 50%'
+                            }}
+                          >
+                            {/* Money coins animation */}
+                            {progress > 20 && (
+                              <div className="absolute top-2 left-2 w-2 h-2 bg-yellow-600 rounded-full opacity-60"></div>
+                            )}
+                            {progress > 40 && (
+                              <div className="absolute top-3 right-3 w-1.5 h-1.5 bg-yellow-600 rounded-full opacity-60"></div>
+                            )}
+                            {progress > 60 && (
+                              <div className="absolute bottom-3 left-3 w-2 h-2 bg-yellow-600 rounded-full opacity-60"></div>
+                            )}
+                            {progress > 80 && (
+                              <div className="absolute bottom-2 right-2 w-1.5 h-1.5 bg-yellow-600 rounded-full opacity-60"></div>
+                            )}
+                          </div>
+                        </div>
+                        
+                        {/* Piggy Bank Features */}
+                        {/* Snout */}
+                        <div className="absolute -right-2 top-1/2 transform -translate-y-1/2 w-4 h-3 bg-pink-200 dark:bg-pink-300/30 border border-pink-300 dark:border-pink-400/50 rounded-full">
+                          <div className="absolute top-1 left-1 w-1 h-1 bg-pink-400 dark:bg-pink-500 rounded-full"></div>
+                          <div className="absolute bottom-1 left-1 w-1 h-1 bg-pink-400 dark:bg-pink-500 rounded-full"></div>
+                        </div>
+                        
+                        {/* Eyes */}
+                        <div className="absolute top-3 left-3 w-1.5 h-1.5 bg-pink-600 dark:bg-pink-400 rounded-full"></div>
+                        <div className="absolute top-3 right-3 w-1.5 h-1.5 bg-pink-600 dark:bg-pink-400 rounded-full"></div>
+                        
+                        {/* Coin slot */}
+                        <div className="absolute top-1 left-1/2 transform -translate-x-1/2 w-6 h-1 bg-pink-400 dark:bg-pink-500/50 rounded-full"></div>
+                        
+                        {/* Success sparkles when 100% */}
+                        {progress >= 100 && (
+                          <>
+                            <div className="absolute -top-2 -left-2 text-yellow-400 animate-bounce">✨</div>
+                            <div className="absolute -top-2 -right-2 text-yellow-400 animate-bounce" style={{animationDelay: '0.2s'}}>✨</div>
+                            <div className="absolute -bottom-1 -left-1 text-yellow-400 animate-bounce" style={{animationDelay: '0.4s'}}>✨</div>
+                            <div className="absolute -bottom-1 -right-1 text-yellow-400 animate-bounce" style={{animationDelay: '0.6s'}}>✨</div>
+                          </>
+                        )}
+                      </div>
+                      
+                      {/* Progress percentage below */}
+                      <div className="text-center mt-2">
+                        <div className={`text-lg font-bold ${
+                          progress >= 100 
+                            ? 'text-yellow-600 dark:text-yellow-400' 
+                            : 'text-pink-600 dark:text-pink-400'
+                        }`}>
+                          {progress.toFixed(1)}%
+                        </div>
+                      </div>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-600 dark:text-gray-400">{progress.toFixed(1)}% สำเร็จ</span>
