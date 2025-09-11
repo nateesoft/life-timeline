@@ -189,6 +189,122 @@ const LifeTimelineApp = () => {
           </div>
         </div>
 
+        {/* Life Stages Visualization */}
+        {birthDate && (
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-6">
+            <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-6 text-center">ช่วงชีวิตของมนุษย์</h2>
+            <div className="flex justify-center items-end space-x-6 overflow-x-auto">
+              {/* Baby (0-2) */}
+              <div className="flex flex-col items-center min-w-0">
+                <div className={`text-4xl mb-2 transition-all duration-300 ${currentAge >= 0 && currentAge <= 2 ? 'scale-125 ring-4 ring-blue-300 rounded-full p-2' : 'opacity-60'}`}>
+                  👶
+                </div>
+                <div className="text-xs text-center text-gray-600 dark:text-gray-400">
+                  <div>ทารก</div>
+                  <div>0-2 ปี</div>
+                </div>
+              </div>
+
+              {/* Child (3-12) */}
+              <div className="flex flex-col items-center min-w-0">
+                <div className={`text-4xl mb-2 transition-all duration-300 ${currentAge >= 3 && currentAge <= 12 ? 'scale-125 ring-4 ring-blue-300 rounded-full p-2' : 'opacity-60'}`}>
+                  🧒
+                </div>
+                <div className="text-xs text-center text-gray-600 dark:text-gray-400">
+                  <div>เด็ก</div>
+                  <div>3-12 ปี</div>
+                </div>
+              </div>
+
+              {/* Teenager (13-19) */}
+              <div className="flex flex-col items-center min-w-0">
+                <div className={`text-4xl mb-2 transition-all duration-300 ${currentAge >= 13 && currentAge <= 19 ? 'scale-125 ring-4 ring-blue-300 rounded-full p-2' : 'opacity-60'}`}>
+                  🧑‍🎓
+                </div>
+                <div className="text-xs text-center text-gray-600 dark:text-gray-400">
+                  <div>วัยรุ่น</div>
+                  <div>13-19 ปี</div>
+                </div>
+              </div>
+
+              {/* Young Adult (20-35) */}
+              <div className="flex flex-col items-center min-w-0">
+                <div className={`text-4xl mb-2 transition-all duration-300 ${currentAge >= 20 && currentAge <= 35 ? 'scale-125 ring-4 ring-blue-300 rounded-full p-2' : 'opacity-60'}`}>
+                  🧑‍💼
+                </div>
+                <div className="text-xs text-center text-gray-600 dark:text-gray-400">
+                  <div>วัยหนุ่มสาว</div>
+                  <div>20-35 ปี</div>
+                </div>
+              </div>
+
+              {/* Middle Age (36-55) */}
+              <div className="flex flex-col items-center min-w-0">
+                <div className={`text-4xl mb-2 transition-all duration-300 ${currentAge >= 36 && currentAge <= 55 ? 'scale-125 ring-4 ring-blue-300 rounded-full p-2' : 'opacity-60'}`}>
+                  🧑‍🏫
+                </div>
+                <div className="text-xs text-center text-gray-600 dark:text-gray-400">
+                  <div>วัยกลางคน</div>
+                  <div>36-55 ปี</div>
+                </div>
+              </div>
+
+              {/* Pre-retirement (56-65) */}
+              <div className="flex flex-col items-center min-w-0">
+                <div className={`text-4xl mb-2 transition-all duration-300 ${currentAge >= 56 && currentAge <= 65 ? 'scale-125 ring-4 ring-blue-300 rounded-full p-2' : 'opacity-60'}`}>
+                  🧑‍💻
+                </div>
+                <div className="text-xs text-center text-gray-600 dark:text-gray-400">
+                  <div>วัยก่อนเกษียณ</div>
+                  <div>56-65 ปี</div>
+                </div>
+              </div>
+
+              {/* Senior (66-80) */}
+              <div className="flex flex-col items-center min-w-0">
+                <div className={`text-4xl mb-2 transition-all duration-300 ${currentAge >= 66 && currentAge <= 80 ? 'scale-125 ring-4 ring-blue-300 rounded-full p-2' : 'opacity-60'}`}>
+                  🧓
+                </div>
+                <div className="text-xs text-center text-gray-600 dark:text-gray-400">
+                  <div>วัยเกษียณ</div>
+                  <div>66-80 ปี</div>
+                </div>
+              </div>
+
+              {/* Elderly (81+) */}
+              <div className="flex flex-col items-center min-w-0">
+                <div className={`text-4xl mb-2 transition-all duration-300 ${currentAge >= 81 ? 'scale-125 ring-4 ring-blue-300 rounded-full p-2' : 'opacity-60'}`}>
+                  👴
+                </div>
+                <div className="text-xs text-center text-gray-600 dark:text-gray-400">
+                  <div>สูงอายุ</div>
+                  <div>81+ ปี</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Current age indicator */}
+            {currentAge > 0 && (
+              <div className="mt-4 text-center">
+                <div className="inline-flex items-center px-4 py-2 bg-blue-100 dark:bg-blue-900/30 rounded-full">
+                  <User className="w-4 h-4 mr-2 text-blue-600 dark:text-blue-400" />
+                  <span className="text-sm font-medium text-blue-800 dark:text-blue-300">
+                    คุณอายุ {currentAge} ปี - 
+                    {currentAge <= 2 ? ' ช่วงทารก' :
+                     currentAge <= 12 ? ' ช่วงเด็ก' :
+                     currentAge <= 19 ? ' ช่วงวัยรุ่น' :
+                     currentAge <= 35 ? ' ช่วงวัยหนุ่มสาว' :
+                     currentAge <= 55 ? ' ช่วงวัยกลางคน' :
+                     currentAge <= 65 ? ' ช่วงวัยก่อนเกษียณ' :
+                     currentAge <= 80 ? ' ช่วงวัยเกษียณ' :
+                     ' ช่วงสูงอายุ'}
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Main Content */}
         <div className="space-y-6">
           {/* Timeline - Full Width */}
