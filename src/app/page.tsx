@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Calendar, Trophy, Target, MapPin, Heart, Home, Car, DollarSign, Plus, Users, Edit2, Trash2 } from 'lucide-react';
+import { Calendar, Trophy, Target, MapPin, Heart, Home, Car, DollarSign, Plus, Users, Edit2, Trash2, User } from 'lucide-react';
 
 const LifeTimelineApp = () => {
   const [birthDate, setBirthDate] = useState('');
@@ -190,27 +190,8 @@ const LifeTimelineApp = () => {
         </div>
 
         {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Panel - Achievements */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-            <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6 flex items-center">
-              <Trophy className="mr-2 text-yellow-500" />
-              ความสำเร็จที่ผ่านมา
-            </h2>
-            <div className="space-y-4">
-              {achievements.map((achievement) => (
-                <div key={achievement.id} className="flex items-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border-l-4 border-green-500">
-                  <span className="text-2xl mr-3">{achievement.icon}</span>
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-gray-800 dark:text-white">{achievement.title}</h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">ปี {achievement.year}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Middle Panel - Timeline */}
+        <div className="space-y-6">
+          {/* Timeline - Full Width */}
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
             <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6 flex items-center">
               <Calendar className="mr-2 text-blue-500" />
@@ -258,151 +239,147 @@ const LifeTimelineApp = () => {
                 </div>
               )}
 
-              <div className="space-y-3">
+              <div className="flex flex-wrap gap-2">
                 {friends.map((friend) => (
-                  <div key={friend.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                    <div className="flex items-center">
-                      <div 
-                        className="w-4 h-4 rounded-full mr-3"
-                        style={{ backgroundColor: friend.color }}
-                      ></div>
-                      <div>
-                        <span className="font-medium text-gray-900 dark:text-white">{friend.name}</span>
-                        <span className="text-sm text-gray-600 dark:text-gray-400 ml-2">
-                          อายุ {calculateAge(friend.birthDate)} ปี
-                        </span>
-                      </div>
-                    </div>
+                  <div 
+                    key={friend.id} 
+                    className="inline-flex items-center px-3 py-2 rounded-full text-sm font-medium text-white shadow-sm hover:shadow-md transition-all duration-200 group"
+                    style={{ backgroundColor: friend.color }}
+                  >
+                    <span className="mr-2">{friend.name}</span>
+                    <span className="text-xs opacity-75">
+                      {calculateAge(friend.birthDate)}ปี
+                    </span>
                     <button
                       onClick={() => removeFriend(friend.id)}
-                      className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                      className="ml-2 opacity-70 hover:opacity-100 transition-opacity"
+                      title="ลบเพื่อน"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-3 h-3" />
                     </button>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Parallel Timelines */}
-            <div id="age-timeline" className="relative max-h-96 overflow-y-auto pr-2">
+            {/* Horizontal Timeline */}
+            <div id="age-timeline" className="relative">
               {timelineYears.length === 0 ? (
                 <div className="text-center text-gray-500 dark:text-gray-400 py-8">
                   กรุณากรอกวันเกิดเพื่อแสดง Timeline
                 </div>
               ) : (
                 <>
-                  {/* Timeline Headers */}
-                  <div className="flex sticky top-0 bg-white dark:bg-gray-800 z-20 pb-2 mb-4 border-b border-gray-200 dark:border-gray-600">
-                    <div className="w-20 text-center">
-                      <div className="text-sm font-bold text-blue-600 dark:text-blue-400">คุณ</div>
-                      {currentAge > 0 && <div className="text-xs text-gray-600 dark:text-gray-400">{currentAge} ปี</div>}
-                    </div>
-                    {friends.map((friend) => (
-                      <div key={friend.id} className="w-20 text-center">
-                        <div className="text-sm font-bold" style={{ color: friend.color }}>
-                          {friend.name}
-                        </div>
-                        <div className="text-xs text-gray-600 dark:text-gray-400">
-                          {calculateAge(friend.birthDate)} ปี
-                        </div>
-                      </div>
-                    ))}
-                    <div className="flex-1 ml-4">
-                      <div className="text-sm font-bold text-gray-700 dark:text-gray-300">ปี พ.ศ.</div>
-                    </div>
-                  </div>
-
-                  {/* Timeline Content */}
-                  <div className="relative">
-                    {/* Background lines for each person */}
-                    <div className="absolute left-10 top-0 bottom-0 w-0.5 bg-gradient-to-b from-blue-400 via-blue-500 to-blue-600"></div>
-                    {friends.map((friend, index) => (
-                      <div
-                        key={friend.id}
-                        className="absolute top-0 bottom-0 w-0.5 opacity-60"
-                        style={{ 
-                          left: `${90 + (index * 80)}px`,
-                          background: `linear-gradient(to bottom, ${friend.color}88, ${friend.color})`
-                        }}
-                      ></div>
-                    ))}
-
-                    {timelineYears.map((year) => {
-                      const buddhistYear = toBuddhistYear(year);
-                      const isCurrentYearForUser = year === currentYear;
-                      
-                      return (
-                        <div key={year} id={`year-${year}`} className="flex items-center mb-4 relative">
-                          {/* Main user timeline */}
-                          <div className="w-20 flex justify-center">
-                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold z-10 text-xs transition-all duration-300 ${
-                              isPersonAliveInYear(birthDate, year) && year <= currentYear
-                                ? 'bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg transform hover:scale-110' 
-                                : isPersonAliveInYear(birthDate, year) && year === currentYear + 1
-                                  ? 'bg-gradient-to-br from-blue-300 to-blue-400 shadow-md' 
-                                  : 'bg-gray-300 opacity-50'
-                            } ${isCurrentYearForUser ? 'ring-2 ring-white shadow-xl' : ''}`}>
-                              {buddhistYear.toString().slice(-2)}
-                            </div>
-                          </div>
-
-                          {/* Friends timelines */}
-                          {friends.map((friend) => {
-                            const friendCurrentYear = getCurrentYear(friend.birthDate);
-                            const isAlive = isPersonAliveInYear(friend.birthDate, year);
-                            const isLived = isAlive && year <= friendCurrentYear;
-                            const isCurrent = year === friendCurrentYear;
+                  {/* Horizontal Timeline */}
+                  <div className="relative overflow-x-auto pb-4">
+                    <div className="flex" style={{ minWidth: `${timelineYears.length * 60}px` }}>
+                      {timelineYears.map((year, index) => {
+                        const buddhistYear = toBuddhistYear(year);
+                        const isCurrentYearForUser = year === currentYear;
+                        const userAge = birthDate ? year - new Date(birthDate).getFullYear() : 0;
+                        
+                        return (
+                          <div key={year} id={`year-${year}`} className="flex flex-col items-center relative" style={{ minWidth: '60px' }}>
+                            {/* Background line */}
+                            {index < timelineYears.length - 1 && (
+                              <div className="absolute top-8 left-8 w-11 h-0.5 bg-gray-300 dark:bg-gray-600"></div>
+                            )}
                             
-                            return (
-                              <div key={friend.id} className="w-20 flex justify-center">
-                                <div 
-                                  className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold z-10 text-xs transition-all duration-300 ${
-                                    isLived 
-                                      ? 'shadow-lg transform hover:scale-110' 
-                                      : 'opacity-50'
-                                  } ${isCurrent ? 'ring-2 ring-white shadow-xl' : ''}`}
-                                  style={{ 
-                                    background: isLived 
-                                      ? `linear-gradient(135deg, ${friend.color}, ${friend.color}dd)` 
-                                      : '#e5e7eb'
-                                  }}>
-                                  {buddhistYear.toString().slice(-2)}
-                                </div>
+                            {/* Main user dot */}
+                            <div className="mb-4">
+                              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-xs transition-all duration-300 ${
+                                isPersonAliveInYear(birthDate, year) && year <= currentYear
+                                  ? 'bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg transform hover:scale-110' 
+                                  : isPersonAliveInYear(birthDate, year) && year === currentYear + 1
+                                    ? 'bg-gradient-to-br from-blue-300 to-blue-400 shadow-md' 
+                                    : 'bg-gray-300 opacity-50'
+                              } ${isCurrentYearForUser ? 'ring-2 ring-white shadow-xl' : ''}`}>
+                                {isCurrentYearForUser ? (
+                                  <User className="w-4 h-4" />
+                                ) : (
+                                  userAge >= 0 && userAge <= 99 ? userAge : ''
+                                )}
                               </div>
-                            );
-                          })}
-
-                          {/* Year description */}
-                          <div className="flex-1 ml-4">
-                            <div className={`font-semibold text-sm text-gray-800 dark:text-gray-200 ${isCurrentYearForUser ? 'text-blue-600 dark:text-blue-400' : ''}`}>
-                              พ.ศ. {buddhistYear} {isCurrentYearForUser && '← ปัจจุบัน'}
-                              {friends.map((friend) => {
-                                const friendCurrentYear = getCurrentYear(friend.birthDate);
-                                return friendCurrentYear === year ? (
-                                  <span key={friend.id} style={{ color: friend.color }} className="ml-2">
-                                    ← {friend.name}
-                                  </span>
-                                ) : null;
-                              })}
                             </div>
-                            {year % 10 === 0 && (
-                              <div className="text-xs text-gray-600 dark:text-gray-400">
-                                ค.ศ. {year}
+
+                            {/* Friends dots */}
+                            {friends.map((friend) => {
+                              const friendCurrentYear = getCurrentYear(friend.birthDate);
+                              const isAlive = isPersonAliveInYear(friend.birthDate, year);
+                              const isLived = isAlive && year <= friendCurrentYear;
+                              const isCurrent = year === friendCurrentYear;
+                              const friendAge = friend.birthDate ? year - new Date(friend.birthDate).getFullYear() : 0;
+                              
+                              return (
+                                <div key={friend.id} className="mb-2">
+                                  <div 
+                                    className={`w-6 h-6 rounded-full flex items-center justify-center text-white font-bold text-xs transition-all duration-300 ${
+                                      isLived 
+                                        ? 'shadow-md transform hover:scale-110' 
+                                        : 'opacity-50'
+                                    } ${isCurrent ? 'ring-2 ring-white shadow-lg' : ''}`}
+                                    style={{ 
+                                      background: isLived 
+                                        ? `linear-gradient(135deg, ${friend.color}, ${friend.color}dd)` 
+                                        : '#e5e7eb'
+                                    }}>
+                                    {isCurrent ? (
+                                      <User className="w-3 h-3" />
+                                    ) : (
+                                      friendAge >= 0 && friendAge <= 99 ? friendAge : ''
+                                    )}
+                                  </div>
+                                </div>
+                              );
+                            })}
+
+                            {/* Year label at bottom */}
+                            {year % 5 === 0 && (
+                              <div className="text-xs text-gray-600 dark:text-gray-400 text-center mt-2">
+                                <div>พ.ศ. {buddhistYear}</div>
+                                <div>ค.ศ. {year}</div>
+                              </div>
+                            )}
+                            
+                            {/* Current year indicator */}
+                            {isCurrentYearForUser && (
+                              <div className="text-xs text-blue-600 dark:text-blue-400 font-bold mt-1">
+                                ปัจจุบัน
                               </div>
                             )}
                           </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
+                    </div>
                   </div>
                 </>
               )}
             </div>
           </div>
-
-          {/* Right Panel - Goals */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+          
+          {/* Bottom panels - Achievements and Goals side by side */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Left - Achievements */}
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+              <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6 flex items-center">
+                <Trophy className="mr-2 text-yellow-500" />
+                ความสำเร็จที่ผ่านมา
+              </h2>
+              <div className="space-y-4">
+                {achievements.map((achievement) => (
+                  <div key={achievement.id} className="flex items-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border-l-4 border-green-500">
+                    <span className="text-2xl mr-3">{achievement.icon}</span>
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-gray-800 dark:text-white">{achievement.title}</h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">ปี {achievement.year}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            {/* Right - Goals */}
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
             <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6 flex items-center">
               <Target className="mr-2 text-red-500" />
               เป้าหมายในอนาคต
@@ -437,6 +414,7 @@ const LifeTimelineApp = () => {
                 );
               })}
             </div>
+          </div>
           </div>
         </div>
       </div>
