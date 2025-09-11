@@ -7,7 +7,7 @@ const LifeTimelineApp = () => {
   const [birthDate, setBirthDate] = useState('');
   const [currentAge, setCurrentAge] = useState(0);
   const [lifePercentage, setLifePercentage] = useState(0);
-  const [maxAge, setMaxAge] = useState(100);
+  const [maxAge, setMaxAge] = useState(80);
   
   // State for achievements
   const [achievements, setAchievements] = useState([
@@ -40,6 +40,7 @@ const LifeTimelineApp = () => {
   const [selectedPersonData, setSelectedPersonData] = useState(null);
   const [selectedMonth, setSelectedMonth] = useState(null);
   const [showDailyView, setShowDailyView] = useState(false);
+  const [focusCurrentAge, setFocusCurrentAge] = useState(true);
 
   // Utility functions
   const calculateAge = (birthDateStr) => {
@@ -244,8 +245,424 @@ const LifeTimelineApp = () => {
   }, [birthDate, currentYear, timelineYears.length, maxAge, friends]);
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-6">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-6 relative overflow-hidden">
+      {/* Parallax Star Background */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        {/* Star Layer 1 - Slow moving */}
+        <div className="absolute inset-0" style={{ animation: 'parallaxStar1 120s linear infinite' }}>
+          {Array.from({ length: 40 }, (_, i) => (
+            <div
+              key={`star1-${i}`}
+              className="absolute text-white opacity-20 dark:opacity-40"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                fontSize: `${Math.random() * 2 + 1}px`,
+                animation: `starTwinkle ${Math.random() * 4 + 3}s ease-in-out infinite`,
+                animationDelay: `${Math.random() * 6}s`
+              }}
+            >
+              ✦
+            </div>
+          ))}
+        </div>
+        
+        {/* Star Layer 2 - Medium moving */}
+        <div className="absolute inset-0" style={{ animation: 'parallaxStar2 80s linear infinite' }}>
+          {Array.from({ length: 30 }, (_, i) => (
+            <div
+              key={`star2-${i}`}
+              className="absolute text-blue-200 opacity-30 dark:opacity-50"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                fontSize: `${Math.random() * 3 + 1.5}px`,
+                animation: `starTwinkle ${Math.random() * 3 + 2}s ease-in-out infinite`,
+                animationDelay: `${Math.random() * 4}s`
+              }}
+            >
+              ⋆
+            </div>
+          ))}
+        </div>
+        
+        {/* Star Layer 3 - Fast moving */}
+        <div className="absolute inset-0" style={{ animation: 'parallaxStar3 40s linear infinite' }}>
+          {Array.from({ length: 20 }, (_, i) => (
+            <div
+              key={`star3-${i}`}
+              className="absolute text-yellow-200 opacity-40 dark:opacity-60"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                fontSize: `${Math.random() * 2 + 2}px`,
+                animation: `starTwinkle ${Math.random() * 2 + 1}s ease-in-out infinite`,
+                animationDelay: `${Math.random() * 3}s`
+              }}
+            >
+              ✧
+            </div>
+          ))}
+        </div>
+        
+        {/* Distant nebula clouds */}
+        <div className="absolute inset-0" style={{ animation: 'parallaxNebula 200s linear infinite' }}>
+          {Array.from({ length: 5 }, (_, i) => (
+            <div
+              key={`nebula-${i}`}
+              className="absolute rounded-full opacity-5 dark:opacity-10"
+              style={{
+                width: `${Math.random() * 300 + 200}px`,
+                height: `${Math.random() * 150 + 100}px`,
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                background: `radial-gradient(ellipse, rgba(${Math.random() > 0.5 ? '147, 197, 253' : '196, 165, 255'}, 0.3) 0%, transparent 70%)`
+              }}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Milky Way Background Animation */}
+      <div className="absolute inset-0 pointer-events-none">
+        {/* Milky Way Galaxy */}
+        <div 
+          className="absolute inset-0 opacity-10 dark:opacity-20"
+          style={{
+            background: `
+              radial-gradient(ellipse 800px 200px at 30% 20%, 
+                rgba(147, 197, 253, 0.3) 0%, 
+                rgba(191, 219, 254, 0.2) 20%, 
+                transparent 70%),
+              radial-gradient(ellipse 600px 150px at 70% 80%, 
+                rgba(196, 165, 255, 0.2) 0%, 
+                rgba(221, 214, 254, 0.15) 30%, 
+                transparent 70%),
+              radial-gradient(ellipse 1000px 100px at 50% 50%, 
+                rgba(253, 230, 138, 0.1) 0%, 
+                rgba(254, 240, 138, 0.08) 40%, 
+                transparent 80%)
+            `,
+            animation: 'milkyWayFlow 60s ease-in-out infinite'
+          }}
+        />
+        
+        {/* Floating Stars */}
+        <div className="absolute inset-0">
+          {Array.from({ length: 30 }, (_, i) => (
+            <div
+              key={i}
+              className="absolute text-white opacity-60"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                fontSize: `${Math.random() * 3 + 1}px`,
+                animation: `starTwinkle ${Math.random() * 3 + 2}s ease-in-out infinite`,
+                animationDelay: `${Math.random() * 5}s`
+              }}
+            >
+              ✦
+            </div>
+          ))}
+        </div>
+
+        {/* Moving Dust Clouds */}
+        <div className="absolute inset-0">
+          {Array.from({ length: 8 }, (_, i) => (
+            <div
+              key={i}
+              className="absolute rounded-full opacity-5 dark:opacity-10"
+              style={{
+                width: `${Math.random() * 200 + 100}px`,
+                height: `${Math.random() * 100 + 50}px`,
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                background: 'radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%)',
+                animation: `cloudDrift ${Math.random() * 40 + 20}s linear infinite`,
+                animationDelay: `${Math.random() * 10}s`
+              }}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Add CSS for Milky Way animations */}
+      <style jsx>{`
+        @keyframes milkyWayFlow {
+          0%, 100% { 
+            transform: rotate(0deg) scale(1);
+            opacity: 0.1;
+          }
+          50% { 
+            transform: rotate(2deg) scale(1.05);
+            opacity: 0.15;
+          }
+        }
+        @media (prefers-color-scheme: dark) {
+          @keyframes milkyWayFlow {
+            0%, 100% { 
+              transform: rotate(0deg) scale(1);
+              opacity: 0.2;
+            }
+            50% { 
+              transform: rotate(2deg) scale(1.05);
+              opacity: 0.25;
+            }
+          }
+        }
+        @keyframes starTwinkle {
+          0%, 100% { 
+            opacity: 0.3;
+            transform: scale(0.8);
+          }
+          50% { 
+            opacity: 1;
+            transform: scale(1.2);
+          }
+        }
+        @keyframes cloudDrift {
+          0% { 
+            transform: translateX(-100px) translateY(0px) rotate(0deg);
+          }
+          25% { 
+            transform: translateX(calc(100vw + 100px)) translateY(-20px) rotate(90deg);
+          }
+          50% { 
+            transform: translateX(calc(100vw + 200px)) translateY(20px) rotate(180deg);
+          }
+          75% { 
+            transform: translateX(calc(100vw + 100px)) translateY(-10px) rotate(270deg);
+          }
+          100% { 
+            transform: translateX(-100px) translateY(0px) rotate(360deg);
+          }
+        }
+        @keyframes parallaxStar1 {
+          0% { 
+            transform: translateX(-100%) translateY(0%);
+          }
+          100% { 
+            transform: translateX(calc(100vw + 100%)) translateY(-20%);
+          }
+        }
+        @keyframes parallaxStar2 {
+          0% { 
+            transform: translateX(-100%) translateY(10%);
+          }
+          100% { 
+            transform: translateX(calc(100vw + 100%)) translateY(-10%);
+          }
+        }
+        @keyframes parallaxStar3 {
+          0% { 
+            transform: translateX(-100%) translateY(-5%);
+          }
+          100% { 
+            transform: translateX(calc(100vw + 100%)) translateY(15%);
+          }
+        }
+        @keyframes parallaxNebula {
+          0% { 
+            transform: translateX(-50%) translateY(0%) rotate(0deg);
+          }
+          100% { 
+            transform: translateX(calc(100vw + 50%)) translateY(-5%) rotate(360deg);
+          }
+        }
+        @keyframes rippleExpand {
+          0% { 
+            transform: translate(-50%, -50%) scale(0);
+            opacity: 0.8;
+          }
+          50% {
+            opacity: 0.4;
+          }
+          100% { 
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 0;
+          }
+        }
+        @keyframes ripplePulse {
+          0%, 100% { 
+            transform: translate(-50%, -50%) scale(0.8);
+            opacity: 0.3;
+          }
+          50% { 
+            transform: translate(-50%, -50%) scale(1.2);
+            opacity: 0.1;
+          }
+        }
+        @keyframes centralGlow {
+          0%, 100% { 
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 0.9;
+          }
+          50% { 
+            transform: translate(-50%, -50%) scale(1.1);
+            opacity: 1;
+          }
+        }
+        @keyframes particleFloat {
+          0%, 100% { 
+            opacity: 0.7;
+            transform: translate(-50%, -50%) rotate(var(--rotation, 0deg)) translateY(-20px) scale(1);
+          }
+          50% { 
+            opacity: 1;
+            transform: translate(-50%, -50%) rotate(var(--rotation, 0deg)) translateY(-30px) scale(1.2);
+          }
+        }
+        @keyframes moonRayExpand {
+          0% { 
+            transform: translate(-50%, -50%) scale(0.3);
+            opacity: 0.4;
+          }
+          50% {
+            opacity: 0.2;
+          }
+          100% { 
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 0;
+          }
+        }
+        @keyframes moonRayPulse {
+          0%, 100% { 
+            transform: translate(-50%, -50%) scale(0.9);
+            opacity: 0.25;
+          }
+          50% { 
+            transform: translate(-50%, -50%) scale(1.1);
+            opacity: 0.15;
+          }
+        }
+        @keyframes moonHaloGlow {
+          0%, 100% { 
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 0.4;
+          }
+          50% { 
+            transform: translate(-50%, -50%) scale(1.05);
+            opacity: 0.6;
+          }
+        }
+        @keyframes moonbeamFloat {
+          0%, 100% { 
+            opacity: 0.6;
+            transform: translate(-50%, -50%) rotate(var(--rotation, 0deg)) translateY(-25px) scale(1);
+          }
+          50% { 
+            opacity: 0.9;
+            transform: translate(-50%, -50%) rotate(var(--rotation, 0deg)) translateY(-35px) scale(1.3);
+          }
+        }
+      `}</style>
+
+      {/* Enhanced Moon with Large Circular Rays - Top Right */}
+      <div className="absolute top-4 right-4 pointer-events-none">
+        <div className="relative w-40 h-40">
+          
+          {/* Large circular rays - outermost */}
+          {Array.from({ length: 5 }, (_, i) => (
+            <div
+              key={`ray-large-${i}`}
+              className="absolute rounded-full border opacity-20"
+              style={{
+                width: `${(i + 3) * 50}px`,
+                height: `${(i + 3) * 50}px`,
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                borderColor: 'rgba(191, 219, 254, 0.4)',
+                borderWidth: '1px',
+                animation: `moonRayExpand ${5 + i * 1}s ease-out infinite`,
+                animationDelay: `${i * 0.8}s`
+              }}
+            />
+          ))}
+          
+          {/* Medium circular rays with gradient */}
+          {Array.from({ length: 4 }, (_, i) => (
+            <div
+              key={`ray-medium-${i}`}
+              className="absolute rounded-full opacity-25"
+              style={{
+                width: `${(i + 2) * 40}px`,
+                height: `${(i + 2) * 40}px`,
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                background: `radial-gradient(circle, rgba(219, 234, 254, ${0.15 - i * 0.02}) 0%, rgba(147, 197, 253, ${0.1 - i * 0.02}) 40%, transparent 80%)`,
+                animation: `moonRayPulse ${4 + i * 0.7}s ease-in-out infinite`,
+                animationDelay: `${i * 0.5}s`
+              }}
+            />
+          ))}
+          
+          {/* Inner moonlight halos */}
+          <div 
+            className="absolute rounded-full opacity-40"
+            style={{
+              width: '80px',
+              height: '80px',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              background: 'radial-gradient(circle, rgba(191, 219, 254, 0.3) 0%, rgba(219, 234, 254, 0.2) 30%, rgba(147, 197, 253, 0.1) 60%, transparent 100%)',
+              animation: 'moonHaloGlow 6s ease-in-out infinite'
+            }}
+          />
+          
+          {/* Moon body - enhanced size */}
+          <div 
+            className="absolute w-12 h-12 bg-gradient-to-bl from-blue-100 to-blue-200 rounded-full shadow-lg"
+            style={{
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              boxShadow: '0 0 20px rgba(191, 219, 254, 0.5), inset -2px -2px 4px rgba(100, 116, 139, 0.3)'
+            }}
+          >
+            {/* Moon crescent shadow */}
+            <div className="absolute top-1 right-1 w-8 h-8 bg-gray-300/40 rounded-full"></div>
+            <div className="w-full h-full bg-gradient-to-tr from-blue-50 via-transparent to-transparent rounded-full opacity-80"></div>
+          </div>
+          
+          {/* Floating moonbeam particles */}
+          {Array.from({ length: 12 }, (_, i) => (
+            <div
+              key={`moonbeam-${i}`}
+              className="absolute w-1 h-1 rounded-full opacity-60"
+              style={{
+                background: i % 3 === 0 ? '#bfdbfe' : i % 3 === 1 ? '#dbeafe' : '#93c5fd',
+                top: '50%',
+                left: '50%',
+                transform: `translate(-50%, -50%) rotate(${i * 30}deg) translateY(-${25 + i * 3}px)`,
+                animation: `moonbeamFloat ${3 + i * 0.2}s ease-in-out infinite`,
+                animationDelay: `${i * 0.3}s`
+              }}
+            />
+          ))}
+          
+          {/* Distant twinkling stars */}
+          {Array.from({ length: 8 }, (_, i) => (
+            <div 
+              key={`twinkle-${i}`}
+              className="absolute text-blue-200 opacity-70"
+              style={{
+                fontSize: `${Math.random() * 8 + 6}px`,
+                top: `${Math.random() * 80 + 10}%`,
+                left: `${Math.random() * 80 + 10}%`,
+                animation: `starTwinkle ${2 + Math.random() * 3}s ease-in-out infinite`,
+                animationDelay: `${Math.random() * 4}s`
+              }}
+            >
+              {i % 4 === 0 ? '✦' : i % 4 === 1 ? '✧' : i % 4 === 2 ? '⋆' : '✩'}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto relative z-10">
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-800 dark:text-white mb-4">Life Timeline</h1>
@@ -422,100 +839,182 @@ const LifeTimelineApp = () => {
                 <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
                   เวลาผ่านไป <span className="font-semibold text-blue-600 dark:text-blue-400">{currentAge} ปี</span> แล้ว<br/>
                   <span className="text-xs opacity-75">
-                    ⏳ แต่ละวินาทีคือประสบการณ์ใหม่ในชีวิต
+                    ⏳ วันเวลาล่วงไป เราทำอะไรกันอยู่
                   </span>
                 </p>
               </div>
             </div>
 
             <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-6 text-center">ช่วงชีวิตของมนุษย์</h2>
-            <div className="flex justify-center items-end space-x-6 overflow-x-auto">
-              {/* Baby (0-2) */}
-              <div className="flex flex-col items-center min-w-0">
-                <div className={`text-4xl mb-2 transition-all duration-300 ${currentAge >= 0 && currentAge <= 2 ? 'scale-125 ring-4 ring-blue-300 rounded-full p-2' : 'opacity-60'}`}>
-                  👶
-                </div>
-                <div className="text-xs text-center text-gray-600 dark:text-gray-400">
-                  <div>ทารก</div>
-                  <div>0-2 ปี</div>
-                </div>
-              </div>
-
-              {/* Child (3-12) */}
-              <div className="flex flex-col items-center min-w-0">
-                <div className={`text-4xl mb-2 transition-all duration-300 ${currentAge >= 3 && currentAge <= 12 ? 'scale-125 ring-4 ring-blue-300 rounded-full p-2' : 'opacity-60'}`}>
-                  🧒
-                </div>
-                <div className="text-xs text-center text-gray-600 dark:text-gray-400">
-                  <div>เด็ก</div>
-                  <div>3-12 ปี</div>
-                </div>
-              </div>
-
-              {/* Teenager (13-19) */}
-              <div className="flex flex-col items-center min-w-0">
-                <div className={`text-4xl mb-2 transition-all duration-300 ${currentAge >= 13 && currentAge <= 19 ? 'scale-125 ring-4 ring-blue-300 rounded-full p-2' : 'opacity-60'}`}>
-                  🧑‍🎓
-                </div>
-                <div className="text-xs text-center text-gray-600 dark:text-gray-400">
-                  <div>วัยรุ่น</div>
-                  <div>13-19 ปี</div>
-                </div>
-              </div>
-
-              {/* Young Adult (20-35) */}
-              <div className="flex flex-col items-center min-w-0">
-                <div className={`text-4xl mb-2 transition-all duration-300 ${currentAge >= 20 && currentAge <= 35 ? 'scale-125 ring-4 ring-blue-300 rounded-full p-2' : 'opacity-60'}`}>
-                  🧑‍💼
-                </div>
-                <div className="text-xs text-center text-gray-600 dark:text-gray-400">
-                  <div>วัยหนุ่มสาว</div>
-                  <div>20-35 ปี</div>
-                </div>
-              </div>
-
-              {/* Middle Age (36-55) */}
-              <div className="flex flex-col items-center min-w-0">
-                <div className={`text-4xl mb-2 transition-all duration-300 ${currentAge >= 36 && currentAge <= 55 ? 'scale-125 ring-4 ring-blue-300 rounded-full p-2' : 'opacity-60'}`}>
-                  🧑‍🏫
-                </div>
-                <div className="text-xs text-center text-gray-600 dark:text-gray-400">
-                  <div>วัยกลางคน</div>
-                  <div>36-55 ปี</div>
-                </div>
-              </div>
-
-              {/* Pre-retirement (56-65) */}
-              <div className="flex flex-col items-center min-w-0">
-                <div className={`text-4xl mb-2 transition-all duration-300 ${currentAge >= 56 && currentAge <= 65 ? 'scale-125 ring-4 ring-blue-300 rounded-full p-2' : 'opacity-60'}`}>
-                  🧑‍💻
-                </div>
-                <div className="text-xs text-center text-gray-600 dark:text-gray-400">
-                  <div>วัยก่อนเกษียณ</div>
-                  <div>56-65 ปี</div>
-                </div>
-              </div>
-
-              {/* Senior (66-80) */}
-              <div className="flex flex-col items-center min-w-0">
-                <div className={`text-4xl mb-2 transition-all duration-300 ${currentAge >= 66 && currentAge <= 80 ? 'scale-125 ring-4 ring-blue-300 rounded-full p-2' : 'opacity-60'}`}>
-                  🧓
-                </div>
-                <div className="text-xs text-center text-gray-600 dark:text-gray-400">
-                  <div>วัยเกษียณ</div>
-                  <div>66-80 ปี</div>
-                </div>
-              </div>
-
-              {/* Elderly (81+) */}
-              <div className="flex flex-col items-center min-w-0">
-                <div className={`text-4xl mb-2 transition-all duration-300 ${currentAge >= 81 ? 'scale-125 ring-4 ring-blue-300 rounded-full p-2' : 'opacity-60'}`}>
-                  👴
-                </div>
-                <div className="text-xs text-center text-gray-600 dark:text-gray-400">
-                  <div>สูงอายุ</div>
-                  <div>81+ ปี</div>
-                </div>
+            
+            {/* Mac-like Dock for Life Stages */}
+            <div className="flex justify-center items-end px-4 sm:px-8 py-8">
+              <div 
+                className="dock-container flex items-end justify-center gap-3 sm:gap-6 lg:gap-8 bg-white/20 dark:bg-gray-800/30 backdrop-blur-sm rounded-3xl px-4 sm:px-6 lg:px-8 py-6 border border-white/30 dark:border-gray-600/30 shadow-lg overflow-visible"
+                onMouseLeave={() => {
+                  // Reset all dock items when mouse leaves the dock, but keep current stage focused if focusCurrentAge is true
+                  document.querySelectorAll('.dock-item').forEach(item => {
+                    const isCurrentItem = item.querySelector('.current-stage-marker');
+                    if (isCurrentItem && focusCurrentAge) {
+                      item.style.transform = 'scale(1.4) translateY(-8px)';
+                    } else {
+                      item.style.transform = '';
+                    }
+                  });
+                }}
+              >
+                {[
+                  { emoji: '👶', label: 'ทารก', ageRange: '0-2 ปี', minAge: 0, maxAge: 2, 
+                    bgClass: 'bg-gradient-to-br from-pink-100 to-pink-200 dark:from-pink-200/30 dark:to-pink-300/30', 
+                    borderClass: 'border-pink-300 dark:border-pink-400/50', 
+                    ringClass: 'ring-pink-400 dark:ring-pink-400/70',
+                    glowClass: 'bg-pink-400/30' },
+                  { emoji: '🧒', label: 'เด็ก', ageRange: '3-12 ปี', minAge: 3, maxAge: 12, 
+                    bgClass: 'bg-gradient-to-br from-yellow-100 to-yellow-200 dark:from-yellow-200/30 dark:to-yellow-300/30', 
+                    borderClass: 'border-yellow-300 dark:border-yellow-400/50', 
+                    ringClass: 'ring-yellow-400 dark:ring-yellow-400/70',
+                    glowClass: 'bg-yellow-400/30' },
+                  { emoji: '🧑‍🎓', label: 'วัยรุ่น', ageRange: '13-19 ปี', minAge: 13, maxAge: 19, 
+                    bgClass: 'bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-200/30 dark:to-purple-300/30', 
+                    borderClass: 'border-purple-300 dark:border-purple-400/50', 
+                    ringClass: 'ring-purple-400 dark:ring-purple-400/70',
+                    glowClass: 'bg-purple-400/30' },
+                  { emoji: '🧑‍💼', label: 'วัยหนุ่มสาว', ageRange: '20-35 ปี', minAge: 20, maxAge: 35, 
+                    bgClass: 'bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-200/30 dark:to-blue-300/30', 
+                    borderClass: 'border-blue-300 dark:border-blue-400/50', 
+                    ringClass: 'ring-blue-400 dark:ring-blue-400/70',
+                    glowClass: 'bg-blue-400/30' },
+                  { emoji: '🧑‍🏫', label: 'วัยกลางคน', ageRange: '36-55 ปี', minAge: 36, maxAge: 55, 
+                    bgClass: 'bg-gradient-to-br from-green-100 to-green-200 dark:from-green-200/30 dark:to-green-300/30', 
+                    borderClass: 'border-green-300 dark:border-green-400/50', 
+                    ringClass: 'ring-green-400 dark:ring-green-400/70',
+                    glowClass: 'bg-green-400/30' },
+                  { emoji: '🧑‍💻', label: 'วัยก่อนเกษียณ', ageRange: '56-65 ปี', minAge: 56, maxAge: 65, 
+                    bgClass: 'bg-gradient-to-br from-indigo-100 to-indigo-200 dark:from-indigo-200/30 dark:to-indigo-300/30', 
+                    borderClass: 'border-indigo-300 dark:border-indigo-400/50', 
+                    ringClass: 'ring-indigo-400 dark:ring-indigo-400/70',
+                    glowClass: 'bg-indigo-400/30' },
+                  { emoji: '🧓', label: 'วัยเกษียณ', ageRange: '66-80 ปี', minAge: 66, maxAge: 80, 
+                    bgClass: 'bg-gradient-to-br from-orange-100 to-orange-200 dark:from-orange-200/30 dark:to-orange-300/30', 
+                    borderClass: 'border-orange-300 dark:border-orange-400/50', 
+                    ringClass: 'ring-orange-400 dark:ring-orange-400/70',
+                    glowClass: 'bg-orange-400/30' },
+                  { emoji: '👴', label: 'สูงอายุ', ageRange: '81+ ปี', minAge: 81, maxAge: 999, 
+                    bgClass: 'bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-200/30 dark:to-gray-300/30', 
+                    borderClass: 'border-gray-300 dark:border-gray-400/50', 
+                    ringClass: 'ring-gray-400 dark:ring-gray-400/70',
+                    glowClass: 'bg-gray-400/30' }
+                ].map((stage, index) => {
+                  const isCurrentStage = currentAge >= stage.minAge && currentAge <= stage.maxAge;
+                  return (
+                    <div 
+                      key={index}
+                      className="relative group cursor-pointer dock-item"
+                      style={{ 
+                        transformOrigin: 'bottom center',
+                        transform: (isCurrentStage && focusCurrentAge) ? 'scale(1.4) translateY(-8px)' : '',
+                        minWidth: '56px',
+                        minHeight: '56px',
+                        display: 'flex',
+                        alignItems: 'end',
+                        justifyContent: 'center',
+                        padding: '4px'
+                      }}
+                      onClick={() => {
+                        // Toggle focus on current age
+                        if (isCurrentStage) {
+                          // If clicking current stage, toggle focus
+                          setFocusCurrentAge(!focusCurrentAge);
+                        } else {
+                          // If clicking other stage, disable focus on current age
+                          setFocusCurrentAge(false);
+                        }
+                        
+                        // Reset all manual transforms immediately
+                        document.querySelectorAll('.dock-item').forEach(item => {
+                          item.style.transform = '';
+                        });
+                      }}
+                      onMouseEnter={(e) => {
+                        // Mac dock magnification effect - but current stage always stays largest
+                        const allItems = document.querySelectorAll('.dock-item');
+                        const currentIndex = Array.from(allItems).indexOf(e.currentTarget);
+                        
+                        allItems.forEach((item, i) => {
+                          const distance = Math.abs(i - currentIndex);
+                          const isCurrentItem = item.querySelector('.current-stage-marker');
+                          let scale = 1;
+                          let translateY = 0;
+                          
+                          if (isCurrentItem && focusCurrentAge) {
+                            // Current stage stays largest only if focusCurrentAge is true
+                            scale = Math.max(1.8, 1.4);
+                            translateY = -20;
+                          } else if (distance === 0) {
+                            scale = 1.6;
+                            translateY = -16;
+                          } else if (distance === 1) {
+                            scale = 1.3;
+                            translateY = -8;
+                          } else if (distance === 2) {
+                            scale = 1.15;
+                            translateY = -4;
+                          }
+                          
+                          item.style.transform = `scale(${scale}) translateY(${translateY}px)`;
+                          item.style.transition = 'transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+                        });
+                      }}
+                    >
+                      {/* Hidden marker for current stage identification */}
+                      {isCurrentStage && <div className="current-stage-marker hidden"></div>}
+                      
+                      {/* Icon with Mac dock effect and colors */}
+                      <div className={`
+                        relative transition-all duration-200 ease-out
+                        text-4xl flex items-center justify-center
+                        w-12 h-12 rounded-xl
+                        ${stage.bgClass}
+                        ${isCurrentStage 
+                          ? `shadow-xl ring-4 ${stage.ringClass} border-2 ${stage.borderClass}` 
+                          : `opacity-70 hover:opacity-100 border ${stage.borderClass} hover:shadow-lg hover:ring-2 hover:${stage.ringClass}`
+                        }
+                      `}>
+                        <span className="relative z-10 filter drop-shadow-sm">
+                          {stage.emoji}
+                        </span>
+                        
+                        {/* Glow effect for current stage */}
+                        {isCurrentStage && (
+                          <div className={`absolute inset-0 rounded-xl blur-md animate-pulse ${stage.glowClass}`}></div>
+                        )}
+                        
+                        {/* Reflection effect like Mac dock */}
+                        <div className={`
+                          absolute bottom-0 left-0 right-0 h-1/2 
+                          rounded-b-xl opacity-20 
+                          bg-gradient-to-t from-white/50 to-transparent
+                          group-hover:opacity-40 transition-opacity duration-200
+                        `}></div>
+                      </div>
+                      
+                      {/* Tooltip that appears on hover */}
+                      <div className={`
+                        absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2
+                        bg-black/80 text-white text-xs rounded-lg px-2 py-1 whitespace-nowrap
+                        opacity-0 group-hover:opacity-100 transition-opacity duration-200
+                        pointer-events-none z-20
+                      `}>
+                        <div className="text-center">
+                          <div className="font-medium">{stage.label}</div>
+                          <div className="text-xs opacity-80">{stage.ageRange}</div>
+                        </div>
+                        {/* Tooltip arrow */}
+                        <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-t-4 border-t-black/80 border-l-2 border-r-2 border-l-transparent border-r-transparent"></div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
