@@ -62,6 +62,10 @@ const LifeTimelineApp = () => {
   const [selectedMonth, setSelectedMonth] = useState(null);
   const [showDailyView, setShowDailyView] = useState(false);
   const [focusCurrentAge, setFocusCurrentAge] = useState(true);
+  
+  // Emotion modal state
+  const [showEmotionModal, setShowEmotionModal] = useState(false);
+  const [selectedEmotion, setSelectedEmotion] = useState(null);
 
   // States for activity features
   const [showAddActivityModal, setShowAddActivityModal] = useState(false);
@@ -243,6 +247,11 @@ const LifeTimelineApp = () => {
         console.error('Error loading friends:', error);
       }
     } else {
+      // Check if emotion modal should be shown
+      if (shouldShowEmotionModal()) {
+        setTimeout(() => setShowEmotionModal(true), 1000); // Delay 1 second for better UX
+      }
+      
       // Create sample friend messages
       const sampleMessages: FriendMessage[] = [
         {
@@ -311,6 +320,49 @@ const LifeTimelineApp = () => {
       document.body.style.overflow = 'unset';
     };
   }, [showCalendarModal]);
+
+  // Emotion data
+  const emotions = [
+    { id: 1, name: 'มีความสุข', icon: '😊', color: '#FFD93D' },
+    { id: 2, name: 'หัวเราะ', icon: '😂', color: '#FF6B35' },
+    { id: 3, name: 'เศร้า', icon: '😢', color: '#6C63FF' },
+    { id: 4, name: 'เสียใจ', icon: '😞', color: '#8B8B8B' },
+    { id: 5, name: 'หงุดหงิด', icon: '😤', color: '#FF4757' },
+    { id: 6, name: 'ผิดหวัง', icon: '😔', color: '#A8A8A8' },
+    { id: 7, name: 'ตื่นเต้น', icon: '🤩', color: '#FF9F40' },
+    { id: 8, name: 'กังวล', icon: '😰', color: '#70A1FF' },
+    { id: 9, name: 'โกรธ', icon: '😠', color: '#FF3838' },
+    { id: 10, name: 'เหนื่อย', icon: '😴', color: '#95A5A6' }
+  ];
+
+  // Handle emotion selection
+  const handleEmotionSelect = (emotion) => {
+    setSelectedEmotion(emotion);
+    // Save to localStorage with today's date
+    const today = new Date().toDateString();
+    const emotionData = {
+      date: today,
+      emotion: emotion,
+      timestamp: new Date().getTime()
+    };
+    localStorage.setItem('todayEmotion', JSON.stringify(emotionData));
+    setShowEmotionModal(false);
+  };
+
+  // Check if user should see emotion modal (first visit of the day)
+  const shouldShowEmotionModal = () => {
+    const today = new Date().toDateString();
+    const savedEmotion = localStorage.getItem('todayEmotion');
+    
+    if (!savedEmotion) return true;
+    
+    try {
+      const emotionData = JSON.parse(savedEmotion);
+      return emotionData.date !== today;
+    } catch (error) {
+      return true;
+    }
+  };
 
   // Friend management
   const saveFriendsToStorage = (friendsToSave) => {
@@ -531,6 +583,45 @@ const LifeTimelineApp = () => {
       };
     }
   }, [draggedActivity, draggedMessage, dragOffset]);
+
+  // Get activities for specific month and year
+  const getActivitiesForMonth = (year: number, monthIndex: number) => {
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth();
+    
+    return activities.filter(activity => {
+      switch (activity.displayType) {
+        case 'yearly':
+          // แสดงทุกเดือนในปีนั้น
+          return year === currentYear || year >= currentYear;
+        
+        case 'monthly':
+          // แสดงเฉพาะเดือนปัจจุบันในปีปัจจุบัน หรือทุกเดือนในปีอื่น
+          if (year === currentYear) {
+            return monthIndex >= currentMonth;
+          }
+          return year > currentYear;
+        
+        case 'weekly':
+          // แสดงทุกสัปดาห์ในเดือนปัจจุบันและหลังจากนั้น
+          if (year === currentYear) {
+            return monthIndex >= currentMonth;
+          }
+          return year > currentYear;
+        
+        case 'daily':
+          // แสดงทุกวันในเดือนปัจจุบันและหลังจากนั้น
+          if (year === currentYear) {
+            return monthIndex >= currentMonth;
+          }
+          return year > currentYear;
+        
+        default:
+          return false;
+      }
+    });
+  };
 
   // Handle timeline dot click
   const handleTimelineDotClick = (year, personData, personType) => {
@@ -950,8 +1041,21 @@ const LifeTimelineApp = () => {
             transform: translateX(0) scale(1);
           }
         }
+        @keyframes scaleUp {
+          0% {
+            opacity: 0;
+            transform: scale(0.8) translateY(20px);
+          }
+          100% {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+          }
+        }
         .animate-fade-in {
           animation: fadeIn 0.3s ease-out forwards;
+        }
+        .animate-scale-up {
+          animation: scaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
         }
       `}</style>
 
@@ -1563,12 +1667,13 @@ const LifeTimelineApp = () => {
                       const currentMonth = new Date().getMonth();
                       const currentYearCheck = new Date().getFullYear();
                       const isCurrentMonth = selectedYear === currentYearCheck && monthIndex === currentMonth;
+                      const monthActivities = getActivitiesForMonth(selectedYear, monthIndex);
 
                       return (
                         <div
                           key={monthIndex}
                           onClick={() => handleMonthClick(monthIndex)}
-                          className={`p-3 rounded-lg text-center transition-all duration-200 cursor-pointer ${
+                          className={`relative p-3 rounded-lg text-center transition-all duration-200 cursor-pointer ${
                             isCurrentMonth 
                               ? 'bg-blue-100 dark:bg-blue-900/30 border-2 border-blue-500 hover:bg-blue-200 dark:hover:bg-blue-900/50' 
                               : 'bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600'
@@ -1583,6 +1688,25 @@ const LifeTimelineApp = () => {
                           {isCurrentMonth && (
                             <div className="text-xs text-blue-600 dark:text-blue-400 mt-1">
                               ปัจจุบัน
+                            </div>
+                          )}
+                          
+                          {/* Activity dots */}
+                          {monthActivities.length > 0 && (
+                            <div className="absolute -top-1 -right-1 flex flex-wrap gap-1 max-w-8">
+                              {monthActivities.slice(0, 3).map((activity, index) => (
+                                <div
+                                  key={activity.id}
+                                  className="w-2 h-2 rounded-full shadow-sm border border-white"
+                                  style={{ backgroundColor: activity.backgroundColor }}
+                                  title={`${activity.name} (${activity.displayType})`}
+                                ></div>
+                              ))}
+                              {monthActivities.length > 3 && (
+                                <div className="w-2 h-2 rounded-full bg-gray-400 text-xs flex items-center justify-center text-white font-bold shadow-sm border border-white">
+                                  +
+                                </div>
+                              )}
                             </div>
                           )}
                         </div>
@@ -2109,6 +2233,56 @@ const LifeTimelineApp = () => {
           </div>
           </div>
         </div>
+
+        {/* Emotion Modal */}
+        {showEmotionModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full animate-scale-up">
+              {/* Modal Header */}
+              <div className="p-6 border-b border-gray-200 dark:border-gray-600 text-center">
+                <div className="text-4xl mb-3">💭</div>
+                <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">วันนี้คุณรู้สึกอย่างไร?</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">เลือกอารมณ์ที่ตรงกับความรู้สึกของคุณในวันนี้</p>
+              </div>
+
+              {/* Emotion Grid */}
+              <div className="p-6">
+                <div className="grid grid-cols-3 gap-4">
+                  {emotions.map((emotion) => (
+                    <button
+                      key={emotion.id}
+                      onClick={() => handleEmotionSelect(emotion)}
+                      className="group relative p-4 rounded-xl transition-all duration-300 hover:scale-105 active:scale-95 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 border-2 border-transparent hover:border-gray-300 dark:hover:border-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      style={{ 
+                        '--hover-color': emotion.color,
+                      } as React.CSSProperties}
+                    >
+                      <div className="text-center">
+                        <div className="text-4xl mb-2 group-hover:animate-bounce">{emotion.icon}</div>
+                        <div className="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:font-semibold transition-all duration-200">
+                          {emotion.name}
+                        </div>
+                      </div>
+                      
+                      {/* Hover effect */}
+                      <div 
+                        className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-10 transition-opacity duration-300"
+                        style={{ backgroundColor: emotion.color }}
+                      ></div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Modal Footer */}
+              <div className="p-4 border-t border-gray-200 dark:border-gray-600 text-center">
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  การแชร์อารมณ์จะช่วยให้คุณติดตามสุขภาพจิตของคุณได้ดีขึ้น
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Floating Action Button */}
         <div className="fixed bottom-6 right-6 z-50">
