@@ -82,6 +82,23 @@ const LifeTimelineApp = () => {
   // Friend messages state
   const [friendMessages, setFriendMessages] = useState<FriendMessage[]>([]);
 
+  // Modal states for achievements and goals
+  const [showAddAchievementModal, setShowAddAchievementModal] = useState(false);
+  const [showAddGoalModal, setShowAddGoalModal] = useState(false);
+  const [newAchievement, setNewAchievement] = useState({
+    title: '',
+    year: new Date().getFullYear(),
+    category: 'education',
+    icon: '🎓'
+  });
+  const [newGoal, setNewGoal] = useState({
+    title: '',
+    target: 0,
+    current: 0,
+    category: 'asset',
+    icon: '💰'
+  });
+
   // Utility functions
   const calculateAge = (birthDateStr) => {
     if (!birthDateStr) return 0;
@@ -185,6 +202,26 @@ const LifeTimelineApp = () => {
     }
     if (savedMaxAge) {
       setMaxAge(parseInt(savedMaxAge) || 80);
+    }
+
+    // Load achievements from localStorage
+    const savedAchievements = localStorage.getItem('userAchievements');
+    if (savedAchievements) {
+      try {
+        setAchievements(JSON.parse(savedAchievements));
+      } catch (error) {
+        console.error('Error loading achievements:', error);
+      }
+    }
+
+    // Load goals from localStorage
+    const savedGoals = localStorage.getItem('userGoals');
+    if (savedGoals) {
+      try {
+        setGoals(JSON.parse(savedGoals));
+      } catch (error) {
+        console.error('Error loading goals:', error);
+      }
     }
 
     // Load friend messages from localStorage
@@ -299,6 +336,58 @@ const LifeTimelineApp = () => {
     } catch (error) {
       console.error('Error saving user data:', error);
     }
+  };
+
+
+  const addAchievement = () => {
+    if (newAchievement.title.trim()) {
+      const achievement = {
+        ...newAchievement,
+        id: Date.now()
+      };
+      const updatedAchievements = [...achievements, achievement];
+      setAchievements(updatedAchievements);
+      localStorage.setItem('userAchievements', JSON.stringify(updatedAchievements));
+      setNewAchievement({
+        title: '',
+        year: new Date().getFullYear(),
+        category: 'education',
+        icon: '🎓'
+      });
+      setShowAddAchievementModal(false);
+    }
+  };
+
+  const addGoal = () => {
+    if (newGoal.title.trim()) {
+      const goal = {
+        ...newGoal,
+        id: Date.now()
+      };
+      const updatedGoals = [...goals, goal];
+      setGoals(updatedGoals);
+      localStorage.setItem('userGoals', JSON.stringify(updatedGoals));
+      setNewGoal({
+        title: '',
+        target: 0,
+        current: 0,
+        category: 'asset',
+        icon: '💰'
+      });
+      setShowAddGoalModal(false);
+    }
+  };
+
+  const removeAchievement = (id: number) => {
+    const updatedAchievements = achievements.filter(achievement => achievement.id !== id);
+    setAchievements(updatedAchievements);
+    localStorage.setItem('userAchievements', JSON.stringify(updatedAchievements));
+  };
+
+  const removeGoal = (id: number) => {
+    const updatedGoals = goals.filter(goal => goal.id !== id);
+    setGoals(updatedGoals);
+    localStorage.setItem('userGoals', JSON.stringify(updatedGoals));
   };
 
   // Friend messages management functions
@@ -1770,11 +1859,22 @@ const LifeTimelineApp = () => {
           {/* Bottom panels - Achievements and Goals side by side */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Left - Achievements */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-              <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6 flex items-center">
-                <Trophy className="mr-2 text-yellow-500" />
-                ความสำเร็จที่ผ่านมา
-              </h2>
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 relative">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-gray-800 dark:text-white flex items-center">
+                  <Trophy className="mr-2 text-yellow-500" />
+                  ความสำเร็จที่ผ่านมา
+                </h2>
+                
+                {/* Add button for achievements */}
+                <button
+                  onClick={() => setShowAddAchievementModal(true)}
+                  className="p-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors shadow-sm hover:shadow-md transform hover:scale-105 active:scale-95 group"
+                  title="เพิ่มความสำเร็จ"
+                >
+                  <Plus className="w-4 h-4" />
+                </button>
+              </div>
               <div className="space-y-4">
                 {achievements.map((achievement) => (
                   <div key={achievement.id} className="flex items-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border-l-4 border-green-500">
@@ -1783,17 +1883,40 @@ const LifeTimelineApp = () => {
                       <h3 className="font-semibold text-gray-800 dark:text-white">{achievement.title}</h3>
                       <p className="text-sm text-gray-600 dark:text-gray-400">ปี {achievement.year}</p>
                     </div>
+                    <button
+                      onClick={() => removeAchievement(achievement.id)}
+                      className="ml-2 p-2 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                      title="ลบความสำเร็จ"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
                   </div>
                 ))}
               </div>
             </div>
             
             {/* Right - Goals */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-            <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6 flex items-center">
-              <Target className="mr-2 text-red-500" />
-              เป้าหมายในอนาคต
-            </h2>
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 relative">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-gray-800 dark:text-white flex items-center">
+                  <Target className="mr-2 text-red-500" />
+                  เป้าหมายในอนาคต
+                </h2>
+                
+                <div className="flex items-center space-x-2">
+                  {/* Add button for goals */}
+                  <button
+                    onClick={() => setShowAddGoalModal(true)}
+                    className="p-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors shadow-sm hover:shadow-md transform hover:scale-105 active:scale-95 group"
+                    title="เพิ่มเป้าหมาย"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </button>
+
+                </div>
+              </div>
             <div className="space-y-6">
               {goals.map((goal) => {
                 const progress = (goal.current / goal.target) * 100;
@@ -1940,11 +2063,22 @@ const LifeTimelineApp = () => {
                       </div>
                     </div>
                     
-                    <div className="flex justify-between text-sm">
+                    <div className="flex justify-between items-center text-sm">
                       <span className="text-gray-600 dark:text-gray-400">{progress.toFixed(1)}% สำเร็จ</span>
-                      <span className={`font-semibold ${progress >= 100 ? 'text-green-600 dark:text-green-400' : 'text-blue-600 dark:text-blue-400'}`}>
-                        {progress >= 100 ? '🎉 สำเร็จแล้ว!' : `เหลืออีก ${formatCurrency(goal.target - goal.current)} บาท`}
-                      </span>
+                      <div className="flex items-center space-x-2">
+                        <span className={`font-semibold ${progress >= 100 ? 'text-green-600 dark:text-green-400' : 'text-blue-600 dark:text-blue-400'}`}>
+                          {progress >= 100 ? '🎉 สำเร็จแล้ว!' : `เหลืออีก ${formatCurrency(goal.target - goal.current)} บาท`}
+                        </span>
+                        <button
+                          onClick={() => removeGoal(goal.id)}
+                          className="p-1 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
+                          title="ลบเป้าหมาย"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 );
@@ -2259,6 +2393,191 @@ const LifeTimelineApp = () => {
             </div>
           </div>
         ))}
+
+        {/* Add Achievement Modal */}
+        {showAddAchievementModal && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-md w-full transform transition-all duration-300 scale-95 animate-[modal_0.3s_ease-out_forwards]">
+              {/* Modal Header */}
+              <div className="p-6 border-b border-gray-200 dark:border-gray-600">
+                <h3 className="text-xl font-bold text-gray-800 dark:text-white">เพิ่มความสำเร็จใหม่</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">บันทึกความสำเร็จที่ผ่านมา</p>
+              </div>
+
+              {/* Modal Body */}
+              <div className="p-6 space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">ชื่อความสำเร็จ</label>
+                  <input
+                    type="text"
+                    value={newAchievement.title}
+                    onChange={(e) => setNewAchievement({...newAchievement, title: e.target.value})}
+                    placeholder="เช่น จบการศึกษา, ได้งานแรก"
+                    className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">ปี</label>
+                  <input
+                    type="number"
+                    value={newAchievement.year}
+                    onChange={(e) => setNewAchievement({...newAchievement, year: parseInt(e.target.value) || new Date().getFullYear()})}
+                    min="1900"
+                    max={new Date().getFullYear() + 10}
+                    className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">หมวดหมู่</label>
+                  <select
+                    value={newAchievement.category}
+                    onChange={(e) => setNewAchievement({...newAchievement, category: e.target.value})}
+                    className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                  >
+                    <option value="education">การศึกษา</option>
+                    <option value="career">อาชีพ</option>
+                    <option value="travel">การเดินทาง</option>
+                    <option value="personal">ส่วนตัว</option>
+                    <option value="health">สุขภาพ</option>
+                    <option value="family">ครอบครัว</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">ไอคอน</label>
+                  <div className="grid grid-cols-6 gap-2">
+                    {['🎓', '💼', '✈️', '🏆', '💪', '❤️', '🎉', '⭐', '🚀', '🌟', '🎯', '💎'].map((icon) => (
+                      <button
+                        key={icon}
+                        onClick={() => setNewAchievement({...newAchievement, icon})}
+                        className={`p-3 rounded-lg border-2 text-2xl transition-all hover:scale-110 ${newAchievement.icon === icon ? 'border-yellow-400 bg-yellow-50 dark:bg-yellow-900/30' : 'border-gray-200 dark:border-gray-600 hover:border-yellow-300'}`}
+                      >
+                        {icon}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Modal Footer */}
+              <div className="p-6 border-t border-gray-200 dark:border-gray-600 flex gap-3">
+                <button
+                  onClick={() => setShowAddAchievementModal(false)}
+                  className="flex-1 px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                >
+                  ยกเลิก
+                </button>
+                <button
+                  onClick={addAchievement}
+                  disabled={!newAchievement.title.trim()}
+                  className="flex-1 px-4 py-2 bg-yellow-600 hover:bg-yellow-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
+                >
+                  เพิ่มความสำเร็จ
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Add Goal Modal */}
+        {showAddGoalModal && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-md w-full transform transition-all duration-300 scale-95 animate-[modal_0.3s_ease-out_forwards]">
+              {/* Modal Header */}
+              <div className="p-6 border-b border-gray-200 dark:border-gray-600">
+                <h3 className="text-xl font-bold text-gray-800 dark:text-white">เพิ่มเป้าหมายใหม่</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">ตั้งเป้าหมายในอนาคต</p>
+              </div>
+
+              {/* Modal Body */}
+              <div className="p-6 space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">ชื่อเป้าหมาย</label>
+                  <input
+                    type="text"
+                    value={newGoal.title}
+                    onChange={(e) => setNewGoal({...newGoal, title: e.target.value})}
+                    placeholder="เช่น ซื้อบ้าน, ออม 1 ล้าน"
+                    className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">เป้าหมาย (บาท)</label>
+                    <input
+                      type="number"
+                      value={newGoal.target}
+                      onChange={(e) => setNewGoal({...newGoal, target: parseInt(e.target.value) || 0})}
+                      min="0"
+                      className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">มีอยู่แล้ว (บาท)</label>
+                    <input
+                      type="number"
+                      value={newGoal.current}
+                      onChange={(e) => setNewGoal({...newGoal, current: parseInt(e.target.value) || 0})}
+                      min="0"
+                      className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">หมวดหมู่</label>
+                  <select
+                    value={newGoal.category}
+                    onChange={(e) => setNewGoal({...newGoal, category: e.target.value})}
+                    className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  >
+                    <option value="asset">ทรัพย์สิน</option>
+                    <option value="savings">เงินออม</option>
+                    <option value="investment">การลงทุน</option>
+                    <option value="business">ธุรกิจ</option>
+                    <option value="education">การศึกษา</option>
+                    <option value="health">สุขภาพ</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">ไอคอน</label>
+                  <div className="grid grid-cols-6 gap-2">
+                    {['💰', '🏠', '🚗', '💎', '📈', '🎓', '💼', '🏆', '🎯', '⭐', '🚀', '💪'].map((icon) => (
+                      <button
+                        key={icon}
+                        onClick={() => setNewGoal({...newGoal, icon})}
+                        className={`p-3 rounded-lg border-2 text-2xl transition-all hover:scale-110 ${newGoal.icon === icon ? 'border-red-400 bg-red-50 dark:bg-red-900/30' : 'border-gray-200 dark:border-gray-600 hover:border-red-300'}`}
+                      >
+                        {icon}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Modal Footer */}
+              <div className="p-6 border-t border-gray-200 dark:border-gray-600 flex gap-3">
+                <button
+                  onClick={() => setShowAddGoalModal(false)}
+                  className="flex-1 px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                >
+                  ยกเลิก
+                </button>
+                <button
+                  onClick={addGoal}
+                  disabled={!newGoal.title.trim()}
+                  className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
+                >
+                  เพิ่มเป้าหมาย
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
       </div>
     </div>
