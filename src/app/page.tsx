@@ -67,6 +67,7 @@ const LifeTimelineApp = () => {
   });
   const [draggedActivity, setDraggedActivity] = useState<number | null>(null);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [showSaveSuccess, setShowSaveSuccess] = useState(false);
 
   // Utility functions
   const calculateAge = (birthDateStr) => {
@@ -162,6 +163,16 @@ const LifeTimelineApp = () => {
         console.error('Error loading activities:', error);
       }
     }
+
+    // Load user data from localStorage
+    const savedBirthDate = localStorage.getItem('userBirthDate');
+    const savedMaxAge = localStorage.getItem('userMaxAge');
+    if (savedBirthDate) {
+      setBirthDate(savedBirthDate);
+    }
+    if (savedMaxAge) {
+      setMaxAge(parseInt(savedMaxAge) || 80);
+    }
   }, []);
 
   // Countdown timer and current time update
@@ -220,6 +231,20 @@ const LifeTimelineApp = () => {
       localStorage.setItem('lifeTimelineActivities', JSON.stringify(activitiesToSave));
     } catch (error) {
       console.error('Error saving activities:', error);
+    }
+  };
+
+  // User data management functions
+  const saveUserData = () => {
+    try {
+      localStorage.setItem('userBirthDate', birthDate);
+      localStorage.setItem('userMaxAge', maxAge.toString());
+      
+      // Show success message
+      setShowSaveSuccess(true);
+      setTimeout(() => setShowSaveSuccess(false), 2000);
+    } catch (error) {
+      console.error('Error saving user data:', error);
     }
   };
 
@@ -709,6 +734,19 @@ const LifeTimelineApp = () => {
             transform: scale(1) translateY(0);
           }
         }
+        @keyframes fadeIn {
+          0% {
+            opacity: 0;
+            transform: translateX(20px) scale(0.9);
+          }
+          100% {
+            opacity: 1;
+            transform: translateX(0) scale(1);
+          }
+        }
+        .animate-fade-in {
+          animation: fadeIn 0.3s ease-out forwards;
+        }
       `}</style>
 
       {/* Enhanced Sun/Moon with Large Circular Rays - Top Right */}
@@ -883,7 +921,28 @@ const LifeTimelineApp = () => {
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-800 dark:text-white mb-4">Life Timeline</h1>
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg max-w-md mx-auto">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg max-w-md mx-auto relative">
+            {/* Save button */}
+            <button
+              onClick={saveUserData}
+              className="absolute top-4 right-4 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors shadow-sm hover:shadow-md transform hover:scale-105 active:scale-95 group"
+              title="บันทึกข้อมูล"
+            >
+              <svg className="w-4 h-4 transform transition-transform group-hover:rotate-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3-3m0 0l-3 3m3-3v12" />
+              </svg>
+            </button>
+
+            {/* Success message */}
+            {showSaveSuccess && (
+              <div className="absolute top-4 right-16 bg-green-500 text-white px-3 py-2 rounded-lg shadow-lg flex items-center space-x-2 animate-fade-in">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                <span className="text-sm font-medium">บันทึกแล้ว!</span>
+              </div>
+            )}
+
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">วันเกิดของคุณ</label>
