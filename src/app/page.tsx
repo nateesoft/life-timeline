@@ -3,6 +3,17 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Calendar, Trophy, Target, MapPin, Heart, Home, Car, DollarSign, Plus, Users, Edit2, Trash2, User } from 'lucide-react';
 
+interface Activity {
+  id: number;
+  name: string;
+  description: string;
+  displayType: 'daily' | 'weekly' | 'monthly' | 'yearly';
+  color: string;
+  backgroundColor: string;
+  position: { x: number; y: number };
+  createdAt: string;
+}
+
 const LifeTimelineApp = () => {
   const [birthDate, setBirthDate] = useState('');
   const [currentAge, setCurrentAge] = useState(0);
@@ -42,6 +53,20 @@ const LifeTimelineApp = () => {
   const [selectedMonth, setSelectedMonth] = useState(null);
   const [showDailyView, setShowDailyView] = useState(false);
   const [focusCurrentAge, setFocusCurrentAge] = useState(true);
+
+  // States for activity features
+  const [showAddActivityModal, setShowAddActivityModal] = useState(false);
+  const [activities, setActivities] = useState<Activity[]>([]);
+  const [newActivity, setNewActivity] = useState({
+    name: '',
+    description: '',
+    displayType: 'daily' as 'daily' | 'weekly' | 'monthly' | 'yearly',
+    color: '#3B82F6',
+    backgroundColor: '#FEF3C7',
+    position: { x: 100, y: 100 }
+  });
+  const [draggedActivity, setDraggedActivity] = useState<number | null>(null);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
 
   // Utility functions
   const calculateAge = (birthDateStr) => {
@@ -127,6 +152,16 @@ const LifeTimelineApp = () => {
   useEffect(() => {
     setIsClient(true);
     setCurrentTime(new Date());
+    
+    // Load activities from localStorage
+    const savedActivities = localStorage.getItem('lifeTimelineActivities');
+    if (savedActivities) {
+      try {
+        setActivities(JSON.parse(savedActivities));
+      } catch (error) {
+        console.error('Error loading activities:', error);
+      }
+    }
   }, []);
 
   // Countdown timer and current time update
@@ -178,6 +213,93 @@ const LifeTimelineApp = () => {
   const removeFriend = (id) => {
     setFriends(friends.filter(friend => friend.id !== id));
   };
+
+  // Activity management functions
+  const saveActivitiesToStorage = (activitiesToSave: Activity[]) => {
+    try {
+      localStorage.setItem('lifeTimelineActivities', JSON.stringify(activitiesToSave));
+    } catch (error) {
+      console.error('Error saving activities:', error);
+    }
+  };
+
+  const addActivity = () => {
+    if (newActivity.name.trim()) {
+      const activity: Activity = {
+        ...newActivity,
+        id: Date.now(),
+        createdAt: new Date().toISOString(),
+        position: {
+          x: Math.random() * (window.innerWidth - 250) + 50,
+          y: Math.random() * (window.innerHeight - 200) + 100
+        }
+      };
+      const updatedActivities = [...activities, activity];
+      setActivities(updatedActivities);
+      saveActivitiesToStorage(updatedActivities);
+      setNewActivity({
+        name: '',
+        description: '',
+        displayType: 'daily' as const,
+        color: '#3B82F6',
+        backgroundColor: '#FEF3C7',
+        position: { x: 100, y: 100 }
+      });
+      setShowAddActivityModal(false);
+    }
+  };
+
+  const removeActivity = (id: number) => {
+    const updatedActivities = activities.filter(activity => activity.id !== id);
+    setActivities(updatedActivities);
+    saveActivitiesToStorage(updatedActivities);
+  };
+
+  const updateActivityPosition = (id: number, newPosition: { x: number; y: number }) => {
+    const updatedActivities = activities.map(activity => 
+      activity.id === id ? { ...activity, position: newPosition } : activity
+    );
+    setActivities(updatedActivities);
+    saveActivitiesToStorage(updatedActivities);
+  };
+
+  // Drag and drop handlers
+  const handleActivityMouseDown = (e: React.MouseEvent, activity: Activity) => {
+    e.preventDefault();
+    const rect = (e.target as HTMLElement).getBoundingClientRect();
+    setDraggedActivity(activity.id);
+    setDragOffset({
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top
+    });
+  };
+
+  const handleMouseMove = (e: MouseEvent) => {
+    if (draggedActivity) {
+      const newPosition = {
+        x: e.clientX - dragOffset.x,
+        y: e.clientY - dragOffset.y
+      };
+      updateActivityPosition(draggedActivity, newPosition);
+    }
+  };
+
+  const handleMouseUp = () => {
+    setDraggedActivity(null);
+    setDragOffset({ x: 0, y: 0 });
+  };
+
+  // Add global event listeners for drag
+  useEffect(() => {
+    if (draggedActivity) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      return () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+      };
+    }
+  }, [draggedActivity, dragOffset]);
 
   // Handle timeline dot click
   const handleTimelineDotClick = (year, personData, personType) => {
@@ -575,6 +697,16 @@ const LifeTimelineApp = () => {
           50% { 
             transform: translateX(100%);
             opacity: 0.8;
+          }
+        }
+        @keyframes modal {
+          0% {
+            opacity: 0;
+            transform: scale(0.95) translateY(10px);
+          }
+          100% {
+            opacity: 1;
+            transform: scale(1) translateY(0);
           }
         }
       `}</style>
@@ -1667,6 +1799,240 @@ const LifeTimelineApp = () => {
           </div>
           </div>
         </div>
+
+        {/* Floating Action Button */}
+        <div className="fixed bottom-6 right-6 z-50">
+          <button
+            onClick={() => setShowAddActivityModal(true)}
+            className="group relative w-20 h-20 bg-gradient-to-br from-purple-500 via-blue-500 to-indigo-600 hover:from-purple-600 hover:via-blue-600 hover:to-indigo-700 text-white rounded-full shadow-xl hover:shadow-2xl transform transition-all duration-300 hover:scale-110 active:scale-95 overflow-hidden border-2 border-white/20"
+          >
+            {/* Animated gradient overlay */}
+            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-pink-500/20 via-purple-500/20 to-blue-500/20 scale-0 group-hover:scale-100 transition-transform duration-500 animate-pulse"></div>
+            
+            {/* Ripple effect background */}
+            <div className="absolute inset-0 rounded-full bg-white/20 scale-0 group-hover:scale-100 transition-transform duration-300"></div>
+            <div className="absolute inset-0 rounded-full bg-white/10 scale-0 group-active:scale-110 transition-transform duration-150"></div>
+            
+            {/* Plus icon with animation */}
+            <div className="relative z-10 flex items-center justify-center h-full">
+              <Plus className="w-10 h-10 font-bold stroke-[3] transform transition-transform duration-300 group-hover:rotate-90 drop-shadow-lg" />
+            </div>
+            
+            {/* Multi-layer glow effect */}
+            <div className="absolute inset-0 rounded-full bg-purple-500/40 blur-xl scale-150 opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10"></div>
+            <div className="absolute inset-0 rounded-full bg-blue-500/30 blur-lg scale-125 opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10"></div>
+            <div className="absolute inset-0 rounded-full bg-indigo-500/20 blur-md scale-110 opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10"></div>
+          </button>
+          
+          {/* Tooltip */}
+          <div className="absolute bottom-full right-0 mb-2 px-3 py-1 bg-black/80 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none">
+            เพิ่มกิจกรรม
+            <div className="absolute top-full right-3 border-t-4 border-t-black/80 border-l-2 border-r-2 border-l-transparent border-r-transparent"></div>
+          </div>
+        </div>
+
+        {/* Add Activity Modal */}
+        {showAddActivityModal && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-md w-full transform transition-all duration-300 scale-95 animate-[modal_0.3s_ease-out_forwards]">
+              {/* Modal Header */}
+              <div className="p-6 border-b border-gray-200 dark:border-gray-600">
+                <h3 className="text-xl font-bold text-gray-800 dark:text-white">เพิ่มกิจกรรมใหม่</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">สร้าง post-it สำหรับติดตามกิจกรรมของคุณ</p>
+              </div>
+
+              {/* Modal Body */}
+              <div className="p-6 space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">ชื่อกิจกรรม</label>
+                  <input
+                    type="text"
+                    value={newActivity.name}
+                    onChange={(e) => setNewActivity({...newActivity, name: e.target.value})}
+                    placeholder="เช่น ออกกำลังกาย, อ่านหนังสือ"
+                    className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">รายละเอียด</label>
+                  <textarea
+                    value={newActivity.description}
+                    onChange={(e) => setNewActivity({...newActivity, description: e.target.value})}
+                    placeholder="รายละเอียดเพิ่มเติม..."
+                    rows={3}
+                    className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">การแสดงผล</label>
+                  <select
+                    value={newActivity.displayType}
+                    onChange={(e) => setNewActivity({...newActivity, displayType: e.target.value as 'daily' | 'weekly' | 'monthly' | 'yearly'})}
+                    className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="daily">ทุกวัน</option>
+                    <option value="weekly">ทุกสัปดาห์</option>
+                    <option value="monthly">ทุกเดือน</option>
+                    <option value="yearly">ทุกปี</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">สีขอบ</label>
+                  <div className="grid grid-cols-6 gap-2">
+                    {['#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899'].map((color) => (
+                      <button
+                        key={color}
+                        onClick={() => setNewActivity({...newActivity, color})}
+                        className={`w-10 h-10 rounded-lg border-2 transition-all ${newActivity.color === color ? 'border-gray-400 dark:border-gray-300 scale-110' : 'border-transparent hover:border-gray-300 dark:hover:border-gray-500'}`}
+                        style={{ backgroundColor: color }}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">สีพื้นหลัง post-it</label>
+                  <div className="grid grid-cols-4 gap-3">
+                    {[
+                      { color: '#FEF3C7', name: 'เหลืองคลาสสิค' },
+                      { color: '#FED7E2', name: 'ชมพูอ่อน' },
+                      { color: '#E0F2FE', name: 'ฟ้าอ่อน' },
+                      { color: '#DCFCE7', name: 'เขียวอ่อน' },
+                      { color: '#F3E8FF', name: 'ม่วงอ่อน' },
+                      { color: '#FFF7ED', name: 'ส้มอ่อน' },
+                      { color: '#F1F5F9', name: 'เทาอ่อน' },
+                      { color: '#FEFCE8', name: 'เหลืองอ่อน' }
+                    ].map(({ color, name }) => (
+                      <button
+                        key={color}
+                        onClick={() => setNewActivity({...newActivity, backgroundColor: color})}
+                        className={`relative flex flex-col items-center p-2 rounded-lg border-2 transition-all ${newActivity.backgroundColor === color ? 'border-gray-400 dark:border-gray-300 scale-105' : 'border-transparent hover:border-gray-300 dark:hover:border-gray-500'}`}
+                        style={{ backgroundColor: color }}
+                      >
+                        <div className="w-8 h-6 rounded border border-gray-300/30 mb-1" style={{ backgroundColor: color }}></div>
+                        <span className="text-xs text-gray-600 dark:text-gray-400 text-center leading-tight">{name}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Modal Footer */}
+              <div className="p-6 border-t border-gray-200 dark:border-gray-600 flex gap-3">
+                <button
+                  onClick={() => setShowAddActivityModal(false)}
+                  className="flex-1 px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                >
+                  ยกเลิก
+                </button>
+                <button
+                  onClick={addActivity}
+                  disabled={!newActivity.name.trim()}
+                  className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
+                >
+                  บันทึก
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Activity Post-its */}
+        {activities.map((activity) => (
+          <div
+            key={activity.id}
+            className="absolute z-40 select-none"
+            style={{
+              left: `${activity.position.x}px`,
+              top: `${activity.position.y}px`,
+              cursor: draggedActivity === activity.id ? 'grabbing' : 'grab'
+            }}
+          >
+            <div 
+              className="group p-4 rounded-lg shadow-lg transform rotate-1 hover:rotate-0 transition-all duration-200 hover:shadow-xl min-w-[200px] max-w-[250px] border-l-4 relative"
+              style={{ 
+                backgroundColor: activity.backgroundColor || '#FEF3C7',
+                borderLeftColor: activity.color 
+              }}
+              onMouseDown={(e) => handleActivityMouseDown(e, activity)}
+            >
+              {/* Tape pieces */}
+              {/* Top left tape */}
+              <div className="absolute -top-2 left-4 w-9 h-5 bg-gray-200/80 dark:bg-gray-300/80 rounded-sm transform -rotate-12 shadow-md z-10 transition-all duration-200 group-hover:shadow-lg border border-gray-300/50">
+                <div className="absolute inset-0 bg-gradient-to-b from-white/50 via-transparent to-black/10 rounded-sm"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent rounded-sm"></div>
+                <div className="absolute top-0.5 left-1 w-6 h-0.5 bg-white/40 rounded-full"></div>
+                <div className="absolute bottom-0.5 right-1 w-4 h-0.5 bg-gray-400/30 rounded-full"></div>
+                <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8ZGVmcz4KICAgIDxwYXR0ZXJuIGlkPSJ0YXBlIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIiB3aWR0aD0iMjAiIGhlaWdodD0iMjAiPgogICAgICA8Y2lyY2xlIGN4PSIxMCIgY3k9IjEwIiByPSIxIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMSkiLz4KICAgIDwvcGF0dGVybj4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCN0YXBlKSIvPgo8L3N2Zz4=')] opacity-30 rounded-sm"></div>
+              </div>
+              
+              {/* Top right tape */}
+              <div className="absolute -top-2 right-4 w-9 h-5 bg-gray-200/80 dark:bg-gray-300/80 rounded-sm transform rotate-12 shadow-md z-10 transition-all duration-200 group-hover:shadow-lg border border-gray-300/50">
+                <div className="absolute inset-0 bg-gradient-to-b from-white/50 via-transparent to-black/10 rounded-sm"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent rounded-sm"></div>
+                <div className="absolute top-0.5 left-1 w-6 h-0.5 bg-white/40 rounded-full"></div>
+                <div className="absolute bottom-0.5 right-1 w-4 h-0.5 bg-gray-400/30 rounded-full"></div>
+                <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8ZGVmcz4KICAgIDxwYXR0ZXJuIGlkPSJ0YXBlIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIiB3aWR0aD0iMjAiIGhlaWdodD0iMjAiPgogICAgICA8Y2lyY2xlIGN4PSIxMCIgY3k9IjEwIiByPSIxIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMSkiLz4KICAgIDwvcGF0dGVybj4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCN0YXBlKSIvPgo8L3N2Zz4=')] opacity-30 rounded-sm"></div>
+              </div>
+
+              {/* Bottom corner tape (randomly appears on some notes) */}
+              {activity.id % 3 === 0 && (
+                <div className="absolute -bottom-1 right-2 w-7 h-4 bg-gray-200/80 dark:bg-gray-300/80 rounded-sm transform rotate-45 shadow-md z-10 transition-all duration-200 group-hover:shadow-lg border border-gray-300/50">
+                  <div className="absolute inset-0 bg-gradient-to-b from-white/50 via-transparent to-black/10 rounded-sm"></div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent rounded-sm"></div>
+                  <div className="absolute top-0.5 left-0.5 w-4 h-0.5 bg-white/40 rounded-full"></div>
+                </div>
+              )}
+
+              {/* Left side tape (for some notes) */}
+              {activity.id % 4 === 1 && (
+                <div className="absolute -left-1 top-8 w-4 h-7 bg-gray-200/80 dark:bg-gray-300/80 rounded-sm transform rotate-90 shadow-md z-10 transition-all duration-200 group-hover:shadow-lg border border-gray-300/50">
+                  <div className="absolute inset-0 bg-gradient-to-b from-white/50 via-transparent to-black/10 rounded-sm"></div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent rounded-sm"></div>
+                  <div className="absolute top-1 left-0.5 w-5 h-0.5 bg-white/40 rounded-full"></div>
+                </div>
+              )}
+              {/* Post-it header */}
+              <div className="flex items-start justify-between mb-2">
+                <h4 className="font-semibold text-gray-800 text-sm leading-tight pr-2">{activity.name}</h4>
+                <button
+                  onClick={() => removeActivity(activity.id)}
+                  className="text-gray-500 hover:text-red-500 transition-colors flex-shrink-0"
+                >
+                  <Trash2 className="w-3 h-3" />
+                </button>
+              </div>
+
+              {/* Post-it description */}
+              {activity.description && (
+                <p className="text-gray-700 text-xs mb-2 leading-relaxed">{activity.description}</p>
+              )}
+
+              {/* Post-it frequency */}
+              <div className="flex items-center justify-between text-xs">
+                <span 
+                  className="px-2 py-1 rounded-full text-white font-medium"
+                  style={{ backgroundColor: activity.color }}
+                >
+                  {activity.displayType === 'daily' ? 'ทุกวัน' :
+                   activity.displayType === 'weekly' ? 'ทุกสัปดาห์' :
+                   activity.displayType === 'monthly' ? 'ทุกเดือน' : 'ทุกปี'}
+                </span>
+              </div>
+
+              {/* Post-it shadow effect - moved behind tapes */}
+              <div className="absolute inset-0 bg-black/10 rounded-lg transform translate-x-0.5 translate-y-0.5 -z-20"></div>
+              
+              {/* Tape shadows on the post-it surface */}
+              <div className="absolute -top-1 left-5 w-6 h-2 bg-black/5 rounded-sm transform -rotate-12 blur-sm"></div>
+              <div className="absolute -top-1 right-5 w-6 h-2 bg-black/5 rounded-sm transform rotate-12 blur-sm"></div>
+            </div>
+          </div>
+        ))}
+
       </div>
     </div>
   );
