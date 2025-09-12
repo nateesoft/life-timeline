@@ -232,6 +232,16 @@ const LifeTimelineApp = () => {
       } catch (error) {
         console.error('Error loading friend messages:', error);
       }
+    }
+
+    // Load friends from localStorage
+    const savedFriends = localStorage.getItem('userFriends');
+    if (savedFriends) {
+      try {
+        setFriends(JSON.parse(savedFriends));
+      } catch (error) {
+        console.error('Error loading friends:', error);
+      }
     } else {
       // Create sample friend messages
       const sampleMessages: FriendMessage[] = [
@@ -303,16 +313,28 @@ const LifeTimelineApp = () => {
   }, [showCalendarModal]);
 
   // Friend management
+  const saveFriendsToStorage = (friendsToSave) => {
+    try {
+      localStorage.setItem('userFriends', JSON.stringify(friendsToSave));
+    } catch (error) {
+      console.error('Error saving friends:', error);
+    }
+  };
+
   const addFriend = () => {
     if (newFriend.name && newFriend.birthDate) {
-      setFriends([...friends, { ...newFriend, id: Date.now() }]);
+      const updatedFriends = [...friends, { ...newFriend, id: Date.now() }];
+      setFriends(updatedFriends);
+      saveFriendsToStorage(updatedFriends);
       setNewFriend({ name: '', birthDate: '', color: '#8B5CF6' });
       setShowAddFriend(false);
     }
   };
 
   const removeFriend = (id) => {
-    setFriends(friends.filter(friend => friend.id !== id));
+    const updatedFriends = friends.filter(friend => friend.id !== id);
+    setFriends(updatedFriends);
+    saveFriendsToStorage(updatedFriends);
   };
 
   // Activity management functions
