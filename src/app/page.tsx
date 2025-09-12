@@ -14,6 +14,15 @@ interface Activity {
   createdAt: string;
 }
 
+interface FriendMessage {
+  id: number;
+  message: string;
+  fromName: string;
+  fromAvatar: string;
+  position: { x: number; y: number };
+  createdAt: string;
+}
+
 const LifeTimelineApp = () => {
   const [birthDate, setBirthDate] = useState('');
   const [currentAge, setCurrentAge] = useState(0);
@@ -66,8 +75,12 @@ const LifeTimelineApp = () => {
     position: { x: 100, y: 100 }
   });
   const [draggedActivity, setDraggedActivity] = useState<number | null>(null);
+  const [draggedMessage, setDraggedMessage] = useState<number | null>(null);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
+
+  // Friend messages state
+  const [friendMessages, setFriendMessages] = useState<FriendMessage[]>([]);
 
   // Utility functions
   const calculateAge = (birthDateStr) => {
@@ -173,6 +186,46 @@ const LifeTimelineApp = () => {
     if (savedMaxAge) {
       setMaxAge(parseInt(savedMaxAge) || 80);
     }
+
+    // Load friend messages from localStorage
+    const savedMessages = localStorage.getItem('friendMessages');
+    if (savedMessages) {
+      try {
+        setFriendMessages(JSON.parse(savedMessages));
+      } catch (error) {
+        console.error('Error loading friend messages:', error);
+      }
+    } else {
+      // Create sample friend messages
+      const sampleMessages: FriendMessage[] = [
+        {
+          id: 1,
+          message: "สวัสดีครับ! ไว้เจอกันนะ 😊",
+          fromName: "แก้ว",
+          fromAvatar: "👩🏻",
+          position: { x: 150, y: 200 },
+          createdAt: new Date().toISOString()
+        },
+        {
+          id: 2,
+          message: "Happy Birthday! 🎂🎉",
+          fromName: "มิกี้",
+          fromAvatar: "🐭",
+          position: { x: 400, y: 150 },
+          createdAt: new Date().toISOString()
+        },
+        {
+          id: 3,
+          message: "จำได้มั้ยที่เราเล่นด้วยกันตอนเด็ก 😄",
+          fromName: "โอ๋",
+          fromAvatar: "👦🏻",
+          position: { x: 300, y: 350 },
+          createdAt: new Date().toISOString()
+        }
+      ];
+      setFriendMessages(sampleMessages);
+      localStorage.setItem('friendMessages', JSON.stringify(sampleMessages));
+    }
   }, []);
 
   // Countdown timer and current time update
@@ -248,6 +301,29 @@ const LifeTimelineApp = () => {
     }
   };
 
+  // Friend messages management functions
+  const saveFriendMessagesToStorage = (messages: FriendMessage[]) => {
+    try {
+      localStorage.setItem('friendMessages', JSON.stringify(messages));
+    } catch (error) {
+      console.error('Error saving friend messages:', error);
+    }
+  };
+
+  const removeFriendMessage = (id: number) => {
+    const updatedMessages = friendMessages.filter(message => message.id !== id);
+    setFriendMessages(updatedMessages);
+    saveFriendMessagesToStorage(updatedMessages);
+  };
+
+  const updateMessagePosition = (id: number, newPosition: { x: number; y: number }) => {
+    const updatedMessages = friendMessages.map(message => 
+      message.id === id ? { ...message, position: newPosition } : message
+    );
+    setFriendMessages(updatedMessages);
+    saveFriendMessagesToStorage(updatedMessages);
+  };
+
   const addActivity = () => {
     if (newActivity.name.trim()) {
       const activity: Activity = {
@@ -307,16 +383,35 @@ const LifeTimelineApp = () => {
       };
       updateActivityPosition(draggedActivity, newPosition);
     }
+    if (draggedMessage) {
+      const newPosition = {
+        x: e.clientX - dragOffset.x,
+        y: e.clientY - dragOffset.y
+      };
+      updateMessagePosition(draggedMessage, newPosition);
+    }
   };
 
   const handleMouseUp = () => {
     setDraggedActivity(null);
+    setDraggedMessage(null);
     setDragOffset({ x: 0, y: 0 });
+  };
+
+  // Handle message mouse down
+  const handleMessageMouseDown = (e: React.MouseEvent, message: FriendMessage) => {
+    e.preventDefault();
+    const rect = (e.target as HTMLElement).getBoundingClientRect();
+    setDraggedMessage(message.id);
+    setDragOffset({
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top
+    });
   };
 
   // Add global event listeners for drag
   useEffect(() => {
-    if (draggedActivity) {
+    if (draggedActivity || draggedMessage) {
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
       return () => {
@@ -324,7 +419,7 @@ const LifeTimelineApp = () => {
         document.removeEventListener('mouseup', handleMouseUp);
       };
     }
-  }, [draggedActivity, dragOffset]);
+  }, [draggedActivity, draggedMessage, dragOffset]);
 
   // Handle timeline dot click
   const handleTimelineDotClick = (year, personData, personType) => {
@@ -2083,6 +2178,79 @@ const LifeTimelineApp = () => {
               </div>
 
               {/* Post-it shadow effect - moved behind tapes */}
+              <div className="absolute inset-0 bg-black/10 rounded-lg transform translate-x-0.5 translate-y-0.5 -z-20"></div>
+              
+              {/* Tape shadows on the post-it surface */}
+              <div className="absolute -top-1 left-5 w-6 h-2 bg-black/5 rounded-sm transform -rotate-12 blur-sm"></div>
+              <div className="absolute -top-1 right-5 w-6 h-2 bg-black/5 rounded-sm transform rotate-12 blur-sm"></div>
+            </div>
+          </div>
+        ))}
+
+        {/* Friend Message Post-its */}
+        {friendMessages.map((message) => (
+          <div
+            key={message.id}
+            className="absolute z-40 select-none"
+            style={{
+              left: `${message.position.x}px`,
+              top: `${message.position.y}px`,
+              cursor: draggedMessage === message.id ? 'grabbing' : 'grab'
+            }}
+          >
+            <div 
+              className="group p-4 rounded-lg shadow-lg transform rotate-2 hover:rotate-0 transition-all duration-200 hover:shadow-xl min-w-[220px] max-w-[280px] relative"
+              style={{ backgroundColor: '#DBEAFE' }} // น้ำเงินอ่อน
+              onMouseDown={(e) => handleMessageMouseDown(e, message)}
+            >
+              {/* Tape pieces for friend messages */}
+              <div className="absolute -top-2 left-4 w-9 h-5 bg-gray-200/80 dark:bg-gray-300/80 rounded-sm transform -rotate-12 shadow-md z-10 transition-all duration-200 group-hover:shadow-lg border border-gray-300/50">
+                <div className="absolute inset-0 bg-gradient-to-b from-white/50 via-transparent to-black/10 rounded-sm"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent rounded-sm"></div>
+                <div className="absolute top-0.5 left-1 w-6 h-0.5 bg-white/40 rounded-full"></div>
+                <div className="absolute bottom-0.5 right-1 w-4 h-0.5 bg-gray-400/30 rounded-full"></div>
+              </div>
+              
+              <div className="absolute -top-2 right-4 w-9 h-5 bg-gray-200/80 dark:bg-gray-300/80 rounded-sm transform rotate-12 shadow-md z-10 transition-all duration-200 group-hover:shadow-lg border border-gray-300/50">
+                <div className="absolute inset-0 bg-gradient-to-b from-white/50 via-transparent to-black/10 rounded-sm"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent rounded-sm"></div>
+                <div className="absolute top-0.5 left-1 w-6 h-0.5 bg-white/40 rounded-full"></div>
+                <div className="absolute bottom-0.5 right-1 w-4 h-0.5 bg-gray-400/30 rounded-full"></div>
+              </div>
+
+              {/* Message header with avatar and name */}
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center space-x-2">
+                  <div className="text-2xl bg-white rounded-full p-1 shadow-sm">
+                    {message.fromAvatar}
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-blue-800 text-sm">{message.fromName}</h4>
+                    <div className="text-xs text-blue-600">แปะข้อความมา</div>
+                  </div>
+                </div>
+                <button
+                  onClick={() => removeFriendMessage(message.id)}
+                  className="text-blue-500 hover:text-red-500 transition-colors flex-shrink-0 opacity-70 hover:opacity-100"
+                >
+                  <Trash2 className="w-3 h-3" />
+                </button>
+              </div>
+
+              {/* Message content */}
+              <div className="bg-white/50 rounded-lg p-3 mb-2">
+                <p className="text-blue-900 text-sm leading-relaxed">{message.message}</p>
+              </div>
+
+              {/* Message timestamp */}
+              <div className="flex justify-end text-xs text-blue-600 opacity-75">
+                {new Date(message.createdAt).toLocaleDateString('th-TH', {
+                  day: 'numeric',
+                  month: 'short'
+                })}
+              </div>
+
+              {/* Post-it shadow effect */}
               <div className="absolute inset-0 bg-black/10 rounded-lg transform translate-x-0.5 translate-y-0.5 -z-20"></div>
               
               {/* Tape shadows on the post-it surface */}
