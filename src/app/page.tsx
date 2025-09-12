@@ -20,7 +20,7 @@ const LifeTimelineApp = () => {
   const [goals, setGoals] = useState([
     { id: 1, title: 'ซื้อรถคันแรก', target: 1000000, current: 650000, category: 'asset', icon: '🚗' },
     { id: 2, title: 'ซื้อบ้าน', target: 5000000, current: 1200000, category: 'asset', icon: '🏠' },
-    { id: 3, title: 'เงินเก็บ 100 ล้าน', target: 100000000, current: 2500000, category: 'savings', icon: '💰' }
+    { id: 3, title: 'เงินเก็บ 100 ล้าน', target: 10000000, current: 5500000, category: 'savings', icon: '💰' }
   ]);
 
   // State for friends
@@ -32,7 +32,8 @@ const LifeTimelineApp = () => {
   const [showAddFriend, setShowAddFriend] = useState(false);
   const [newFriend, setNewFriend] = useState({ name: '', birthDate: '', color: '#8B5CF6' });
   const [secondsLeft, setSecondsLeft] = useState(0);
-  const [currentTime, setCurrentTime] = useState(new Date());
+  const [currentTime, setCurrentTime] = useState(null);
+  const [isClient, setIsClient] = useState(false);
   
   // Modal state
   const [showCalendarModal, setShowCalendarModal] = useState(false);
@@ -122,8 +123,16 @@ const LifeTimelineApp = () => {
     }
   }, [birthDate, maxAge]);
 
+  // Initialize client state
+  useEffect(() => {
+    setIsClient(true);
+    setCurrentTime(new Date());
+  }, []);
+
   // Countdown timer and current time update
   useEffect(() => {
+    if (!isClient) return;
+    
     const updateTimeAndCountdown = () => {
       const now = new Date();
       setCurrentTime(now);
@@ -142,7 +151,7 @@ const LifeTimelineApp = () => {
     const interval = setInterval(updateTimeAndCountdown, 1000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [isClient]);
 
   // Prevent background scroll when modal is open
   useEffect(() => {
@@ -230,19 +239,22 @@ const LifeTimelineApp = () => {
 
   // Auto scroll to current year
   useEffect(() => {
-    if (birthDate && timelineYears.length > 0) {
+    if (birthDate && timelineYears.length > 0 && isClient) {
       setTimeout(() => {
-        const timelineElement = document.getElementById('age-timeline');
+        const timelineContainer = document.querySelector('#age-timeline .overflow-x-auto');
         const currentYearElement = document.getElementById(`year-${currentYear}`);
-        if (timelineElement && currentYearElement) {
-          const elementTop = currentYearElement.offsetTop;
-          const containerHeight = timelineElement.clientHeight;
-          const scrollPosition = elementTop - containerHeight / 2;
-          timelineElement.scrollTo({ top: Math.max(0, scrollPosition), behavior: 'smooth' });
+        if (timelineContainer && currentYearElement) {
+          const elementLeft = currentYearElement.offsetLeft;
+          const containerWidth = timelineContainer.clientWidth;
+          const scrollPosition = elementLeft - containerWidth / 2 + currentYearElement.offsetWidth / 2;
+          timelineContainer.scrollTo({ 
+            left: Math.max(0, scrollPosition), 
+            behavior: 'smooth' 
+          });
         }
-      }, 100);
+      }, 500); // เพิ่มเวลาให้มากขึ้นเพื่อให้ DOM โหลดเสร็จก่อน
     }
-  }, [birthDate, currentYear, timelineYears.length, maxAge, friends]);
+  }, [birthDate, currentYear, timelineYears.length, maxAge, friends, isClient]);
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-6 relative overflow-hidden">
@@ -255,11 +267,11 @@ const LifeTimelineApp = () => {
               key={`star1-${i}`}
               className="absolute text-white opacity-20 dark:opacity-40"
               style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                fontSize: `${Math.random() * 2 + 1}px`,
-                animation: `starTwinkle ${Math.random() * 4 + 3}s ease-in-out infinite`,
-                animationDelay: `${Math.random() * 6}s`
+                left: `${(i * 37) % 100}%`,
+                top: `${(i * 23) % 100}%`,
+                fontSize: `${((i * 13) % 20 + 10) / 10}px`,
+                animation: `starTwinkle ${((i * 17) % 40 + 30) / 10}s ease-in-out infinite`,
+                animationDelay: `${((i * 11) % 60) / 10}s`
               }}
             >
               ✦
@@ -274,11 +286,11 @@ const LifeTimelineApp = () => {
               key={`star2-${i}`}
               className="absolute text-blue-200 opacity-30 dark:opacity-50"
               style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                fontSize: `${Math.random() * 3 + 1.5}px`,
-                animation: `starTwinkle ${Math.random() * 3 + 2}s ease-in-out infinite`,
-                animationDelay: `${Math.random() * 4}s`
+                left: `${(i * 41) % 100}%`,
+                top: `${(i * 29) % 100}%`,
+                fontSize: `${((i * 19) % 30 + 15) / 10}px`,
+                animation: `starTwinkle ${((i * 13) % 30 + 20) / 10}s ease-in-out infinite`,
+                animationDelay: `${((i * 7) % 40) / 10}s`
               }}
             >
               ⋆
@@ -293,11 +305,11 @@ const LifeTimelineApp = () => {
               key={`star3-${i}`}
               className="absolute text-yellow-200 opacity-40 dark:opacity-60"
               style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                fontSize: `${Math.random() * 2 + 2}px`,
-                animation: `starTwinkle ${Math.random() * 2 + 1}s ease-in-out infinite`,
-                animationDelay: `${Math.random() * 3}s`
+                left: `${(i * 43) % 100}%`,
+                top: `${(i * 31) % 100}%`,
+                fontSize: `${((i * 21) % 20 + 20) / 10}px`,
+                animation: `starTwinkle ${((i * 11) % 20 + 10) / 10}s ease-in-out infinite`,
+                animationDelay: `${((i * 5) % 30) / 10}s`
               }}
             >
               ✧
@@ -312,11 +324,11 @@ const LifeTimelineApp = () => {
               key={`nebula-${i}`}
               className="absolute rounded-full opacity-5 dark:opacity-10"
               style={{
-                width: `${Math.random() * 300 + 200}px`,
-                height: `${Math.random() * 150 + 100}px`,
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                background: `radial-gradient(ellipse, rgba(${Math.random() > 0.5 ? '147, 197, 253' : '196, 165, 255'}, 0.3) 0%, transparent 70%)`
+                width: `${((i * 37) % 300 + 200)}px`,
+                height: `${((i * 23) % 150 + 100)}px`,
+                left: `${(i * 47) % 100}%`,
+                top: `${(i * 29) % 100}%`,
+                background: `radial-gradient(ellipse, rgba(${(i % 2 === 0) ? '147, 197, 253' : '196, 165, 255'}, 0.3) 0%, transparent 70%)`
               }}
             />
           ))}
@@ -354,11 +366,11 @@ const LifeTimelineApp = () => {
               key={i}
               className="absolute text-white opacity-60"
               style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                fontSize: `${Math.random() * 3 + 1}px`,
-                animation: `starTwinkle ${Math.random() * 3 + 2}s ease-in-out infinite`,
-                animationDelay: `${Math.random() * 5}s`
+                left: `${(i * 39) % 100}%`,
+                top: `${(i * 31) % 100}%`,
+                fontSize: `${((i * 17) % 30 + 10) / 10}px`,
+                animation: `starTwinkle ${((i * 13) % 30 + 20) / 10}s ease-in-out infinite`,
+                animationDelay: `${((i * 11) % 50) / 10}s`
               }}
             >
               ✦
@@ -373,13 +385,13 @@ const LifeTimelineApp = () => {
               key={i}
               className="absolute rounded-full opacity-5 dark:opacity-10"
               style={{
-                width: `${Math.random() * 200 + 100}px`,
-                height: `${Math.random() * 100 + 50}px`,
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
+                width: `${((i * 29) % 200 + 100)}px`,
+                height: `${((i * 19) % 100 + 50)}px`,
+                left: `${(i * 41) % 100}%`,
+                top: `${(i * 33) % 100}%`,
                 background: 'radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%)',
-                animation: `cloudDrift ${Math.random() * 40 + 20}s linear infinite`,
-                animationDelay: `${Math.random() * 10}s`
+                animation: `cloudDrift ${((i * 23) % 40 + 20)}s linear infinite`,
+                animationDelay: `${((i * 7) % 100) / 10}s`
               }}
             />
           ))}
@@ -555,110 +567,183 @@ const LifeTimelineApp = () => {
             transform: translate(-50%, -50%) rotate(var(--rotation, 0deg)) translateY(-35px) scale(1.3);
           }
         }
+        @keyframes waterShimmer {
+          0%, 100% { 
+            transform: translateX(-100%);
+            opacity: 0;
+          }
+          50% { 
+            transform: translateX(100%);
+            opacity: 0.8;
+          }
+        }
       `}</style>
 
-      {/* Enhanced Moon with Large Circular Rays - Top Right */}
+      {/* Enhanced Sun/Moon with Large Circular Rays - Top Right */}
       <div className="absolute top-4 right-4 pointer-events-none">
         <div className="relative w-40 h-40">
           
           {/* Large circular rays - outermost */}
-          {Array.from({ length: 5 }, (_, i) => (
-            <div
-              key={`ray-large-${i}`}
-              className="absolute rounded-full border opacity-20"
-              style={{
-                width: `${(i + 3) * 50}px`,
-                height: `${(i + 3) * 50}px`,
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-                borderColor: 'rgba(191, 219, 254, 0.4)',
-                borderWidth: '1px',
-                animation: `moonRayExpand ${5 + i * 1}s ease-out infinite`,
-                animationDelay: `${i * 0.8}s`
-              }}
-            />
-          ))}
+          {isClient && currentTime && Array.from({ length: 5 }, (_, i) => {
+            const hour = currentTime.getHours();
+            const isDaytime = hour >= 6 && hour < 18;
+            
+            return (
+              <div
+                key={`ray-large-${i}`}
+                className="absolute rounded-full border opacity-20"
+                style={{
+                  width: `${(i + 3) * 50}px`,
+                  height: `${(i + 3) * 50}px`,
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  borderColor: isDaytime 
+                    ? 'rgba(251, 191, 36, 0.4)' 
+                    : 'rgba(191, 219, 254, 0.4)',
+                  borderWidth: '1px',
+                  animation: `moonRayExpand ${5 + i * 1}s ease-out infinite`,
+                  animationDelay: `${i * 0.8}s`
+                }}
+              />
+            );
+          })}
           
           {/* Medium circular rays with gradient */}
-          {Array.from({ length: 4 }, (_, i) => (
-            <div
-              key={`ray-medium-${i}`}
-              className="absolute rounded-full opacity-25"
-              style={{
-                width: `${(i + 2) * 40}px`,
-                height: `${(i + 2) * 40}px`,
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-                background: `radial-gradient(circle, rgba(219, 234, 254, ${0.15 - i * 0.02}) 0%, rgba(147, 197, 253, ${0.1 - i * 0.02}) 40%, transparent 80%)`,
-                animation: `moonRayPulse ${4 + i * 0.7}s ease-in-out infinite`,
-                animationDelay: `${i * 0.5}s`
-              }}
-            />
-          ))}
+          {isClient && currentTime && Array.from({ length: 4 }, (_, i) => {
+            const hour = currentTime.getHours();
+            const isDaytime = hour >= 6 && hour < 18;
+            
+            return (
+              <div
+                key={`ray-medium-${i}`}
+                className="absolute rounded-full opacity-25"
+                style={{
+                  width: `${(i + 2) * 40}px`,
+                  height: `${(i + 2) * 40}px`,
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  background: isDaytime
+                    ? `radial-gradient(circle, rgba(255, 237, 117, ${0.2 - i * 0.02}) 0%, rgba(251, 191, 36, ${0.15 - i * 0.02}) 40%, transparent 80%)`
+                    : `radial-gradient(circle, rgba(219, 234, 254, ${0.15 - i * 0.02}) 0%, rgba(147, 197, 253, ${0.1 - i * 0.02}) 40%, transparent 80%)`,
+                  animation: `moonRayPulse ${4 + i * 0.7}s ease-in-out infinite`,
+                  animationDelay: `${i * 0.5}s`
+                }}
+              />
+            );
+          })}
           
-          {/* Inner moonlight halos */}
-          <div 
-            className="absolute rounded-full opacity-40"
-            style={{
-              width: '80px',
-              height: '80px',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              background: 'radial-gradient(circle, rgba(191, 219, 254, 0.3) 0%, rgba(219, 234, 254, 0.2) 30%, rgba(147, 197, 253, 0.1) 60%, transparent 100%)',
-              animation: 'moonHaloGlow 6s ease-in-out infinite'
-            }}
-          />
+          {/* Inner sunlight/moonlight halos */}
+          {isClient && currentTime && (() => {
+            const hour = currentTime.getHours();
+            const isDaytime = hour >= 6 && hour < 18;
+            
+            return (
+              <div 
+                className="absolute rounded-full opacity-40"
+                style={{
+                  width: '80px',
+                  height: '80px',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  background: isDaytime
+                    ? 'radial-gradient(circle, rgba(255, 237, 117, 0.4) 0%, rgba(251, 191, 36, 0.3) 30%, rgba(245, 158, 11, 0.2) 60%, transparent 100%)'
+                    : 'radial-gradient(circle, rgba(191, 219, 254, 0.3) 0%, rgba(219, 234, 254, 0.2) 30%, rgba(147, 197, 253, 0.1) 60%, transparent 100%)',
+                  animation: 'moonHaloGlow 6s ease-in-out infinite'
+                }}
+              />
+            );
+          })()}
           
-          {/* Moon body - enhanced size */}
-          <div 
-            className="absolute w-12 h-12 bg-gradient-to-bl from-blue-100 to-blue-200 rounded-full shadow-lg"
-            style={{
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              boxShadow: '0 0 20px rgba(191, 219, 254, 0.5), inset -2px -2px 4px rgba(100, 116, 139, 0.3)'
-            }}
-          >
-            {/* Moon crescent shadow */}
-            <div className="absolute top-1 right-1 w-8 h-8 bg-gray-300/40 rounded-full"></div>
-            <div className="w-full h-full bg-gradient-to-tr from-blue-50 via-transparent to-transparent rounded-full opacity-80"></div>
-          </div>
+          {/* Sun/Moon body - enhanced size */}
+          {isClient && currentTime && (() => {
+            const hour = currentTime.getHours();
+            const isDaytime = hour >= 6 && hour < 18;
+            
+            return isDaytime ? (
+              /* Sun */
+              <div 
+                className="absolute w-12 h-12 bg-gradient-to-bl from-yellow-300 to-orange-400 rounded-full shadow-lg"
+                style={{
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  boxShadow: '0 0 25px rgba(251, 191, 36, 0.6), inset -1px -1px 2px rgba(180, 83, 9, 0.2)'
+                }}
+              >
+                {/* Sun rays inside */}
+                <div className="absolute top-1 left-1 w-2 h-2 bg-yellow-100/60 rounded-full"></div>
+                <div className="absolute top-2 right-1 w-1 h-1 bg-yellow-100/40 rounded-full"></div>
+                <div className="absolute bottom-1 left-2 w-1.5 h-1.5 bg-yellow-100/50 rounded-full"></div>
+                <div className="w-full h-full bg-gradient-to-tr from-yellow-100/50 via-transparent to-transparent rounded-full opacity-80"></div>
+              </div>
+            ) : (
+              /* Moon */
+              <div 
+                className="absolute w-12 h-12 bg-gradient-to-bl from-blue-100 to-blue-200 rounded-full shadow-lg"
+                style={{
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  boxShadow: '0 0 20px rgba(191, 219, 254, 0.5), inset -2px -2px 4px rgba(100, 116, 139, 0.3)'
+                }}
+              >
+                {/* Moon crescent shadow */}
+                <div className="absolute top-1 right-1 w-8 h-8 bg-gray-300/40 rounded-full"></div>
+                <div className="w-full h-full bg-gradient-to-tr from-blue-50 via-transparent to-transparent rounded-full opacity-80"></div>
+              </div>
+            );
+          })()}
           
-          {/* Floating moonbeam particles */}
-          {Array.from({ length: 12 }, (_, i) => (
-            <div
-              key={`moonbeam-${i}`}
-              className="absolute w-1 h-1 rounded-full opacity-60"
-              style={{
-                background: i % 3 === 0 ? '#bfdbfe' : i % 3 === 1 ? '#dbeafe' : '#93c5fd',
-                top: '50%',
-                left: '50%',
-                transform: `translate(-50%, -50%) rotate(${i * 30}deg) translateY(-${25 + i * 3}px)`,
-                animation: `moonbeamFloat ${3 + i * 0.2}s ease-in-out infinite`,
-                animationDelay: `${i * 0.3}s`
-              }}
-            />
-          ))}
+          {/* Floating sunbeam/moonbeam particles */}
+          {isClient && currentTime && Array.from({ length: 12 }, (_, i) => {
+            const hour = currentTime.getHours();
+            const isDaytime = hour >= 6 && hour < 18;
+            
+            return (
+              <div
+                key={`beam-${i}`}
+                className="absolute w-1 h-1 rounded-full opacity-60"
+                style={{
+                  background: isDaytime 
+                    ? (i % 3 === 0 ? '#fbbf24' : i % 3 === 1 ? '#fed75b' : '#f59e0b')
+                    : (i % 3 === 0 ? '#bfdbfe' : i % 3 === 1 ? '#dbeafe' : '#93c5fd'),
+                  top: '50%',
+                  left: '50%',
+                  transform: `translate(-50%, -50%) rotate(${i * 30}deg) translateY(-${25 + i * 3}px)`,
+                  animation: `moonbeamFloat ${3 + i * 0.2}s ease-in-out infinite`,
+                  animationDelay: `${i * 0.3}s`
+                }}
+              />
+            );
+          })}
           
-          {/* Distant twinkling stars */}
-          {Array.from({ length: 8 }, (_, i) => (
-            <div 
-              key={`twinkle-${i}`}
-              className="absolute text-blue-200 opacity-70"
-              style={{
-                fontSize: `${Math.random() * 8 + 6}px`,
-                top: `${Math.random() * 80 + 10}%`,
-                left: `${Math.random() * 80 + 10}%`,
-                animation: `starTwinkle ${2 + Math.random() * 3}s ease-in-out infinite`,
-                animationDelay: `${Math.random() * 4}s`
-              }}
-            >
-              {i % 4 === 0 ? '✦' : i % 4 === 1 ? '✧' : i % 4 === 2 ? '⋆' : '✩'}
-            </div>
-          ))}
+          {/* Distant twinkling stars - only visible at night */}
+          {isClient && currentTime && (() => {
+            const hour = currentTime.getHours();
+            const isDaytime = hour >= 6 && hour < 18;
+            
+            // Only show stars at night
+            if (isDaytime) return null;
+            
+            return Array.from({ length: 8 }, (_, i) => (
+              <div 
+                key={`twinkle-${i}`}
+                className="absolute text-blue-200 opacity-70"
+                style={{
+                  fontSize: `${((i * 17) % 80 + 60) / 10}px`,
+                  top: `${((i * 23) % 80 + 10)}%`,
+                  left: `${((i * 29) % 80 + 10)}%`,
+                  animation: `starTwinkle ${((i * 13) % 30 + 20) / 10}s ease-in-out infinite`,
+                  animationDelay: `${((i * 11) % 40) / 10}s`
+                }}
+              >
+                {i % 4 === 0 ? '✦' : i % 4 === 1 ? '✧' : i % 4 === 2 ? '⋆' : '✩'}
+              </div>
+            ));
+          })()}
         </div>
       </div>
 
@@ -714,7 +799,7 @@ const LifeTimelineApp = () => {
                 <div className="flex flex-col items-center">
                   <div className="bg-red-100 dark:bg-red-900/30 border-2 border-red-300 dark:border-red-600/50 rounded-lg p-4 mb-2">
                     <div className="text-2xl font-mono font-bold text-red-600 dark:text-red-400">
-                      {secondsLeft.toLocaleString()}
+                      {isClient ? secondsLeft.toLocaleString() : '0'}
                     </div>
                     <div className="text-xs text-red-500 dark:text-red-400 mt-1">
                       วินาทีเหลือ
@@ -730,7 +815,7 @@ const LifeTimelineApp = () => {
                     <div 
                       className="h-full bg-gradient-to-r from-red-500 to-orange-500 transition-all duration-1000"
                       style={{ 
-                        width: `${((86400 - secondsLeft) / 86400) * 100}%` 
+                        width: isClient ? `${((86400 - secondsLeft) / 86400) * 100}%` : '0%'
                       }}
                     ></div>
                   </div>
@@ -766,7 +851,7 @@ const LifeTimelineApp = () => {
                     <div className="absolute top-1.5 left-3 w-1 h-1 bg-gray-400 rounded-full"></div>
                     
                     {/* Clock hands - showing actual current time */}
-                    {(() => {
+                    {isClient && currentTime && (() => {
                       const hours = currentTime.getHours() % 12;
                       const minutes = currentTime.getMinutes();
                       const seconds = currentTime.getSeconds();
@@ -1437,72 +1522,138 @@ const LifeTimelineApp = () => {
                         </p>
                       </div>
                     </div>
-                    {/* Piggy Bank Visualization */}
-                    <div className="relative w-full h-24 mb-4">
-                      {/* Piggy Bank Container */}
-                      <div className="relative mx-auto w-20 h-16 bg-gradient-to-b from-pink-100 to-pink-200 dark:from-pink-200/20 dark:to-pink-300/20 border-2 border-pink-300 dark:border-pink-400/50 rounded-full overflow-hidden">
-                        {/* Piggy Bank Body */}
-                        <div className="absolute inset-0 rounded-full">
-                          {/* Water/Money fill */}
+                    {/* Glass Water Visualization */}
+                    <div className="relative w-full h-32 mb-4">
+                      <div className="relative mx-auto w-20 h-24 flex flex-col items-center">
+                        {/* Glass Container */}
+                        <div className="relative w-16 h-20 bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 rounded-b-lg border-2 border-gray-300 dark:border-gray-500 overflow-hidden shadow-lg">
+                          {/* Water Level */}
                           <div 
-                            className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-yellow-400 to-yellow-300 transition-all duration-1000 ease-out"
+                            className="absolute bottom-0 left-0 right-0 bg-gradient-to-t transition-all duration-1000 ease-out rounded-b-lg"
                             style={{ 
                               height: `${Math.min(progress, 100)}%`,
-                              borderRadius: progress >= 100 ? '50%' : '0 0 50% 50%'
+                              background: progress >= 100 
+                                ? 'linear-gradient(to top, #10b981, #34d399, #6ee7b7)' // Green when complete
+                                : progress >= 75 
+                                ? 'linear-gradient(to top, #3b82f6, #60a5fa, #93c5fd)' // Blue when almost there
+                                : progress >= 50
+                                ? 'linear-gradient(to top, #0ea5e9, #38bdf8, #7dd3fc)' // Light blue at halfway
+                                : progress >= 25
+                                ? 'linear-gradient(to top, #06b6d4, #22d3ee, #67e8f9)' // Cyan when started
+                                : 'linear-gradient(to top, #a855f7, #c084fc, #d8b4fe)' // Purple when just starting
                             }}
                           >
-                            {/* Money coins animation */}
-                            {progress > 20 && (
-                              <div className="absolute top-2 left-2 w-2 h-2 bg-yellow-600 rounded-full opacity-60"></div>
-                            )}
-                            {progress > 40 && (
-                              <div className="absolute top-3 right-3 w-1.5 h-1.5 bg-yellow-600 rounded-full opacity-60"></div>
-                            )}
-                            {progress > 60 && (
-                              <div className="absolute bottom-3 left-3 w-2 h-2 bg-yellow-600 rounded-full opacity-60"></div>
-                            )}
-                            {progress > 80 && (
-                              <div className="absolute bottom-2 right-2 w-1.5 h-1.5 bg-yellow-600 rounded-full opacity-60"></div>
+                            {/* Water surface animation */}
+                            <div 
+                              className="absolute top-0 left-0 right-0 h-1 opacity-50"
+                              style={{
+                                background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.8) 50%, transparent 100%)',
+                                animation: 'waterShimmer 2s ease-in-out infinite'
+                              }}
+                            ></div>
+                            
+                            {/* Bubbles effect */}
+                            {progress > 0 && (
+                              <>
+                                <div 
+                                  className="absolute w-1 h-1 bg-white/60 rounded-full animate-bounce"
+                                  style={{ 
+                                    left: '20%', 
+                                    bottom: '30%',
+                                    animationDelay: '0s',
+                                    animationDuration: '1.5s'
+                                  }}
+                                ></div>
+                                <div 
+                                  className="absolute w-0.5 h-0.5 bg-white/40 rounded-full animate-bounce"
+                                  style={{ 
+                                    left: '70%', 
+                                    bottom: '60%',
+                                    animationDelay: '0.5s',
+                                    animationDuration: '2s'
+                                  }}
+                                ></div>
+                                <div 
+                                  className="absolute w-0.5 h-0.5 bg-white/30 rounded-full animate-bounce"
+                                  style={{ 
+                                    left: '50%', 
+                                    bottom: '10%',
+                                    animationDelay: '1s',
+                                    animationDuration: '1.8s'
+                                  }}
+                                ></div>
+                              </>
                             )}
                           </div>
+                          
+                          {/* Glass measurement lines */}
+                          {[25, 50, 75].map((milestone) => (
+                            <div
+                              key={milestone}
+                              className={`absolute left-0 right-0 h-px transition-colors duration-300 ${
+                                progress >= milestone 
+                                  ? 'bg-white/40' 
+                                  : 'bg-gray-400/30 dark:bg-gray-500/40'
+                              }`}
+                              style={{ bottom: `${milestone}%` }}
+                            >
+                              {/* Measurement label */}
+                              <div className={`absolute -right-8 -top-2 text-xs font-medium transition-colors duration-300 ${
+                                progress >= milestone 
+                                  ? 'text-blue-600 dark:text-blue-400' 
+                                  : 'text-gray-400 dark:text-gray-500'
+                              }`}>
+                                {milestone}%
+                              </div>
+                            </div>
+                          ))}
+                          
+                          {/* Glass shine effect */}
+                          <div className="absolute top-2 left-1 w-1 h-8 bg-white/20 rounded-full"></div>
+                          <div className="absolute top-1 left-2 w-2 h-2 bg-white/30 rounded-full"></div>
                         </div>
                         
-                        {/* Piggy Bank Features */}
-                        {/* Snout */}
-                        <div className="absolute -right-2 top-1/2 transform -translate-y-1/2 w-4 h-3 bg-pink-200 dark:bg-pink-300/30 border border-pink-300 dark:border-pink-400/50 rounded-full">
-                          <div className="absolute top-1 left-1 w-1 h-1 bg-pink-400 dark:bg-pink-500 rounded-full"></div>
-                          <div className="absolute bottom-1 left-1 w-1 h-1 bg-pink-400 dark:bg-pink-500 rounded-full"></div>
-                        </div>
+                        {/* Glass base */}
+                        <div className="w-18 h-1 bg-gradient-to-b from-gray-400 to-gray-600 dark:from-gray-500 dark:to-gray-700 rounded-full -mt-1"></div>
                         
-                        {/* Eyes */}
-                        <div className="absolute top-3 left-3 w-1.5 h-1.5 bg-pink-600 dark:bg-pink-400 rounded-full"></div>
-                        <div className="absolute top-3 right-3 w-1.5 h-1.5 bg-pink-600 dark:bg-pink-400 rounded-full"></div>
-                        
-                        {/* Coin slot */}
-                        <div className="absolute top-1 left-1/2 transform -translate-x-1/2 w-6 h-1 bg-pink-400 dark:bg-pink-500/50 rounded-full"></div>
-                        
-                        {/* Success sparkles when 100% */}
+                        {/* Achievement effects */}
                         {progress >= 100 && (
                           <>
+                            {/* Success sparkles around the glass */}
                             <div className="absolute -top-2 -left-2 text-yellow-400 animate-bounce">✨</div>
-                            <div className="absolute -top-2 -right-2 text-yellow-400 animate-bounce" style={{animationDelay: '0.2s'}}>✨</div>
-                            <div className="absolute -bottom-1 -left-1 text-yellow-400 animate-bounce" style={{animationDelay: '0.4s'}}>✨</div>
-                            <div className="absolute -bottom-1 -right-1 text-yellow-400 animate-bounce" style={{animationDelay: '0.6s'}}>✨</div>
+                            <div className="absolute -top-2 -right-2 text-yellow-400 animate-bounce" style={{animationDelay: '0.3s'}}>✨</div>
+                            <div className="absolute top-1/2 -left-4 text-yellow-400 animate-bounce" style={{animationDelay: '0.6s'}}>🌟</div>
+                            <div className="absolute top-1/2 -right-4 text-yellow-400 animate-bounce" style={{animationDelay: '0.9s'}}>🌟</div>
+                            <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 text-yellow-400 animate-bounce" style={{animationDelay: '1.2s'}}>🎉</div>
                           </>
                         )}
                       </div>
                       
                       {/* Progress percentage below */}
                       <div className="text-center mt-2">
-                        <div className={`text-lg font-bold ${
+                        <div className={`text-lg font-bold transition-colors duration-300 ${
                           progress >= 100 
-                            ? 'text-yellow-600 dark:text-yellow-400' 
-                            : 'text-pink-600 dark:text-pink-400'
+                            ? 'text-green-600 dark:text-green-400' 
+                            : progress >= 75 
+                            ? 'text-blue-600 dark:text-blue-400'
+                            : progress >= 50
+                            ? 'text-cyan-600 dark:text-cyan-400'
+                            : progress >= 25
+                            ? 'text-cyan-600 dark:text-cyan-400'
+                            : 'text-purple-600 dark:text-purple-400'
                         }`}>
                           {progress.toFixed(1)}%
                         </div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                          {progress >= 100 ? '💧 เต็มแก้วแล้ว!' : 
+                           progress >= 75 ? '🚰 ใกล้เต็มแล้ว!' :
+                           progress >= 50 ? '💧 ครึ่งแก้วแล้ว!' :
+                           progress >= 25 ? '💦 เริ่มมีน้ำแล้ว!' :
+                           '🥛 เริ่มเทน้ำ!'}
+                        </div>
                       </div>
                     </div>
+                    
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-600 dark:text-gray-400">{progress.toFixed(1)}% สำเร็จ</span>
                       <span className={`font-semibold ${progress >= 100 ? 'text-green-600 dark:text-green-400' : 'text-blue-600 dark:text-blue-400'}`}>
