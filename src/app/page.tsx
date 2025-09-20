@@ -16,6 +16,15 @@ import FileImportModal from '../components/FileImportModal';
 import FileExportModal from '../components/FileExportModal';
 import { DataManager } from '../utils/dataManager';
 import { AppData } from '../types';
+import { 
+  calculateAge, 
+  calculateDetailedAge, 
+  toBuddhistYear, 
+  isPersonAliveInYear, 
+  getCurrentYear, 
+  getTimelineYears, 
+  formatCurrency 
+} from '../utils/ageCalculations';
 
 interface Activity {
   id: number;
@@ -131,120 +140,6 @@ const LifeTimelineApp = () => {
     icon: '💰'
   });
 
-  // Utility functions
-  const calculateAge = (birthDateStr) => {
-    if (!birthDateStr) return 0;
-    try {
-      const birth = new Date(birthDateStr);
-      const today = new Date();
-      const ageInMs = today - birth;
-      return Math.floor(ageInMs / (1000 * 60 * 60 * 24 * 365.25));
-    } catch (error) {
-      return 0;
-    }
-  };
-
-  const calculateDetailedAge = (birthDateStr) => {
-    if (!birthDateStr) return null;
-    try {
-      const birth = new Date(birthDateStr);
-      const now = new Date();
-      
-      if (birth > now) return null;
-      
-      let years = now.getFullYear() - birth.getFullYear();
-      let months = now.getMonth() - birth.getMonth();
-      let days = now.getDate() - birth.getDate();
-      let hours = now.getHours() - birth.getHours();
-      let minutes = now.getMinutes() - birth.getMinutes();
-      let seconds = now.getSeconds() - birth.getSeconds();
-      
-      // Adjust negative values
-      if (seconds < 0) {
-        seconds += 60;
-        minutes--;
-      }
-      if (minutes < 0) {
-        minutes += 60;
-        hours--;
-      }
-      if (hours < 0) {
-        hours += 24;
-        days--;
-      }
-      if (days < 0) {
-        const prevMonth = new Date(now.getFullYear(), now.getMonth(), 0);
-        days += prevMonth.getDate();
-        months--;
-      }
-      if (months < 0) {
-        months += 12;
-        years--;
-      }
-      
-      return { years, months, days, hours, minutes, seconds };
-    } catch (error) {
-      return null;
-    }
-  };
-
-  const toBuddhistYear = (gregorianYear) => {
-    return gregorianYear + 543;
-  };
-
-  const isPersonAliveInYear = (personBirthDate, year, personMaxAge = maxAge) => {
-    if (!personBirthDate) return false;
-    try {
-      const birthYear = new Date(personBirthDate).getFullYear();
-      const deathYear = birthYear + personMaxAge;
-      return year >= birthYear && year <= deathYear;
-    } catch (error) {
-      return false;
-    }
-  };
-
-  const getCurrentYear = (personBirthDate) => {
-    if (!personBirthDate) return new Date().getFullYear();
-    try {
-      const birthYear = new Date(personBirthDate).getFullYear();
-      const age = calculateAge(personBirthDate);
-      return birthYear + age;
-    } catch (error) {
-      return new Date().getFullYear();
-    }
-  };
-
-  const getTimelineYears = () => {
-    if (!birthDate) return [];
-    
-    try {
-      const allPeople = [
-        { birthDate },
-        ...friends.filter(f => f.birthDate).map(f => ({ birthDate: f.birthDate }))
-      ];
-      
-      if (allPeople.length === 0) return [];
-      
-      const birthYears = allPeople.map(p => new Date(p.birthDate).getFullYear());
-      const oldestBirthYear = Math.min(...birthYears);
-      const youngestBirthYear = Math.max(...birthYears);
-      
-      const startYear = oldestBirthYear;
-      const endYear = youngestBirthYear + maxAge;
-      
-      const years = [];
-      for (let year = startYear; year <= endYear; year++) {
-        years.push(year);
-      }
-      return years;
-    } catch (error) {
-      return [];
-    }
-  };
-
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('th-TH').format(amount);
-  };
 
   // Calculate age and life percentage
   useEffect(() => {
@@ -604,7 +499,6 @@ const LifeTimelineApp = () => {
     };
   };
 
-
   const addAchievement = () => {
     if (newAchievement.title.trim()) {
       const achievement = {
@@ -870,7 +764,7 @@ const LifeTimelineApp = () => {
   };
 
   // Get timeline data with memoization
-  const timelineYears = useMemo(() => getTimelineYears(), [birthDate, friends, maxAge]);
+  const timelineYears = useMemo(() => getTimelineYears(birthDate, friends, maxAge), [birthDate, friends, maxAge]);
   const currentYear = new Date().getFullYear();
 
   // Auto scroll to current year
