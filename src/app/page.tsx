@@ -26,6 +26,7 @@ interface FriendMessage {
 const LifeTimelineApp = () => {
   const [birthDate, setBirthDate] = useState('');
   const [currentAge, setCurrentAge] = useState(0);
+  const [detailedAge, setDetailedAge] = useState<{ years: number; months: number; days: number; hours: number; minutes: number; seconds: number } | null>(null);
   const [lifePercentage, setLifePercentage] = useState(0);
   const [maxAge, setMaxAge] = useState(80);
   
@@ -66,6 +67,15 @@ const LifeTimelineApp = () => {
   // Emotion modal state
   const [showEmotionModal, setShowEmotionModal] = useState(false);
   const [selectedEmotion, setSelectedEmotion] = useState(null);
+  
+  // Todo modal state
+  const [showTodoModal, setShowTodoModal] = useState(false);
+  const [todos, setTodos] = useState({
+    today: [],
+    tomorrow: [],
+    upcoming: [],
+    monthly: []
+  });
 
   // States for activity features
   const [showAddActivityModal, setShowAddActivityModal] = useState(false);
@@ -113,6 +123,50 @@ const LifeTimelineApp = () => {
       return Math.floor(ageInMs / (1000 * 60 * 60 * 24 * 365.25));
     } catch (error) {
       return 0;
+    }
+  };
+
+  const calculateDetailedAge = (birthDateStr) => {
+    if (!birthDateStr) return null;
+    try {
+      const birth = new Date(birthDateStr);
+      const now = new Date();
+      
+      if (birth > now) return null;
+      
+      let years = now.getFullYear() - birth.getFullYear();
+      let months = now.getMonth() - birth.getMonth();
+      let days = now.getDate() - birth.getDate();
+      let hours = now.getHours() - birth.getHours();
+      let minutes = now.getMinutes() - birth.getMinutes();
+      let seconds = now.getSeconds() - birth.getSeconds();
+      
+      // Adjust negative values
+      if (seconds < 0) {
+        seconds += 60;
+        minutes--;
+      }
+      if (minutes < 0) {
+        minutes += 60;
+        hours--;
+      }
+      if (hours < 0) {
+        hours += 24;
+        days--;
+      }
+      if (days < 0) {
+        const prevMonth = new Date(now.getFullYear(), now.getMonth(), 0);
+        days += prevMonth.getDate();
+        months--;
+      }
+      if (months < 0) {
+        months += 12;
+        years--;
+      }
+      
+      return { years, months, days, hours, minutes, seconds };
+    } catch (error) {
+      return null;
     }
   };
 
@@ -180,8 +234,25 @@ const LifeTimelineApp = () => {
       const age = calculateAge(birthDate);
       setCurrentAge(age);
       setLifePercentage((age / maxAge) * 100);
+      
+      const detailed = calculateDetailedAge(birthDate);
+      setDetailedAge(detailed);
     }
   }, [birthDate, maxAge]);
+
+  // Real-time detailed age update every second
+  useEffect(() => {
+    if (!birthDate) return;
+
+    const updateDetailedAge = () => {
+      const detailed = calculateDetailedAge(birthDate);
+      setDetailedAge(detailed);
+    };
+
+    const interval = setInterval(updateDetailedAge, 1000);
+
+    return () => clearInterval(interval);
+  }, [birthDate]);
 
   // Initialize client state
   useEffect(() => {
@@ -246,7 +317,41 @@ const LifeTimelineApp = () => {
       } catch (error) {
         console.error('Error loading friends:', error);
       }
+    }
+
+    // Load todos from localStorage
+    const savedTodos = localStorage.getItem('userTodos');
+    if (savedTodos) {
+      try {
+        setTodos(JSON.parse(savedTodos));
+      } catch (error) {
+        console.error('Error loading todos:', error);
+      }
     } else {
+      // Set sample todos
+      const sampleTodos = {
+        today: [
+          { id: 1, text: 'อ่านหนังสือ 30 นาที', completed: false },
+          { id: 2, text: 'ออกกำลังกาย', completed: false }
+        ],
+        tomorrow: [
+          { id: 3, text: 'ประชุมกับทีม', completed: false },
+          { id: 4, text: 'จ่ายค่าไฟฟ้า', completed: false }
+        ],
+        upcoming: [
+          { id: 5, text: 'ตรวจสุขภาพประจำปี', completed: false },
+          { id: 6, text: 'วางแผนการลาพักร้อน', completed: false }
+        ],
+        monthly: [
+          { id: 7, text: 'ทบทวนงบประมาณ', completed: false },
+          { id: 8, text: 'เรียนภาษาอังกฤษ', completed: false }
+        ]
+      };
+      setTodos(sampleTodos);
+      localStorage.setItem('userTodos', JSON.stringify(sampleTodos));
+    }
+
+    if (!savedFriends) {
       // Check if emotion modal should be shown
       if (shouldShowEmotionModal()) {
         setTimeout(() => setShowEmotionModal(true), 1000); // Delay 1 second for better UX
@@ -308,18 +413,24 @@ const LifeTimelineApp = () => {
     return () => clearInterval(interval);
   }, [isClient]);
 
-  // Prevent background scroll when modal is open
+  // Prevent background scroll when any modal is open
   useEffect(() => {
-    if (showCalendarModal) {
+    if (showCalendarModal || showTodoModal || showEmotionModal) {
       document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.width = '100%';
     } else {
       document.body.style.overflow = 'unset';
+      document.body.style.position = 'unset';
+      document.body.style.width = 'unset';
     }
     
     return () => {
       document.body.style.overflow = 'unset';
+      document.body.style.position = 'unset';
+      document.body.style.width = 'unset';
     };
-  }, [showCalendarModal]);
+  }, [showCalendarModal, showTodoModal, showEmotionModal]);
 
   // Emotion data
   const emotions = [
@@ -530,11 +641,11 @@ const LifeTimelineApp = () => {
   // Drag and drop handlers
   const handleActivityMouseDown = (e: React.MouseEvent, activity: Activity) => {
     e.preventDefault();
-    const rect = (e.target as HTMLElement).getBoundingClientRect();
     setDraggedActivity(activity.id);
+    // คำนวณ offset จากตำแหน่งปัจจุบันของ post-it
     setDragOffset({
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top
+      x: e.clientX - activity.position.x,
+      y: e.clientY - activity.position.y
     });
   };
 
@@ -564,11 +675,11 @@ const LifeTimelineApp = () => {
   // Handle message mouse down
   const handleMessageMouseDown = (e: React.MouseEvent, message: FriendMessage) => {
     e.preventDefault();
-    const rect = (e.target as HTMLElement).getBoundingClientRect();
     setDraggedMessage(message.id);
+    // คำนวณ offset จากตำแหน่งปัจจุบันของ message post-it
     setDragOffset({
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top
+      x: e.clientX - message.position.x,
+      y: e.clientY - message.position.y
     });
   };
 
@@ -1264,7 +1375,7 @@ const LifeTimelineApp = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">อายุสูงสุด (ปี)</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">ต้องการอยู่ให้ถึง (ปี)</label>
                 <input
                   type="number"
                   min="80"
@@ -1275,9 +1386,37 @@ const LifeTimelineApp = () => {
                 />
               </div>
             </div>
-            {currentAge > 0 && (
-              <div className="mt-4 space-y-2">
-                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">อายุ {currentAge} ปี</div>
+            {currentAge > 0 && detailedAge && (
+              <div className="mt-4 space-y-3">
+                <div className="text-center">
+                  <div className="text-lg font-bold text-blue-600 dark:text-blue-400 mb-2">อายุแบบละเอียด</div>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
+                    <div className="bg-blue-50 dark:bg-blue-900/30 p-2 rounded-lg">
+                      <div className="font-bold text-blue-700 dark:text-blue-300">{detailedAge.years}</div>
+                      <div className="text-blue-600 dark:text-blue-400">ปี</div>
+                    </div>
+                    <div className="bg-green-50 dark:bg-green-900/30 p-2 rounded-lg">
+                      <div className="font-bold text-green-700 dark:text-green-300">{detailedAge.months}</div>
+                      <div className="text-green-600 dark:text-green-400">เดือน</div>
+                    </div>
+                    <div className="bg-yellow-50 dark:bg-yellow-900/30 p-2 rounded-lg">
+                      <div className="font-bold text-yellow-700 dark:text-yellow-300">{detailedAge.days}</div>
+                      <div className="text-yellow-600 dark:text-yellow-400">วัน</div>
+                    </div>
+                    <div className="bg-purple-50 dark:bg-purple-900/30 p-2 rounded-lg">
+                      <div className="font-bold text-purple-700 dark:text-purple-300">{detailedAge.hours}</div>
+                      <div className="text-purple-600 dark:text-purple-400">ชั่วโมง</div>
+                    </div>
+                    <div className="bg-pink-50 dark:bg-pink-900/30 p-2 rounded-lg">
+                      <div className="font-bold text-pink-700 dark:text-pink-300">{detailedAge.minutes}</div>
+                      <div className="text-pink-600 dark:text-pink-400">นาที</div>
+                    </div>
+                    <div className="bg-red-50 dark:bg-red-900/30 p-2 rounded-lg">
+                      <div className="font-bold text-red-700 dark:text-red-300">{detailedAge.seconds}</div>
+                      <div className="text-red-600 dark:text-red-400">วินาที</div>
+                    </div>
+                  </div>
+                </div>
                 <div className="w-full bg-gray-200 rounded-full h-3">
                   <div 
                     className="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full transition-all duration-1000"
@@ -1322,6 +1461,7 @@ const LifeTimelineApp = () => {
                   </div>
                 </div>
 
+                {/* Central Clock with Ripples */}
                 <div className="relative inline-block">
                   {/* Animated Clock */}
                   <div className="relative w-20 h-20 mx-auto mb-4">
@@ -1417,7 +1557,48 @@ const LifeTimelineApp = () => {
                   </div>
                 </div>
 
-              </div>
+                </div>
+
+                {/* Todo List Icon */}
+                <div className="relative">
+                  <button
+                    onClick={() => setShowTodoModal(true)}
+                    className="group relative p-2 hover:scale-110 transform transition-all duration-300 active:scale-95"
+                    title="Todo List - สิ่งที่ต้องทำ"
+                  >
+                    {/* Stacked Paper Effect */}
+                    <div className="relative">
+                      {/* Bottom paper (shadow) */}
+                      <div className="absolute -bottom-1 -right-1 w-12 h-14 bg-gray-300 dark:bg-gray-600 rounded-lg transform rotate-2 opacity-50"></div>
+                      {/* Middle paper */}
+                      <div className="absolute -bottom-0.5 -right-0.5 w-12 h-14 bg-gray-200 dark:bg-gray-500 rounded-lg transform rotate-1 opacity-75"></div>
+                      {/* Top paper (main) */}
+                      <div className="relative w-12 h-14 bg-white dark:bg-gray-100 rounded-lg shadow-lg border-2 border-gray-200 dark:border-gray-300 group-hover:shadow-xl transition-shadow duration-300">
+                        {/* Paper lines */}
+                        <div className="absolute top-3 left-2 right-2 space-y-1">
+                          <div className="h-0.5 bg-blue-200 dark:bg-blue-300 rounded"></div>
+                          <div className="h-0.5 bg-blue-200 dark:bg-blue-300 rounded"></div>
+                          <div className="h-0.5 bg-blue-200 dark:bg-blue-300 rounded"></div>
+                          <div className="h-0.5 bg-blue-200 dark:bg-blue-300 rounded"></div>
+                        </div>
+                        {/* Checkbox symbols */}
+                        <div className="absolute top-3 left-1 space-y-1">
+                          <div className="w-1.5 h-1.5 border border-green-500 rounded-sm bg-green-100"></div>
+                          <div className="w-1.5 h-1.5 border border-gray-400 rounded-sm"></div>
+                          <div className="w-1.5 h-1.5 border border-gray-400 rounded-sm"></div>
+                          <div className="w-1.5 h-1.5 border border-red-400 rounded-sm"></div>
+                        </div>
+                        {/* Checkmark */}
+                        <div className="absolute top-3.5 left-1.5 text-green-600 text-xs font-bold">✓</div>
+                      </div>
+                      {/* Hover glow effect */}
+                      <div className="absolute inset-0 rounded-lg bg-blue-400 opacity-0 group-hover:opacity-20 transition-opacity duration-300 blur-sm"></div>
+                    </div>
+                  </button>
+                  <div className="text-xs text-gray-500 dark:text-gray-400 text-center mt-1">
+                    📝 Todo
+                  </div>
+                </div>
               </div>
 
               {/* Age progression message */}
@@ -1628,8 +1809,16 @@ const LifeTimelineApp = () => {
 
         {/* Calendar Modal */}
         {showCalendarModal && selectedYear && selectedPersonData && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-auto">
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+            onWheel={(e) => e.stopPropagation()}
+            onTouchMove={(e) => e.stopPropagation()}
+          >
+            <div 
+              className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-auto"
+              onWheel={(e) => e.stopPropagation()}
+              onTouchMove={(e) => e.stopPropagation()}
+            >
               {/* Modal Header */}
               <div className="p-6 border-b border-gray-200 dark:border-gray-600">
                 <div className="flex items-center justify-between">
@@ -2234,10 +2423,198 @@ const LifeTimelineApp = () => {
           </div>
         </div>
 
+        {/* Todo Modal */}
+        {showTodoModal && (
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4"
+            onWheel={(e) => e.stopPropagation()}
+            onTouchMove={(e) => e.stopPropagation()}
+          >
+            <div 
+              className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-auto animate-scale-up"
+              onWheel={(e) => e.stopPropagation()}
+              onTouchMove={(e) => e.stopPropagation()}
+            >
+              {/* Modal Header */}
+              <div className="p-6 border-b border-gray-200 dark:border-gray-600 flex items-center justify-between">
+                <div className="flex items-center">
+                  <div className="text-3xl mr-3">📝</div>
+                  <div>
+                    <h3 className="text-2xl font-bold text-gray-800 dark:text-white">สิ่งที่ต้องทำ</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">จัดการงานและภารกิจในชีวิต</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowTodoModal(false)}
+                  className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Todo Sections */}
+              <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Today Section */}
+                <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-4 border-l-4 border-red-500">
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="text-lg font-semibold text-red-700 dark:text-red-300 flex items-center">
+                      <span className="text-xl mr-2">🔥</span>
+                      วันนี้
+                    </h4>
+                    <button className="p-1 text-red-500 hover:text-red-700 hover:bg-red-100 dark:hover:bg-red-800/50 rounded transition-colors">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                      </svg>
+                    </button>
+                  </div>
+                  <div className="space-y-2 max-h-48 overflow-y-auto">
+                    {todos.today.length === 0 ? (
+                      <p className="text-sm text-gray-500 dark:text-gray-400 italic">ยังไม่มีงานที่ต้องทำวันนี้</p>
+                    ) : (
+                      todos.today.map((todo) => (
+                        <div key={todo.id} className="flex items-center p-2 bg-white dark:bg-gray-700 rounded border">
+                          <input type="checkbox" className="mr-2" />
+                          <span className="flex-1 text-sm">{todo.text}</span>
+                          <button className="p-1 text-red-500 hover:text-red-700">
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                          </button>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+
+                {/* Tomorrow Section */}
+                <div className="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4 border-l-4 border-orange-500">
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="text-lg font-semibold text-orange-700 dark:text-orange-300 flex items-center">
+                      <span className="text-xl mr-2">⏰</span>
+                      พรุ่งนี้
+                    </h4>
+                    <button className="p-1 text-orange-500 hover:text-orange-700 hover:bg-orange-100 dark:hover:bg-orange-800/50 rounded transition-colors">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                      </svg>
+                    </button>
+                  </div>
+                  <div className="space-y-2 max-h-48 overflow-y-auto">
+                    {todos.tomorrow.length === 0 ? (
+                      <p className="text-sm text-gray-500 dark:text-gray-400 italic">ยังไม่มีแผนสำหรับพรุ่งนี้</p>
+                    ) : (
+                      todos.tomorrow.map((todo) => (
+                        <div key={todo.id} className="flex items-center p-2 bg-white dark:bg-gray-700 rounded border">
+                          <input type="checkbox" className="mr-2" />
+                          <span className="flex-1 text-sm">{todo.text}</span>
+                          <button className="p-1 text-orange-500 hover:text-orange-700">
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                          </button>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+
+                {/* 2-3 Days Section */}
+                <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 border-l-4 border-blue-500">
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="text-lg font-semibold text-blue-700 dark:text-blue-300 flex items-center">
+                      <span className="text-xl mr-2">📅</span>
+                      2-3 วัน
+                    </h4>
+                    <button className="p-1 text-blue-500 hover:text-blue-700 hover:bg-blue-100 dark:hover:bg-blue-800/50 rounded transition-colors">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                      </svg>
+                    </button>
+                  </div>
+                  <div className="space-y-2 max-h-48 overflow-y-auto">
+                    {todos.upcoming.length === 0 ? (
+                      <p className="text-sm text-gray-500 dark:text-gray-400 italic">ยังไม่มีแผนระยะสั้น</p>
+                    ) : (
+                      todos.upcoming.map((todo) => (
+                        <div key={todo.id} className="flex items-center p-2 bg-white dark:bg-gray-700 rounded border">
+                          <input type="checkbox" className="mr-2" />
+                          <span className="flex-1 text-sm">{todo.text}</span>
+                          <button className="p-1 text-blue-500 hover:text-blue-700">
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                          </button>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+
+                {/* Monthly Section */}
+                <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4 border-l-4 border-purple-500">
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="text-lg font-semibold text-purple-700 dark:text-purple-300 flex items-center">
+                      <span className="text-xl mr-2">🗓️</span>
+                      รายเดือน
+                    </h4>
+                    <button className="p-1 text-purple-500 hover:text-purple-700 hover:bg-purple-100 dark:hover:bg-purple-800/50 rounded transition-colors">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                      </svg>
+                    </button>
+                  </div>
+                  <div className="space-y-2 max-h-48 overflow-y-auto">
+                    {todos.monthly.length === 0 ? (
+                      <p className="text-sm text-gray-500 dark:text-gray-400 italic">ยังไม่มีเป้าหมายประจำเดือน</p>
+                    ) : (
+                      todos.monthly.map((todo) => (
+                        <div key={todo.id} className="flex items-center p-2 bg-white dark:bg-gray-700 rounded border">
+                          <input type="checkbox" className="mr-2" />
+                          <span className="flex-1 text-sm">{todo.text}</span>
+                          <button className="p-1 text-purple-500 hover:text-purple-700">
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                          </button>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Modal Footer */}
+              <div className="p-6 border-t border-gray-200 dark:border-gray-600">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    จัดการงานให้เป็นระบบ ชีวิตจะมีทิศทางชัดเจน
+                  </p>
+                  <button
+                    onClick={() => setShowTodoModal(false)}
+                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                  >
+                    ปิด
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Emotion Modal */}
         {showEmotionModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full animate-scale-up">
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4"
+            onWheel={(e) => e.stopPropagation()}
+            onTouchMove={(e) => e.stopPropagation()}
+          >
+            <div 
+              className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full animate-scale-up"
+              onWheel={(e) => e.stopPropagation()}
+              onTouchMove={(e) => e.stopPropagation()}
+            >
               {/* Modal Header */}
               <div className="p-6 border-b border-gray-200 dark:border-gray-600 text-center">
                 <div className="text-4xl mb-3">💭</div>
@@ -2428,7 +2805,7 @@ const LifeTimelineApp = () => {
         {activities.map((activity) => (
           <div
             key={activity.id}
-            className="absolute z-40 select-none"
+            className="absolute z-40 select-none post-it-container"
             style={{
               left: `${activity.position.x}px`,
               top: `${activity.position.y}px`,
@@ -2521,7 +2898,7 @@ const LifeTimelineApp = () => {
         {friendMessages.map((message) => (
           <div
             key={message.id}
-            className="absolute z-40 select-none"
+            className="absolute z-40 select-none message-post-it-container"
             style={{
               left: `${message.position.x}px`,
               top: `${message.position.y}px`,
