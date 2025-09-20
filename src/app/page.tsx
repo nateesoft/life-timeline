@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Calendar, Trophy, Target, Plus, Trash2, User } from 'lucide-react';
+import { Calendar, Trophy, Target, Plus, Trash2, User, Download, Upload } from 'lucide-react';
 import GlobalStyles from '../components/GlobalStyles';
 import SunMoonComponent from '../components/SunMoonComponent';
 import TodoModal from '../components/TodoModal';
@@ -12,6 +12,10 @@ import ActivityPostIts from '../components/ActivityPostIts';
 import FriendMessagePostIts from '../components/FriendMessagePostIts';
 import AddAchievementModal from '../components/AddAchievementModal';
 import AddGoalModal from '../components/AddGoalModal';
+import FileImportModal from '../components/FileImportModal';
+import FileExportModal from '../components/FileExportModal';
+import { DataManager } from '../utils/dataManager';
+import { AppData } from '../types';
 
 interface Activity {
   id: number;
@@ -109,6 +113,10 @@ const LifeTimelineApp = () => {
   // Modal states for achievements and goals
   const [showAddAchievementModal, setShowAddAchievementModal] = useState(false);
   const [showAddGoalModal, setShowAddGoalModal] = useState(false);
+  
+  // Import/Export modal states
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [showExportModal, setShowExportModal] = useState(false);
   const [newAchievement, setNewAchievement] = useState({
     title: '',
     year: new Date().getFullYear(),
@@ -531,6 +539,69 @@ const LifeTimelineApp = () => {
     } catch (error) {
       console.error('Error saving user data:', error);
     }
+  };
+
+  // Import/Export functions
+  const handleImportData = (importedData: AppData) => {
+    try {
+      // Update all state with imported data
+      if (importedData.userProfile) {
+        setBirthDate(importedData.userProfile.birthDate);
+        setMaxAge(importedData.userProfile.maxAge);
+      }
+      
+      if (importedData.activities) {
+        setActivities(importedData.activities);
+      }
+      
+      if (importedData.achievements) {
+        setAchievements(importedData.achievements);
+      }
+      
+      if (importedData.goals) {
+        setGoals(importedData.goals);
+      }
+      
+      if (importedData.friends) {
+        setFriends(importedData.friends);
+      }
+      
+      if (importedData.friendMessages) {
+        setFriendMessages(importedData.friendMessages);
+      }
+      
+      if (importedData.todos) {
+        setTodos(importedData.todos);
+      }
+
+      // Import data to localStorage using DataManager
+      DataManager.importAppData(importedData);
+      
+      // Show success message
+      setShowSaveSuccess(true);
+      setTimeout(() => setShowSaveSuccess(false), 3000);
+    } catch (error) {
+      console.error('Error importing data:', error);
+      alert('เกิดข้อผิดพลาดในการนำเข้าข้อมูล');
+    }
+  };
+
+  const getCurrentAppData = (): AppData => {
+    return {
+      userProfile: {
+        birthDate,
+        maxAge
+      },
+      activities,
+      achievements,
+      goals,
+      friends,
+      friendMessages,
+      todos,
+      todayEmotion: null, // Will be set from localStorage in DataManager
+      exportDate: new Date().toISOString(),
+      version: '1.0'
+    };
   };
 
 
@@ -971,20 +1042,41 @@ const LifeTimelineApp = () => {
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-800 dark:text-white mb-4">Life Timeline</h1>
           <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg max-w-md mx-auto relative">
-            {/* Save button */}
-            <button
-              onClick={saveUserData}
-              className="absolute top-4 right-4 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors shadow-sm hover:shadow-md transform hover:scale-105 active:scale-95 group"
-              title="บันทึกข้อมูล"
-            >
-              <svg className="w-4 h-4 transform transition-transform group-hover:rotate-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3-3m0 0l-3 3m3-3v12" />
-              </svg>
-            </button>
+            {/* Action buttons */}
+            <div className="absolute top-4 right-4 flex space-x-2">
+              {/* Import button */}
+              <button
+                onClick={() => setShowImportModal(true)}
+                className="p-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors shadow-sm hover:shadow-md transform hover:scale-105 active:scale-95 group"
+                title="นำเข้าข้อมูล"
+              >
+                <Upload className="w-4 h-4 transform transition-transform group-hover:-translate-y-0.5" />
+              </button>
+              
+              {/* Export button */}
+              <button
+                onClick={() => setShowExportModal(true)}
+                className="p-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors shadow-sm hover:shadow-md transform hover:scale-105 active:scale-95 group"
+                title="ส่งออกข้อมูล"
+              >
+                <Download className="w-4 h-4 transform transition-transform group-hover:translate-y-0.5" />
+              </button>
+              
+              {/* Save button */}
+              <button
+                onClick={saveUserData}
+                className="p-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors shadow-sm hover:shadow-md transform hover:scale-105 active:scale-95 group"
+                title="บันทึกข้อมูล"
+              >
+                <svg className="w-4 h-4 transform transition-transform group-hover:rotate-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
+              </button>
+            </div>
 
             {/* Success message */}
             {showSaveSuccess && (
-              <div className="absolute top-4 right-16 bg-green-500 text-white px-3 py-2 rounded-lg shadow-lg flex items-center space-x-2 animate-fade-in">
+              <div className="absolute top-16 right-4 bg-green-500 text-white px-3 py-2 rounded-lg shadow-lg flex items-center space-x-2 animate-fade-in">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
@@ -2103,6 +2195,18 @@ const LifeTimelineApp = () => {
           newGoal={newGoal}
           setNewGoal={setNewGoal}
           addGoal={addGoal}
+        />
+
+        <FileImportModal 
+          isOpen={showImportModal}
+          onClose={() => setShowImportModal(false)}
+          onImport={handleImportData}
+        />
+
+        <FileExportModal 
+          isOpen={showExportModal}
+          onClose={() => setShowExportModal(false)}
+          appData={getCurrentAppData()}
         />
 
       </div>
