@@ -9,7 +9,7 @@ interface FloatingActionButtonProps {
 
 export default function FloatingActionButton({ setShowAddActivityModal }: FloatingActionButtonProps) {
   return (
-    <div className="fixed bottom-6 right-6 z-50">
+    <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
       <button
         onClick={() => setShowAddActivityModal(true)}
         className="group relative w-20 h-20 bg-gradient-to-br from-purple-500 via-blue-500 to-indigo-600 hover:from-purple-600 hover:via-blue-600 hover:to-indigo-700 text-white rounded-full shadow-xl hover:shadow-2xl transform transition-all duration-300 hover:scale-110 active:scale-95 overflow-hidden border-2 border-white/20"
@@ -33,9 +33,9 @@ export default function FloatingActionButton({ setShowAddActivityModal }: Floati
       </button>
       
       {/* Tooltip */}
-      <div className="absolute bottom-full right-0 mb-2 px-3 py-1 bg-black/80 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none">
+      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-black/80 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none">
         เพิ่มกิจกรรม
-        <div className="absolute top-full right-3 border-t-4 border-t-black/80 border-l-2 border-r-2 border-l-transparent border-r-transparent"></div>
+        <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-t-4 border-t-black/80 border-l-2 border-r-2 border-l-transparent border-r-transparent"></div>
       </div>
     </div>
   );
