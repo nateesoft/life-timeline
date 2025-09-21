@@ -799,6 +799,18 @@ const LifeTimelineApp = () => {
       <SunMoonComponent isClient={isClient} currentTime={currentTime} />
 
       <div className="max-w-7xl mx-auto relative z-10">
+        {/* Time & Life Visualization */}
+        <TimeLifeVisualization
+          birthDate={birthDate}
+          currentAge={currentAge}
+          secondsLeft={secondsLeft}
+          currentTime={currentTime}
+          isClient={isClient}
+          focusCurrentAge={focusCurrentAge}
+          setFocusCurrentAge={setFocusCurrentAge}
+          setShowTodoModal={setShowTodoModal}
+        />
+
         {/* Header */}
         <div className="text-center mb-8 relative">
           <h1 className="text-4xl font-bold text-gray-800 dark:text-white mb-4">Life Timeline</h1>
@@ -971,15 +983,19 @@ const LifeTimelineApp = () => {
               </div>
             </div>
 
-            {/* Net Income Summary - Desktop */}
-            <div className="mt-6 max-w-md mx-auto bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl shadow-lg border-l-4 border-blue-500">
-              <div className="flex justify-between items-center">
-                <span className="font-bold text-blue-700 dark:text-blue-300">คงเหลือต่อเดือน:</span>
-                <span className="font-bold text-xl text-blue-600 dark:text-blue-400">
+          </div>
+
+          {/* Net Income Summary - Desktop */}
+          <div className="hidden lg:block mt-6">
+            <div className="max-w-md mx-auto bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl shadow-lg border-l-4 border-blue-500">
+              <div className="text-center">
+                <span className="block font-bold text-blue-700 dark:text-blue-300 mb-2">คงเหลือต่อเดือน</span>
+                <span className="block font-bold text-xl text-blue-600 dark:text-blue-400">
                   {(incomes.reduce((sum, income) => sum + income.amount, 0) - expenses.reduce((sum, expense) => sum + expense.amount, 0)).toLocaleString()} บาท
                 </span>
               </div>
             </div>
+          </div>
           </div>
 
           {/* Mobile Layout */}
@@ -1170,9 +1186,9 @@ const LifeTimelineApp = () => {
               
               {/* Mobile Net Income Summary */}
               <div className="mt-6 bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl shadow-lg border-l-4 border-blue-500">
-                <div className="flex justify-between items-center">
-                  <span className="font-bold text-blue-700 dark:text-blue-300">คงเหลือต่อเดือน:</span>
-                  <span className="font-bold text-xl text-blue-600 dark:text-blue-400">
+                <div className="text-center">
+                  <span className="block font-bold text-blue-700 dark:text-blue-300 mb-2">คงเหลือต่อเดือน</span>
+                  <span className="block font-bold text-xl text-blue-600 dark:text-blue-400">
                     {(incomes.reduce((sum, income) => sum + income.amount, 0) - expenses.reduce((sum, expense) => sum + expense.amount, 0)).toLocaleString()} บาท
                   </span>
                 </div>
@@ -1543,18 +1559,6 @@ const LifeTimelineApp = () => {
           </div>
         </div>
 
-        {/* Time & Life Visualization */}
-        <TimeLifeVisualization
-          birthDate={birthDate}
-          currentAge={currentAge}
-          secondsLeft={secondsLeft}
-          currentTime={currentTime}
-          isClient={isClient}
-          focusCurrentAge={focusCurrentAge}
-          setFocusCurrentAge={setFocusCurrentAge}
-          setShowTodoModal={setShowTodoModal}
-        />
-
         {/* Calendar Modal */}
         <CalendarModal
           showCalendarModal={showCalendarModal}
@@ -1654,7 +1658,6 @@ const LifeTimelineApp = () => {
           appData={getCurrentAppData()}
         />
 
-      </div>
     </div>
   );
 };
