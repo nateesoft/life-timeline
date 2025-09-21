@@ -112,7 +112,7 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-xl font-bold text-gray-800 dark:text-white">
-                ปี {selectedYear} ({toBuddhistYear(selectedYear)})
+                ปี พ.ศ. {toBuddhistYear(selectedYear)}
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                 <span 
@@ -215,7 +215,7 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
                   
                   <h4 className="text-lg font-bold text-gray-800 dark:text-white text-center min-w-[200px]">
                     {['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
-                      'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'][selectedMonth!]} {selectedYear}
+                      'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'][selectedMonth!]} พ.ศ. {toBuddhistYear(selectedYear)}
                   </h4>
                   
                   <button
@@ -272,7 +272,7 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
 
           {/* Year Info */}
           <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-            <h4 className="font-semibold text-gray-800 dark:text-white mb-2">ข้อมูลปี {selectedYear}</h4>
+            <h4 className="font-semibold text-gray-800 dark:text-white mb-2">ข้อมูลปี พ.ศ. {toBuddhistYear(selectedYear)}</h4>
             <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
               <div>📅 ปี พ.ศ. {toBuddhistYear(selectedYear)}</div>
               <div>🎂 อายุ: {selectedYear - new Date(selectedPersonData.birthDate).getFullYear()} ปี</div>

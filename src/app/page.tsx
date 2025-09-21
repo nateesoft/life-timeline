@@ -67,11 +67,48 @@ const LifeTimelineApp = () => {
     { id: 3, title: 'เงินเก็บ 100 ล้าน', target: 10000000, current: 5500000, category: 'savings', icon: '💰' }
   ]);
 
+  // State for income and expenses
+  const [incomes, setIncomes] = useState([
+    { id: 1, title: 'เงินเดือน', amount: 45000, type: 'monthly', icon: '💼' },
+    { id: 2, title: 'รายได้เสริม', amount: 15000, type: 'monthly', icon: '💻' },
+    { id: 3, title: 'ดอกเบียย์เงินฝาก', amount: 2500, type: 'monthly', icon: '🏦' }
+  ]);
+
+  const [expenses, setExpenses] = useState([
+    { id: 1, title: 'ค่าเช่าบ้าน', amount: 12000, type: 'monthly', icon: '🏠' },
+    { id: 2, title: 'ค่าอาหาร', amount: 8000, type: 'monthly', icon: '🍽️' },
+    { id: 3, title: 'ค่าน้ำมันรถ', amount: 3000, type: 'monthly', icon: '⛽' },
+    { id: 4, title: 'ค่าโทรศัพท์', amount: 599, type: 'monthly', icon: '📱' },
+    { id: 5, title: 'ค่าไฟฟ้า', amount: 1500, type: 'monthly', icon: '⚡' }
+  ]);
+
   // State for friends
   const [friends, setFriends] = useState([
-    { id: 1, name: 'สมชาย', birthDate: '1995-03-15', color: '#FF6B6B' },
-    { id: 2, name: 'สมหญิง', birthDate: '1998-07-22', color: '#4ECDC4' }
+    { id: 1, name: 'สมชาย', birthDate: '1995-03-15', color: '#E74C3C' },
+    { id: 2, name: 'สมหญิง', birthDate: '1998-07-22', color: '#1ABC9C' },
+    { id: 3, name: 'วิทยา', birthDate: '1997-11-08', color: '#3498DB' },
+    { id: 4, name: 'ปราณี', birthDate: '1996-05-20', color: '#2ECC71' },
+    { id: 5, name: 'สุรชัย', birthDate: '1999-02-14', color: '#F39C12' }
   ]);
+
+  // Color palette for friends - distinctive colors
+  const friendColorPalette = [
+    '#E74C3C', // Vibrant Red
+    '#1ABC9C', // Emerald
+    '#3498DB', // Bright Blue
+    '#2ECC71', // Green
+    '#F39C12', // Orange
+    '#9B59B6', // Purple
+    '#E67E22', // Carrot
+    '#16A085', // Dark Turquoise
+    '#2980B9', // Belize Blue
+    '#8E44AD', // Wisteria
+    '#D35400', // Pumpkin
+    '#27AE60', // Nephritis
+    '#C0392B', // Pomegranate
+    '#8F4068', // Plum
+    '#17A2B8'  // Info Blue
+  ];
 
   const [showAddFriend, setShowAddFriend] = useState(false);
   const [newFriend, setNewFriend] = useState({ name: '', birthDate: '', color: '#8B5CF6' });
@@ -395,9 +432,17 @@ const LifeTimelineApp = () => {
     }
   };
 
+  // Function to get next available color
+  const getNextFriendColor = () => {
+    const usedColors = friends.map(friend => friend.color);
+    const availableColors = friendColorPalette.filter(color => !usedColors.includes(color));
+    return availableColors.length > 0 ? availableColors[0] : friendColorPalette[friends.length % friendColorPalette.length];
+  };
+
   const addFriend = () => {
     if (newFriend.name && newFriend.birthDate) {
-      const updatedFriends = [...friends, { ...newFriend, id: Date.now() }];
+      const friendColor = getNextFriendColor();
+      const updatedFriends = [...friends, { ...newFriend, id: Date.now(), color: friendColor }];
       setFriends(updatedFriends);
       saveFriendsToStorage(updatedFriends);
       setNewFriend({ name: '', birthDate: '', color: '#8B5CF6' });
@@ -748,7 +793,37 @@ const LifeTimelineApp = () => {
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-800 dark:text-white mb-4">Life Timeline</h1>
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg max-w-md mx-auto relative">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+            
+            {/* Income Section - Left */}
+            <div className="bg-green-50 dark:bg-green-900/20 p-6 rounded-xl shadow-lg border-l-4 border-green-500">
+              <h2 className="text-xl font-bold text-green-700 dark:text-green-300 mb-4 flex items-center">
+                <span className="mr-2">💰</span>
+                รายรับ (ต่อเดือน)
+              </h2>
+              <div className="space-y-3">
+                {incomes.map((income) => (
+                  <div key={income.id} className="flex items-center justify-between p-3 bg-white dark:bg-green-800/30 rounded-lg">
+                    <div className="flex items-center">
+                      <span className="text-lg mr-2">{income.icon}</span>
+                      <span className="text-gray-700 dark:text-green-100 text-sm">{income.title}</span>
+                    </div>
+                    <span className="font-bold text-green-600 dark:text-green-300">
+                      +{income.amount.toLocaleString()}
+                    </span>
+                  </div>
+                ))}
+                <div className="border-t border-green-300 dark:border-green-700 pt-3 mt-3">
+                  <div className="flex justify-between items-center font-bold text-green-700 dark:text-green-300">
+                    <span>รวม:</span>
+                    <span className="text-lg">+{incomes.reduce((sum, income) => sum + income.amount, 0).toLocaleString()} บาท</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Birth Date Form - Center */}
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg relative">
             {/* Success message */}
             {showSaveSuccess && (
               <div className="absolute top-4 right-4 bg-green-500 text-white px-3 py-2 rounded-lg shadow-lg flex items-center space-x-2 animate-fade-in z-10">
@@ -856,6 +931,45 @@ const LifeTimelineApp = () => {
                 <div className="text-sm text-gray-600 dark:text-gray-400">ใช้ชีวิตไปแล้ว {lifePercentage.toFixed(1)}%</div>
               </div>
             )}
+            </div>
+
+            {/* Expenses Section - Right */}
+            <div className="bg-red-50 dark:bg-red-900/20 p-6 rounded-xl shadow-lg border-l-4 border-red-500">
+              <h2 className="text-xl font-bold text-red-700 dark:text-red-300 mb-4 flex items-center">
+                <span className="mr-2">💸</span>
+                รายจ่าย (ต่อเดือน)
+              </h2>
+              <div className="space-y-3">
+                {expenses.map((expense) => (
+                  <div key={expense.id} className="flex items-center justify-between p-3 bg-white dark:bg-red-800/30 rounded-lg">
+                    <div className="flex items-center">
+                      <span className="text-lg mr-2">{expense.icon}</span>
+                      <span className="text-gray-700 dark:text-red-100 text-sm">{expense.title}</span>
+                    </div>
+                    <span className="font-bold text-red-600 dark:text-red-300">
+                      -{expense.amount.toLocaleString()}
+                    </span>
+                  </div>
+                ))}
+                <div className="border-t border-red-300 dark:border-red-700 pt-3 mt-3">
+                  <div className="flex justify-between items-center font-bold text-red-700 dark:text-red-300">
+                    <span>รวม:</span>
+                    <span className="text-lg">-{expenses.reduce((sum, expense) => sum + expense.amount, 0).toLocaleString()} บาท</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+          
+          {/* Net Income Summary */}
+          <div className="mt-6 max-w-md mx-auto bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl shadow-lg border-l-4 border-blue-500">
+            <div className="flex justify-between items-center">
+              <span className="font-bold text-blue-700 dark:text-blue-300">คงเหลือต่อเดือน:</span>
+              <span className="font-bold text-xl text-blue-600 dark:text-blue-400">
+                {(incomes.reduce((sum, income) => sum + income.amount, 0) - expenses.reduce((sum, expense) => sum + expense.amount, 0)).toLocaleString()} บาท
+              </span>
+            </div>
           </div>
         </div>
 
