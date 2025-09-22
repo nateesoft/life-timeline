@@ -1,6 +1,5 @@
 import { User, Download, Upload, Calendar, Plus, Trash2 } from 'lucide-react';
-import { calculateAge, toBuddhistYear, isPersonAliveInYear, getCurrentYear, formatCurrency } from '../utils/ageCalculations';
-import WaterTankVisualization from './WaterTankVisualization';
+import { calculateAge, toBuddhistYear, isPersonAliveInYear, getCurrentYear } from '../utils/ageCalculations';
 
 interface Income {
   id: number;
@@ -285,27 +284,6 @@ export default function HeaderMain({
 
           </div>
 
-          {/* Net Income Summary - Desktop */}
-          <div className="hidden lg:block mt-6">
-            <div className="max-w-md mx-auto bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl shadow-lg border-l-4 border-blue-500">
-              <div className="text-center">
-                <span className="block font-bold text-blue-700 dark:text-blue-300 mb-2">คงเหลือต่อเดือน</span>
-                <span className="block font-bold text-xl text-blue-600 dark:text-blue-400">
-                  {(incomes.reduce((sum, income) => sum + income.amount, 0) - expenses.reduce((sum, expense) => sum + expense.amount, 0)).toLocaleString()} บาท
-                </span>
-              </div>
-              
-              {/* Water Tank Visualization */}
-              <div className="mt-6">
-                <WaterTankVisualization
-                  income={incomes.reduce((sum, income) => sum + income.amount, 0)}
-                  expenses={expenses.map(expense => ({ name: expense.title, amount: expense.amount }))}
-                  remainingBalance={incomes.reduce((sum, income) => sum + income.amount, 0) - expenses.reduce((sum, expense) => sum + expense.amount, 0)}
-                />
-              </div>
-            </div>
-          </div>
-
           {/* Mobile Layout */}
           <div className="lg:hidden relative">
             {/* Income Tab - Left */}
@@ -491,25 +469,6 @@ export default function HeaderMain({
                   <div className="text-sm text-gray-600 dark:text-gray-400">ใช้ชีวิตไปแล้ว {lifePercentage.toFixed(1)}%</div>
                 </div>
               )}
-              
-              {/* Mobile Net Income Summary */}
-              <div className="mt-6 bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl shadow-lg border-l-4 border-blue-500">
-                <div className="text-center">
-                  <span className="block font-bold text-blue-700 dark:text-blue-300 mb-2">คงเหลือต่อเดือน</span>
-                  <span className="block font-bold text-xl text-blue-600 dark:text-blue-400">
-                    {(incomes.reduce((sum, income) => sum + income.amount, 0) - expenses.reduce((sum, expense) => sum + expense.amount, 0)).toLocaleString()} บาท
-                  </span>
-                </div>
-                
-                {/* Water Tank Visualization */}
-                <div className="mt-6">
-                  <WaterTankVisualization
-                    income={incomes.reduce((sum, income) => sum + income.amount, 0)}
-                    expenses={expenses.map(expense => ({ name: expense.title, amount: expense.amount }))}
-                    remainingBalance={incomes.reduce((sum, income) => sum + income.amount, 0) - expenses.reduce((sum, expense) => sum + expense.amount, 0)}
-                  />
-                </div>
-              </div>
             </div>
 
             {/* Income Drawer */}

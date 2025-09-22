@@ -27,6 +27,7 @@ import {
   getTimelineYears} from '../utils/ageCalculations';
 
 import HeaderMain from '../components/HeaderMain';
+import WaterTankVisualization from '../components/WaterTankVisualization';
 
 interface Activity {
   id: number;
@@ -975,6 +976,12 @@ const LifeTimelineApp = () => {
           timelineYears={timelineYears}
           currentYear={currentYear}
           lifePercentage={lifePercentage}
+        />
+
+        <WaterTankVisualization
+          income={incomes.reduce((sum, income) => sum + income.amount, 0)}
+          expenses={expenses.map(expense => ({ name: expense.title, amount: expense.amount }))}
+          remainingBalance={incomes.reduce((sum, income) => sum + income.amount, 0) - expenses.reduce((sum, expense) => sum + expense.amount, 0)}
         />
 
         {/* Calendar Modal */}
