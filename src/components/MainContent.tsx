@@ -49,6 +49,9 @@ interface MainContentProps {
   removeAchievement: (id: number) => void;
   setShowAddGoalModal: (show: boolean) => void;
   removeGoal: (id: number) => void;
+  timelineDotSize: number;
+  increaseTimelineDotSize: () => void;
+  decreaseTimelineDotSize: () => void;
 }
 
 const MainContent: React.FC<MainContentProps> = ({
@@ -68,16 +71,130 @@ const MainContent: React.FC<MainContentProps> = ({
   setShowAddAchievementModal,
   removeAchievement,
   setShowAddGoalModal,
-  removeGoal
+  removeGoal,
+  timelineDotSize,
+  increaseTimelineDotSize,
+  decreaseTimelineDotSize
 }) => {
+  
+  // Calculate sizes based on timelineDotSize
+  const getSizeClasses = () => {
+    switch(timelineDotSize) {
+      case 1: // Small
+        return {
+          userSize: 'w-8 h-8',
+          friendSize: 'w-6 h-6',
+          userIcon: 'w-4 h-4',
+          friendIcon: 'w-3 h-3',
+          spacing: '60px',
+          lineOffset: 'top-8 left-8 w-11',
+          fontSize: 'text-xs'
+        };
+      case 2: // Medium (current)
+        return {
+          userSize: 'w-12 h-12',
+          friendSize: 'w-10 h-10',
+          userIcon: 'w-6 h-6',
+          friendIcon: 'w-4 h-4',
+          spacing: '80px',
+          lineOffset: 'top-10 left-10 w-16',
+          fontSize: 'text-sm'
+        };
+      case 3: // Large
+        return {
+          userSize: 'w-20 h-20',
+          friendSize: 'w-16 h-16',
+          userIcon: 'w-8 h-8',
+          friendIcon: 'w-6 h-6',
+          spacing: '100px',
+          lineOffset: 'top-12 left-12 w-20',
+          fontSize: 'text-base'
+        };
+      case 4: // Extra Large
+        return {
+          userSize: 'w-28 h-28',
+          friendSize: 'w-24 h-24',
+          userIcon: 'w-12 h-12',
+          friendIcon: 'w-8 h-8',
+          spacing: '140px',
+          lineOffset: 'top-16 left-16 w-28',
+          fontSize: 'text-lg'
+        };
+      default:
+        return {
+          userSize: 'w-24 h-24',
+          friendSize: 'w-20 h-20',
+          userIcon: 'w-10 h-10',
+          friendIcon: 'w-8 h-8',
+          spacing: '120px',
+          lineOffset: 'top-12 left-12 w-24',
+          fontSize: 'text-lg'
+        };
+    }
+  };
+
+  const sizeClasses = getSizeClasses();
   return (
     <div className="space-y-6">
       {/* Timeline - Full Width */}
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-        <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6 flex items-center">
-          <Calendar className="mr-2 text-blue-500" />
-          Timeline ชีวิต
-        </h2>
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-bold text-gray-800 dark:text-white flex items-center">
+            <Calendar className="mr-2 text-blue-500" />
+            Timeline ชีวิต
+          </h2>
+          
+          {/* Timeline Size Controls */}
+          <div className="flex items-center space-x-2 bg-gray-100 dark:bg-gray-700 rounded-lg p-2">
+            <span className="text-sm text-gray-600 dark:text-gray-400 font-medium">ขนาดจุด:</span>
+            <button
+              onClick={decreaseTimelineDotSize}
+              disabled={timelineDotSize === 1}
+              className={`w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold transition-all duration-200 ${
+                timelineDotSize === 1 
+                  ? 'bg-gray-400 cursor-not-allowed opacity-50' 
+                  : 'bg-red-500 hover:bg-red-600 hover:scale-110 active:scale-95 shadow-md'
+              }`}
+              title="ลดขนาดจุด timeline"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M20 12H4" />
+              </svg>
+            </button>
+            
+            <div className="flex items-center space-x-1">
+              {[1, 2, 3, 4].map((size) => (
+                <div
+                  key={size}
+                  className={`rounded-full transition-all duration-200 ${
+                    timelineDotSize === size
+                      ? 'bg-blue-500 shadow-lg'
+                      : 'bg-gray-300 dark:bg-gray-600'
+                  }`}
+                  style={{
+                    width: `${4 + size * 2}px`,
+                    height: `${4 + size * 2}px`
+                  }}
+                />
+              ))}
+            </div>
+            
+            <button
+              onClick={increaseTimelineDotSize}
+              disabled={timelineDotSize === 4}
+              className={`w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold transition-all duration-200 ${
+                timelineDotSize === 4 
+                  ? 'bg-gray-400 cursor-not-allowed opacity-50' 
+                  : 'bg-green-500 hover:bg-green-600 hover:scale-110 active:scale-95 shadow-md'
+              }`}
+              title="เพิ่มขนาดจุด timeline"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 4v16m8-8H4" />
+              </svg>
+            </button>
+          </div>
+        </div>
         
         {/* Friends Timeline */}
         <div className="mb-6">
@@ -153,29 +270,36 @@ const MainContent: React.FC<MainContentProps> = ({
             <>
               {/* Horizontal Timeline */}
               <div className="relative overflow-x-auto pb-4">
-                <div className="flex" style={{ minWidth: `${timelineYears.length * 60}px` }}>
+                <div className="flex" style={{ minWidth: `${timelineYears.length * parseInt(sizeClasses.spacing)}px` }}>
                   {timelineYears.map((year, index) => {
                     const buddhistYear = toBuddhistYear(year);
                     const isCurrentYearForUser = year === currentYear;
                     const userAge = birthDate ? year - new Date(birthDate).getFullYear() : 0;
                     
                     return (
-                      <div key={year} id={`year-${year}`} className="flex flex-col items-center relative" style={{ minWidth: '60px' }}>
+                      <div key={year} id={`year-${year}`} className="flex flex-col items-center relative" style={{ minWidth: sizeClasses.spacing }}>
                         {/* Background line */}
                         {index < timelineYears.length - 1 && (
-                          <div className="absolute top-8 left-8 w-11 h-0.5 bg-gray-300 dark:bg-gray-600"></div>
+                          <div className={`absolute ${sizeClasses.lineOffset} h-1 bg-gradient-to-r from-gray-300 to-gray-400 dark:from-gray-600 dark:to-gray-500 rounded-full shadow-sm`}></div>
                         )}
                         
                         {/* Main user dot */}
                         <div className="mb-4">
                           <div 
-                            className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-xs transition-all duration-300 ${
+                            className={`${sizeClasses.userSize} rounded-xl flex items-center justify-center text-white font-bold ${sizeClasses.fontSize} transition-all duration-300 transform-gpu perspective-1000 ${
                               isPersonAliveInYear(birthDate, year) && year <= currentYear
-                                ? 'bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg transform hover:scale-110 cursor-pointer' 
+                                ? 'bg-gradient-to-br from-blue-400 via-blue-500 to-blue-700 shadow-2xl hover:scale-110 cursor-pointer shadow-blue-500/30' 
                                 : isPersonAliveInYear(birthDate, year) && year === currentYear + 1
-                                  ? 'bg-gradient-to-br from-blue-300 to-blue-400 shadow-md cursor-pointer' 
-                                  : 'bg-gray-300 opacity-50'
-                            } ${isCurrentYearForUser ? 'ring-2 ring-white shadow-xl' : ''}`}
+                                  ? 'bg-gradient-to-br from-blue-300 via-blue-400 to-blue-500 shadow-xl cursor-pointer shadow-blue-400/20' 
+                                  : 'bg-gradient-to-br from-gray-300 to-gray-400 opacity-50 shadow-md'
+                            } ${isCurrentYearForUser ? 'ring-4 ring-white shadow-2xl shadow-blue-600/40 animate-pulse' : ''}`}
+                            style={{
+                              boxShadow: isPersonAliveInYear(birthDate, year) && year <= currentYear
+                                ? '0 12px 30px rgba(59, 130, 246, 0.4), inset 0 4px 8px rgba(255,255,255,0.3), inset 0 -4px 8px rgba(0,0,0,0.2)'
+                                : isPersonAliveInYear(birthDate, year) && year === currentYear + 1
+                                  ? '0 8px 20px rgba(59, 130, 246, 0.2), inset 0 4px 8px rgba(255,255,255,0.3), inset 0 -4px 8px rgba(0,0,0,0.2)'
+                                  : '0 4px 12px rgba(0,0,0,0.1), inset 0 4px 8px rgba(255,255,255,0.3), inset 0 -4px 8px rgba(0,0,0,0.2)'
+                            }}
                             onClick={() => {
                               const isClickable = isPersonAliveInYear(birthDate, year) && year <= currentYear + 1;
                               if (isClickable) {
@@ -183,7 +307,7 @@ const MainContent: React.FC<MainContentProps> = ({
                               }
                             }}>
                             {isCurrentYearForUser ? (
-                              <User className="w-4 h-4" />
+                              <User className={sizeClasses.userIcon} />
                             ) : (
                               userAge >= 0 && userAge <= 99 ? userAge : ''
                             )}
@@ -199,17 +323,20 @@ const MainContent: React.FC<MainContentProps> = ({
                           const friendAge = friend.birthDate ? year - new Date(friend.birthDate).getFullYear() : 0;
                           
                           return (
-                            <div key={friend.id} className="mb-2">
+                            <div key={friend.id} className="mb-3">
                               <div 
-                                className={`w-6 h-6 rounded-full flex items-center justify-center text-white font-bold text-xs transition-all duration-300 ${
+                                className={`${sizeClasses.friendSize} rounded-xl flex items-center justify-center text-white font-bold ${sizeClasses.fontSize} transition-all duration-300 transform-gpu perspective-1000 ${
                                   isLived 
-                                    ? 'shadow-md transform hover:scale-110 cursor-pointer' 
-                                    : 'opacity-50'
-                                } ${isCurrent ? 'ring-2 ring-white shadow-lg' : ''}`}
+                                    ? 'shadow-xl hover:scale-110 cursor-pointer shadow-black/20' 
+                                    : 'opacity-50 shadow-sm'
+                                } ${isCurrent ? 'ring-3 ring-white shadow-2xl animate-pulse' : ''}`}
                                 style={{ 
                                   background: isLived 
-                                    ? `linear-gradient(135deg, ${friend.color}, ${friend.color}dd)` 
-                                    : '#e5e7eb'
+                                    ? `linear-gradient(135deg, ${friend.color}, ${friend.color}dd, ${friend.color}bb)` 
+                                    : 'linear-gradient(135deg, #e5e7eb, #d1d5db, #9ca3af)',
+                                  boxShadow: isLived 
+                                    ? `0 8px 20px ${friend.color}30, inset 0 2px 4px rgba(255,255,255,0.3), inset 0 -2px 4px rgba(0,0,0,0.2)`
+                                    : '0 4px 8px rgba(0,0,0,0.1), inset 0 2px 4px rgba(255,255,255,0.3), inset 0 -2px 4px rgba(0,0,0,0.2)'
                                 }}
                                 onClick={() => {
                                   if (isLived) {
@@ -217,7 +344,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                   }
                                 }}>
                                 {isCurrent ? (
-                                  <User className="w-3 h-3" />
+                                  <User className={sizeClasses.friendIcon} />
                                 ) : (
                                   friendAge >= 0 && friendAge <= 99 ? friendAge : ''
                                 )}

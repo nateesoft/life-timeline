@@ -83,6 +83,9 @@ const LifeTimelineApp = () => {
     { id: 3, title: 'เงินเก็บ 100 ล้าน', target: 10000000, current: 5500000, category: 'savings', icon: '💰' }
   ]);
 
+  // Timeline dot size state
+  const [timelineDotSize, setTimelineDotSize] = useState(2); // 1 = small, 2 = medium, 3 = large, 4 = extra large
+
   // State for income and expenses
   const [incomes, setIncomes] = useState([
     { id: 1, title: 'เงินเดือน', amount: 45000, type: 'monthly', icon: '💼' },
@@ -284,11 +287,15 @@ const LifeTimelineApp = () => {
     // Load user data from localStorage
     const savedBirthDate = localStorage.getItem('userBirthDate');
     const savedMaxAge = localStorage.getItem('userMaxAge');
+    const savedTimelineDotSize = localStorage.getItem('timelineDotSize');
     if (savedBirthDate) {
       setBirthDate(savedBirthDate);
     }
     if (savedMaxAge) {
       setMaxAge(parseInt(savedMaxAge) || 80);
+    }
+    if (savedTimelineDotSize) {
+      setTimelineDotSize(parseInt(savedTimelineDotSize) || 2);
     }
 
     // Load achievements from localStorage
@@ -570,11 +577,21 @@ const LifeTimelineApp = () => {
     }
   };
 
+  // Timeline dot size functions
+  const increaseTimelineDotSize = () => {
+    setTimelineDotSize(prev => Math.min(prev + 1, 4));
+  };
+
+  const decreaseTimelineDotSize = () => {
+    setTimelineDotSize(prev => Math.max(prev - 1, 1));
+  };
+
   // User data management functions
   const saveUserData = () => {
     try {
       localStorage.setItem('userBirthDate', birthDate);
       localStorage.setItem('userMaxAge', maxAge.toString());
+      localStorage.setItem('timelineDotSize', timelineDotSize.toString());
       
       // Show success message
       setShowSaveSuccess(true);
@@ -976,6 +993,14 @@ const LifeTimelineApp = () => {
           timelineYears={timelineYears}
           currentYear={currentYear}
           lifePercentage={lifePercentage}
+          addFriend={addFriend}
+          removeFriend={removeFriend}
+          setShowAddFriend={setShowAddFriend}
+          setNewFriend={setNewFriend}
+          timelineDotSize={timelineDotSize}
+          increaseTimelineDotSize={increaseTimelineDotSize}
+          decreaseTimelineDotSize={decreaseTimelineDotSize}
+          handleTimelineDotClick={handleTimelineDotClick}
         />
 
         <WaterTankVisualization
@@ -1014,6 +1039,9 @@ const LifeTimelineApp = () => {
             removeAchievement={removeAchievement}
             setShowAddGoalModal={setShowAddGoalModal}
             removeGoal={removeGoal}
+            timelineDotSize={timelineDotSize}
+            increaseTimelineDotSize={increaseTimelineDotSize}
+            decreaseTimelineDotSize={decreaseTimelineDotSize}
           />
         </div>
 

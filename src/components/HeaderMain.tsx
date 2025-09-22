@@ -77,6 +77,14 @@ interface HeaderMainProps {
   timelineYears: number[];
   currentYear: number;
   lifePercentage: number;
+  addFriend: () => void;
+  removeFriend: (id: number) => void;
+  setShowAddFriend: (show: boolean) => void;
+  setNewFriend: (friend: NewFriend) => void;
+  timelineDotSize?: number;
+  increaseTimelineDotSize?: () => void;
+  decreaseTimelineDotSize?: () => void;
+  handleTimelineDotClick?: (year: number, personData: any, personType: string) => void;
 }
 
 export default function HeaderMain({ 
@@ -108,8 +116,74 @@ export default function HeaderMain({
   friends,
   timelineYears,
   currentYear,
-  lifePercentage
+  lifePercentage,
+  addFriend,
+  removeFriend,
+  setShowAddFriend,
+  setNewFriend,
+  timelineDotSize = 2,
+  increaseTimelineDotSize,
+  decreaseTimelineDotSize,
+  handleTimelineDotClick
  }: HeaderMainProps) {
+  
+  // Calculate sizes based on timelineDotSize for mobile
+  const getMobileSizeClasses = () => {
+    switch(timelineDotSize) {
+      case 1: // Small
+        return {
+          userSize: 'w-6 h-6',
+          friendSize: 'w-4 h-4',
+          userIcon: 'w-3 h-3',
+          friendIcon: 'w-2 h-2',
+          spacing: '50px',
+          lineOffset: 'top-6 left-6 w-9',
+          fontSize: 'text-xs'
+        };
+      case 2: // Medium
+        return {
+          userSize: 'w-8 h-8',
+          friendSize: 'w-6 h-6',
+          userIcon: 'w-4 h-4',
+          friendIcon: 'w-3 h-3',
+          spacing: '60px',
+          lineOffset: 'top-8 left-8 w-11',
+          fontSize: 'text-xs'
+        };
+      case 3: // Large
+        return {
+          userSize: 'w-12 h-12',
+          friendSize: 'w-10 h-10',
+          userIcon: 'w-6 h-6',
+          friendIcon: 'w-4 h-4',
+          spacing: '80px',
+          lineOffset: 'top-10 left-10 w-16',
+          fontSize: 'text-sm'
+        };
+      case 4: // Extra Large
+        return {
+          userSize: 'w-16 h-16',
+          friendSize: 'w-12 h-12',
+          userIcon: 'w-8 h-8',
+          friendIcon: 'w-6 h-6',
+          spacing: '100px',
+          lineOffset: 'top-12 left-12 w-20',
+          fontSize: 'text-base'
+        };
+      default:
+        return {
+          userSize: 'w-8 h-8',
+          friendSize: 'w-6 h-6',
+          userIcon: 'w-4 h-4',
+          friendIcon: 'w-3 h-3',
+          spacing: '60px',
+          lineOffset: 'top-8 left-8 w-11',
+          fontSize: 'text-xs'
+        };
+    }
+  };
+
+  const mobileSizeClasses = getMobileSizeClasses();
   return (
     <div className="text-center mb-8 relative">
           <h1 className="text-4xl font-bold text-gray-800 dark:text-white mb-4">Life Timeline</h1>
@@ -660,10 +734,64 @@ export default function HeaderMain({
           {/* Mobile Timeline Section */}
           <div className="lg:hidden mt-8">
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-              <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6 flex items-center">
-                <Calendar className="mr-2 text-blue-500" />
-                Timeline ชีวิต
-              </h2>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold text-gray-800 dark:text-white flex items-center">
+                  <Calendar className="mr-2 text-blue-500" />
+                  Timeline ชีวิต
+                </h2>
+                
+                {/* Mobile Timeline Size Controls */}
+                {increaseTimelineDotSize && decreaseTimelineDotSize && (
+                  <div className="flex items-center space-x-1 bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+                    <button
+                      onClick={decreaseTimelineDotSize}
+                      disabled={timelineDotSize === 1}
+                      className={`w-6 h-6 rounded flex items-center justify-center text-white font-bold transition-all duration-200 ${
+                        timelineDotSize === 1 
+                          ? 'bg-gray-400 cursor-not-allowed opacity-50' 
+                          : 'bg-red-500 hover:bg-red-600 active:scale-95'
+                      }`}
+                      title="ลดขนาดจุด"
+                    >
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M20 12H4" />
+                      </svg>
+                    </button>
+                    
+                    <div className="flex items-center space-x-1">
+                      {[1, 2, 3, 4].map((size) => (
+                        <div
+                          key={size}
+                          className={`rounded-full transition-all duration-200 ${
+                            timelineDotSize === size
+                              ? 'bg-blue-500'
+                              : 'bg-gray-300 dark:bg-gray-600'
+                          }`}
+                          style={{
+                            width: `${2 + size}px`,
+                            height: `${2 + size}px`
+                          }}
+                        />
+                      ))}
+                    </div>
+                    
+                    <button
+                      onClick={increaseTimelineDotSize}
+                      disabled={timelineDotSize === 4}
+                      className={`w-6 h-6 rounded flex items-center justify-center text-white font-bold transition-all duration-200 ${
+                        timelineDotSize === 4 
+                          ? 'bg-gray-400 cursor-not-allowed opacity-50' 
+                          : 'bg-green-500 hover:bg-green-600 active:scale-95'
+                      }`}
+                      title="เพิ่มขนาดจุด"
+                    >
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 4v16m8-8H4" />
+                      </svg>
+                    </button>
+                  </div>
+                )}
+              </div>
               
               {/* Friends Timeline */}
               <div className="mb-6">
@@ -737,37 +865,44 @@ export default function HeaderMain({
                   </div>
                 ) : (
                   <div className="relative overflow-x-auto pb-4">
-                    <div className="flex" style={{ minWidth: `${timelineYears.length * 60}px` }}>
+                    <div className="flex" style={{ minWidth: `${timelineYears.length * parseInt(mobileSizeClasses.spacing)}px` }}>
                       {timelineYears.map((year, index) => {
                         const buddhistYear = toBuddhistYear(year);
                         const isCurrentYearForUser = year === currentYear;
                         const userAge = birthDate ? year - new Date(birthDate).getFullYear() : 0;
                         
                         return (
-                          <div key={year} id={`year-mobile-${year}`} className="flex flex-col items-center relative" style={{ minWidth: '60px' }}>
+                          <div key={year} id={`year-mobile-${year}`} className="flex flex-col items-center relative" style={{ minWidth: mobileSizeClasses.spacing }}>
                             {/* Background line */}
                             {index < timelineYears.length - 1 && (
-                              <div className="absolute top-8 left-8 w-11 h-0.5 bg-gray-300 dark:bg-gray-600"></div>
+                              <div className={`absolute ${mobileSizeClasses.lineOffset} h-0.5 bg-gray-300 dark:bg-gray-600`}></div>
                             )}
                             
                             {/* Main user dot */}
                             <div className="mb-4">
                               <div 
-                                className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-xs transition-all duration-300 ${
+                                className={`${mobileSizeClasses.userSize} rounded-lg flex items-center justify-center text-white font-bold ${mobileSizeClasses.fontSize} transition-all duration-300 ${
                                   isPersonAliveInYear(birthDate, year) && year <= currentYear
                                     ? 'bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg transform hover:scale-110 cursor-pointer' 
                                     : isPersonAliveInYear(birthDate, year) && year === currentYear + 1
                                       ? 'bg-gradient-to-br from-blue-300 to-blue-400 shadow-md cursor-pointer' 
                                       : 'bg-gray-300 opacity-50'
                                 } ${isCurrentYearForUser ? 'ring-2 ring-white shadow-xl' : ''}`}
+                                style={{
+                                  boxShadow: isPersonAliveInYear(birthDate, year) && year <= currentYear
+                                    ? '0 4px 12px rgba(59, 130, 246, 0.3), inset 0 2px 4px rgba(255,255,255,0.3), inset 0 -2px 4px rgba(0,0,0,0.2)'
+                                    : isPersonAliveInYear(birthDate, year) && year === currentYear + 1
+                                      ? '0 2px 8px rgba(59, 130, 246, 0.2), inset 0 2px 4px rgba(255,255,255,0.3), inset 0 -2px 4px rgba(0,0,0,0.2)'
+                                      : '0 2px 6px rgba(0,0,0,0.1), inset 0 2px 4px rgba(255,255,255,0.3), inset 0 -2px 4px rgba(0,0,0,0.2)'
+                                }}
                                 onClick={() => {
                                   const isClickable = isPersonAliveInYear(birthDate, year) && year <= currentYear + 1;
-                                  if (isClickable) {
+                                  if (isClickable && handleTimelineDotClick) {
                                     handleTimelineDotClick(year, { name: 'คุณ', birthDate, color: '#3B82F6' }, 'user');
                                   }
                                 }}>
                                 {isCurrentYearForUser ? (
-                                  <User className="w-4 h-4" />
+                                  <User className={mobileSizeClasses.userIcon} />
                                 ) : (
                                   userAge >= 0 && userAge <= 99 ? userAge : ''
                                 )}
@@ -785,23 +920,26 @@ export default function HeaderMain({
                               return (
                                 <div key={friend.id} className="mb-2">
                                   <div 
-                                    className={`w-6 h-6 rounded-full flex items-center justify-center text-white font-bold text-xs transition-all duration-300 ${
+                                    className={`${mobileSizeClasses.friendSize} rounded-lg flex items-center justify-center text-white font-bold ${mobileSizeClasses.fontSize} transition-all duration-300 ${
                                       isLived 
                                         ? 'shadow-md transform hover:scale-110 cursor-pointer' 
                                         : 'opacity-50'
                                     } ${isCurrent ? 'ring-2 ring-white shadow-lg' : ''}`}
                                     style={{ 
                                       background: isLived 
-                                        ? `linear-gradient(135deg, ${friend.color}, ${friend.color}dd)` 
-                                        : '#e5e7eb'
+                                        ? `linear-gradient(135deg, ${friend.color}, ${friend.color}dd, ${friend.color}bb)` 
+                                        : 'linear-gradient(135deg, #e5e7eb, #d1d5db, #9ca3af)',
+                                      boxShadow: isLived 
+                                        ? `0 4px 12px ${friend.color}30, inset 0 1px 3px rgba(255,255,255,0.3), inset 0 -1px 3px rgba(0,0,0,0.2)`
+                                        : '0 2px 4px rgba(0,0,0,0.1), inset 0 1px 3px rgba(255,255,255,0.3), inset 0 -1px 3px rgba(0,0,0,0.2)'
                                     }}
                                     onClick={() => {
-                                      if (isLived) {
+                                      if (isLived && handleTimelineDotClick) {
                                         handleTimelineDotClick(year, friend, 'friend');
                                       }
                                     }}>
                                     {isCurrent ? (
-                                      <User className="w-3 h-3" />
+                                      <User className={mobileSizeClasses.friendIcon} />
                                     ) : (
                                       friendAge >= 0 && friendAge <= 99 ? friendAge : ''
                                     )}
