@@ -1001,6 +1001,7 @@ const LifeTimelineApp = () => {
           increaseTimelineDotSize={increaseTimelineDotSize}
           decreaseTimelineDotSize={decreaseTimelineDotSize}
           handleTimelineDotClick={handleTimelineDotClick}
+          setShowAddAchievementModal={setShowAddAchievementModal}
         />
 
         <WaterTankVisualization

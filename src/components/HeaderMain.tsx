@@ -85,6 +85,7 @@ interface HeaderMainProps {
   increaseTimelineDotSize?: () => void;
   decreaseTimelineDotSize?: () => void;
   handleTimelineDotClick?: (year: number, personData: any, personType: string) => void;
+  setShowAddAchievementModal: (show: boolean) => void;
 }
 
 export default function HeaderMain({ 
@@ -124,7 +125,8 @@ export default function HeaderMain({
   timelineDotSize = 2,
   increaseTimelineDotSize,
   decreaseTimelineDotSize,
-  handleTimelineDotClick
+  handleTimelineDotClick,
+  setShowAddAchievementModal
  }: HeaderMainProps) {
   
   // Calculate sizes based on timelineDotSize for mobile
