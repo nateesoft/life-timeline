@@ -5,11 +5,16 @@ import { Plus } from 'lucide-react';
 
 interface FloatingActionButtonProps {
   setShowAddActivityModal: (show: boolean) => void;
+  hasModalOpen?: boolean;
 }
 
-export default function FloatingActionButton({ setShowAddActivityModal }: FloatingActionButtonProps) {
+export default function FloatingActionButton({ setShowAddActivityModal, hasModalOpen = false }: FloatingActionButtonProps) {
   return (
-    <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
+    <div className={`fixed bottom-6 z-50 transition-all duration-300 ${
+      hasModalOpen 
+        ? 'right-6 transform-none' 
+        : 'left-1/2 transform -translate-x-1/2'
+    }`}>
       <button
         onClick={() => setShowAddActivityModal(true)}
         className="group relative w-20 h-20 bg-gradient-to-br from-purple-500 via-blue-500 to-indigo-600 hover:from-purple-600 hover:via-blue-600 hover:to-indigo-700 text-white rounded-full shadow-xl hover:shadow-2xl transform transition-all duration-300 hover:scale-110 active:scale-95 overflow-hidden border-2 border-white/20"
