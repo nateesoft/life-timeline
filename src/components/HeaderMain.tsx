@@ -327,6 +327,105 @@ export default function HeaderMain({
                   ></div>
                 </div>
                 <div className="text-sm text-gray-600 dark:text-gray-400">ใช้ชีวิตไปแล้ว {lifePercentage.toFixed(1)}%</div>
+                
+                {/* Days Visualization */}
+                <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                  <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 flex items-center">
+                    <span className="mr-2">📅</span>
+                    การใช้ชีวิตเป็นวัน
+                  </h4>
+                  
+                  <div className="space-y-3">
+                    {/* Total Days Calculation */}
+                    {(() => {
+                      const totalDays = Math.round(maxAge * 365.25); // เพิ่มปีอธิกสุรทิน
+                      const daysLived = birthDate ? Math.floor((new Date().getTime() - new Date(birthDate).getTime()) / (1000 * 60 * 60 * 24)) : 0;
+                      const daysRemaining = totalDays - daysLived;
+                      
+                      return (
+                        <>
+                          {/* Total Days Display */}
+                          <div className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
+                            <div className="flex items-center">
+                              <div className="w-3 h-3 bg-blue-500 rounded-full mr-3"></div>
+                              <span className="text-sm font-medium text-blue-700 dark:text-blue-300">วันทั้งหมดในชีวิต</span>
+                            </div>
+                            <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                              {totalDays.toLocaleString()} วัน
+                            </span>
+                          </div>
+                          
+                          {/* Days Lived Display */}
+                          <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/30 rounded-lg">
+                            <div className="flex items-center">
+                              <div className="w-3 h-3 bg-green-500 rounded-full mr-3"></div>
+                              <span className="text-sm font-medium text-green-700 dark:text-green-300">วันที่ใช้ไปแล้ว</span>
+                            </div>
+                            <span className="text-lg font-bold text-green-600 dark:text-green-400">
+                              {daysLived.toLocaleString()} วัน
+                            </span>
+                          </div>
+                          
+                          {/* Days Remaining Display */}
+                          <div className="flex items-center justify-between p-3 bg-orange-50 dark:bg-orange-900/30 rounded-lg">
+                            <div className="flex items-center">
+                              <div className="w-3 h-3 bg-orange-500 rounded-full mr-3"></div>
+                              <span className="text-sm font-medium text-orange-700 dark:text-orange-300">วันที่เหลืออยู่</span>
+                            </div>
+                            <span className="text-lg font-bold text-orange-600 dark:text-orange-400">
+                              {daysRemaining > 0 ? daysRemaining.toLocaleString() : 0} วัน
+                            </span>
+                          </div>
+                          
+                          {/* Visual Days Grid */}
+                          <div className="mt-4">
+                            <h5 className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2">แสดงเป็นกราฟิก (1 จุด = 365 วัน)</h5>
+                            <div className="grid grid-cols-20 gap-1">
+                              {Array.from({ length: maxAge }, (_, yearIndex) => {
+                                const currentYear = new Date().getFullYear();
+                                const birthYear = birthDate ? new Date(birthDate).getFullYear() : currentYear;
+                                const yearNumber = birthYear + yearIndex;
+                                const isLived = yearNumber <= currentYear;
+                                const isCurrent = yearNumber === currentYear;
+                                
+                                return (
+                                  <div
+                                    key={yearIndex}
+                                    className={`w-2 h-2 rounded-sm transition-all duration-200 ${
+                                      isCurrent 
+                                        ? 'bg-yellow-400 ring-2 ring-yellow-300 scale-125' 
+                                        : isLived 
+                                          ? 'bg-green-500 hover:bg-green-600' 
+                                          : 'bg-gray-300 dark:bg-gray-600'
+                                    }`}
+                                    title={`ปี ${yearNumber} ${isLived ? '(ผ่านไปแล้ว)' : '(อนาคต)'}`}
+                                  />
+                                );
+                              })}
+                            </div>
+                            <div className="flex items-center justify-between mt-2 text-xs text-gray-500 dark:text-gray-400">
+                              <div className="flex items-center space-x-4">
+                                <div className="flex items-center">
+                                  <div className="w-2 h-2 bg-green-500 rounded-sm mr-1"></div>
+                                  <span>ผ่านไป</span>
+                                </div>
+                                <div className="flex items-center">
+                                  <div className="w-2 h-2 bg-yellow-400 rounded-sm mr-1"></div>
+                                  <span>ปัจจุบัน</span>
+                                </div>
+                                <div className="flex items-center">
+                                  <div className="w-2 h-2 bg-gray-300 dark:bg-gray-600 rounded-sm mr-1"></div>
+                                  <span>อนาคต</span>
+                                </div>
+                              </div>
+                              <span>{maxAge} ปี</span>
+                            </div>
+                          </div>
+                        </>
+                      );
+                    })()}
+                  </div>
+                </div>
               </div>
             )}
             </div>
@@ -543,6 +642,105 @@ export default function HeaderMain({
                     ></div>
                   </div>
                   <div className="text-sm text-gray-600 dark:text-gray-400">ใช้ชีวิตไปแล้ว {lifePercentage.toFixed(1)}%</div>
+                  
+                  {/* Days Visualization - Mobile */}
+                  <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                    <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 flex items-center">
+                      <span className="mr-2">📅</span>
+                      การใช้ชีวิตเป็นวัน
+                    </h4>
+                    
+                    <div className="space-y-3">
+                      {/* Total Days Calculation */}
+                      {(() => {
+                        const totalDays = Math.round(maxAge * 365.25); // เพิ่มปีอธิกสุรทิน
+                        const daysLived = birthDate ? Math.floor((new Date().getTime() - new Date(birthDate).getTime()) / (1000 * 60 * 60 * 24)) : 0;
+                        const daysRemaining = totalDays - daysLived;
+                        
+                        return (
+                          <>
+                            {/* Total Days Display */}
+                            <div className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
+                              <div className="flex items-center">
+                                <div className="w-3 h-3 bg-blue-500 rounded-full mr-3"></div>
+                                <span className="text-sm font-medium text-blue-700 dark:text-blue-300">วันทั้งหมดในชีวิต</span>
+                              </div>
+                              <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                                {totalDays.toLocaleString()} วัน
+                              </span>
+                            </div>
+                            
+                            {/* Days Lived Display */}
+                            <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/30 rounded-lg">
+                              <div className="flex items-center">
+                                <div className="w-3 h-3 bg-green-500 rounded-full mr-3"></div>
+                                <span className="text-sm font-medium text-green-700 dark:text-green-300">วันที่ใช้ไปแล้ว</span>
+                              </div>
+                              <span className="text-lg font-bold text-green-600 dark:text-green-400">
+                                {daysLived.toLocaleString()} วัน
+                              </span>
+                            </div>
+                            
+                            {/* Days Remaining Display */}
+                            <div className="flex items-center justify-between p-3 bg-orange-50 dark:bg-orange-900/30 rounded-lg">
+                              <div className="flex items-center">
+                                <div className="w-3 h-3 bg-orange-500 rounded-full mr-3"></div>
+                                <span className="text-sm font-medium text-orange-700 dark:text-orange-300">วันที่เหลืออยู่</span>
+                              </div>
+                              <span className="text-lg font-bold text-orange-600 dark:text-orange-400">
+                                {daysRemaining > 0 ? daysRemaining.toLocaleString() : 0} วัน
+                              </span>
+                            </div>
+                            
+                            {/* Visual Days Grid - Mobile responsive */}
+                            <div className="mt-4">
+                              <h5 className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2">แสดงเป็นกราฟิก (1 จุด = 365 วัน)</h5>
+                              <div className="grid grid-cols-10 sm:grid-cols-15 gap-1">
+                                {Array.from({ length: maxAge }, (_, yearIndex) => {
+                                  const currentYear = new Date().getFullYear();
+                                  const birthYear = birthDate ? new Date(birthDate).getFullYear() : currentYear;
+                                  const yearNumber = birthYear + yearIndex;
+                                  const isLived = yearNumber <= currentYear;
+                                  const isCurrent = yearNumber === currentYear;
+                                  
+                                  return (
+                                    <div
+                                      key={yearIndex}
+                                      className={`w-2 h-2 rounded-sm transition-all duration-200 ${
+                                        isCurrent 
+                                          ? 'bg-yellow-400 ring-2 ring-yellow-300 scale-125' 
+                                          : isLived 
+                                            ? 'bg-green-500 hover:bg-green-600' 
+                                            : 'bg-gray-300 dark:bg-gray-600'
+                                      }`}
+                                      title={`ปี ${yearNumber} ${isLived ? '(ผ่านไปแล้ว)' : '(อนาคต)'}`}
+                                    />
+                                  );
+                                })}
+                              </div>
+                              <div className="flex items-center justify-between mt-2 text-xs text-gray-500 dark:text-gray-400">
+                                <div className="flex items-center space-x-2">
+                                  <div className="flex items-center">
+                                    <div className="w-2 h-2 bg-green-500 rounded-sm mr-1"></div>
+                                    <span>ผ่านไป</span>
+                                  </div>
+                                  <div className="flex items-center">
+                                    <div className="w-2 h-2 bg-yellow-400 rounded-sm mr-1"></div>
+                                    <span>ปัจจุบัน</span>
+                                  </div>
+                                  <div className="flex items-center">
+                                    <div className="w-2 h-2 bg-gray-300 dark:bg-gray-600 rounded-sm mr-1"></div>
+                                    <span>อนาคต</span>
+                                  </div>
+                                </div>
+                                <span>{maxAge} ปี</span>
+                              </div>
+                            </div>
+                          </>
+                        );
+                      })()}
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
