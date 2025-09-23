@@ -342,6 +342,23 @@ export default function HeaderMain({
                       const daysLived = birthDate ? Math.floor((new Date().getTime() - new Date(birthDate).getTime()) / (1000 * 60 * 60 * 24)) : 0;
                       const daysRemaining = totalDays - daysLived;
                       
+                      // Calculate other time units
+                      const totalMonths = Math.round(maxAge * 12);
+                      const monthsLived = birthDate ? Math.floor(daysLived / 30.44) : 0; // Average days per month
+                      const monthsRemaining = totalMonths - monthsLived;
+                      
+                      const totalWeeks = Math.round(totalDays / 7);
+                      const weeksLived = Math.floor(daysLived / 7);
+                      const weeksRemaining = totalWeeks - weeksLived;
+                      
+                      const totalHours = Math.round(totalDays * 24);
+                      const hoursLived = Math.floor(daysLived * 24);
+                      const hoursRemaining = totalHours - hoursLived;
+                      
+                      const totalMinutes = Math.round(totalDays * 24 * 60);
+                      const minutesLived = Math.floor(daysLived * 24 * 60);
+                      const minutesRemaining = totalMinutes - minutesLived;
+                      
                       return (
                         <>
                           {/* Total Days Display */}
@@ -375,6 +392,97 @@ export default function HeaderMain({
                             <span className="text-lg font-bold text-orange-600 dark:text-orange-400">
                               {daysRemaining > 0 ? daysRemaining.toLocaleString() : 0} วัน
                             </span>
+                          </div>
+
+                          {/* 2x2 Grid Layout for other time units */}
+                          <div className="mt-4 grid grid-cols-2 gap-4">
+                            {/* Months Card */}
+                            <div className="p-4 bg-purple-50 dark:bg-purple-900/30 rounded-lg border border-purple-200 dark:border-purple-700">
+                              <div className="flex items-center justify-center mb-3">
+                                <div className="w-4 h-4 bg-purple-500 rounded-full mr-2"></div>
+                                <span className="text-sm font-semibold text-purple-700 dark:text-purple-300">เดือน</span>
+                              </div>
+                              <div className="space-y-2">
+                                <div className="text-center p-2 bg-purple-100 dark:bg-purple-800/50 rounded">
+                                  <div className="text-lg font-bold text-purple-600 dark:text-purple-400">
+                                    {totalMonths.toLocaleString()}
+                                  </div>
+                                  <div className="text-xs text-purple-500 dark:text-purple-400">ทั้งหมด</div>
+                                </div>
+                                <div className="text-center p-2 bg-purple-200 dark:bg-purple-700/50 rounded">
+                                  <div className="text-lg font-bold text-purple-700 dark:text-purple-300">
+                                    {monthsLived.toLocaleString()}
+                                  </div>
+                                  <div className="text-xs text-purple-600 dark:text-purple-400">ใช้ไปแล้ว</div>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Weeks Card */}
+                            <div className="p-4 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg border border-indigo-200 dark:border-indigo-700">
+                              <div className="flex items-center justify-center mb-3">
+                                <div className="w-4 h-4 bg-indigo-500 rounded-full mr-2"></div>
+                                <span className="text-sm font-semibold text-indigo-700 dark:text-indigo-300">สัปดาห์</span>
+                              </div>
+                              <div className="space-y-2">
+                                <div className="text-center p-2 bg-indigo-100 dark:bg-indigo-800/50 rounded">
+                                  <div className="text-lg font-bold text-indigo-600 dark:text-indigo-400">
+                                    {totalWeeks.toLocaleString()}
+                                  </div>
+                                  <div className="text-xs text-indigo-500 dark:text-indigo-400">ทั้งหมด</div>
+                                </div>
+                                <div className="text-center p-2 bg-indigo-200 dark:bg-indigo-700/50 rounded">
+                                  <div className="text-lg font-bold text-indigo-700 dark:text-indigo-300">
+                                    {weeksLived.toLocaleString()}
+                                  </div>
+                                  <div className="text-xs text-indigo-600 dark:text-indigo-400">ใช้ไปแล้ว</div>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Hours Card */}
+                            <div className="p-4 bg-pink-50 dark:bg-pink-900/30 rounded-lg border border-pink-200 dark:border-pink-700">
+                              <div className="flex items-center justify-center mb-3">
+                                <div className="w-4 h-4 bg-pink-500 rounded-full mr-2"></div>
+                                <span className="text-sm font-semibold text-pink-700 dark:text-pink-300">ชั่วโมง</span>
+                              </div>
+                              <div className="space-y-2">
+                                <div className="text-center p-2 bg-pink-100 dark:bg-pink-800/50 rounded">
+                                  <div className="text-lg font-bold text-pink-600 dark:text-pink-400">
+                                    {totalHours.toLocaleString()}
+                                  </div>
+                                  <div className="text-xs text-pink-500 dark:text-pink-400">ทั้งหมด</div>
+                                </div>
+                                <div className="text-center p-2 bg-pink-200 dark:bg-pink-700/50 rounded">
+                                  <div className="text-lg font-bold text-pink-700 dark:text-pink-300">
+                                    {hoursLived.toLocaleString()}
+                                  </div>
+                                  <div className="text-xs text-pink-600 dark:text-pink-400">ใช้ไปแล้ว</div>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Minutes Card */}
+                            <div className="p-4 bg-cyan-50 dark:bg-cyan-900/30 rounded-lg border border-cyan-200 dark:border-cyan-700">
+                              <div className="flex items-center justify-center mb-3">
+                                <div className="w-4 h-4 bg-cyan-500 rounded-full mr-2"></div>
+                                <span className="text-sm font-semibold text-cyan-700 dark:text-cyan-300">นาที</span>
+                              </div>
+                              <div className="space-y-2">
+                                <div className="text-center p-2 bg-cyan-100 dark:bg-cyan-800/50 rounded">
+                                  <div className="text-lg font-bold text-cyan-600 dark:text-cyan-400">
+                                    {totalMinutes.toLocaleString()}
+                                  </div>
+                                  <div className="text-xs text-cyan-500 dark:text-cyan-400">ทั้งหมด</div>
+                                </div>
+                                <div className="text-center p-2 bg-cyan-200 dark:bg-cyan-700/50 rounded">
+                                  <div className="text-lg font-bold text-cyan-700 dark:text-cyan-300">
+                                    {minutesLived.toLocaleString()}
+                                  </div>
+                                  <div className="text-xs text-cyan-600 dark:text-cyan-400">ใช้ไปแล้ว</div>
+                                </div>
+                              </div>
+                            </div>
                           </div>
                           
                           {/* Visual Days Grid */}
@@ -657,6 +765,19 @@ export default function HeaderMain({
                         const daysLived = birthDate ? Math.floor((new Date().getTime() - new Date(birthDate).getTime()) / (1000 * 60 * 60 * 24)) : 0;
                         const daysRemaining = totalDays - daysLived;
                         
+                        // Calculate other time units - Mobile
+                        const totalMonths = Math.round(maxAge * 12);
+                        const monthsLived = birthDate ? Math.floor(daysLived / 30.44) : 0; // Average days per month
+                        
+                        const totalWeeks = Math.round(totalDays / 7);
+                        const weeksLived = Math.floor(daysLived / 7);
+                        
+                        const totalHours = Math.round(totalDays * 24);
+                        const hoursLived = Math.floor(daysLived * 24);
+                        
+                        const totalMinutes = Math.round(totalDays * 24 * 60);
+                        const minutesLived = Math.floor(daysLived * 24 * 60);
+                        
                         return (
                           <>
                             {/* Total Days Display */}
@@ -690,6 +811,97 @@ export default function HeaderMain({
                               <span className="text-lg font-bold text-orange-600 dark:text-orange-400">
                                 {daysRemaining > 0 ? daysRemaining.toLocaleString() : 0} วัน
                               </span>
+                            </div>
+
+                            {/* 2x2 Grid Layout for other time units - Mobile */}
+                            <div className="mt-3 grid grid-cols-2 gap-3">
+                              {/* Months Card - Mobile */}
+                              <div className="p-3 bg-purple-50 dark:bg-purple-900/30 rounded-lg border border-purple-200 dark:border-purple-700">
+                                <div className="flex items-center justify-center mb-2">
+                                  <div className="w-3 h-3 bg-purple-500 rounded-full mr-2"></div>
+                                  <span className="text-xs font-semibold text-purple-700 dark:text-purple-300">เดือน</span>
+                                </div>
+                                <div className="space-y-1">
+                                  <div className="text-center p-1 bg-purple-100 dark:bg-purple-800/50 rounded">
+                                    <div className="text-sm font-bold text-purple-600 dark:text-purple-400">
+                                      {totalMonths.toLocaleString()}
+                                    </div>
+                                    <div className="text-xs text-purple-500 dark:text-purple-400">ทั้งหมด</div>
+                                  </div>
+                                  <div className="text-center p-1 bg-purple-200 dark:bg-purple-700/50 rounded">
+                                    <div className="text-sm font-bold text-purple-700 dark:text-purple-300">
+                                      {monthsLived.toLocaleString()}
+                                    </div>
+                                    <div className="text-xs text-purple-600 dark:text-purple-400">ใช้ไปแล้ว</div>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Weeks Card - Mobile */}
+                              <div className="p-3 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg border border-indigo-200 dark:border-indigo-700">
+                                <div className="flex items-center justify-center mb-2">
+                                  <div className="w-3 h-3 bg-indigo-500 rounded-full mr-2"></div>
+                                  <span className="text-xs font-semibold text-indigo-700 dark:text-indigo-300">สัปดาห์</span>
+                                </div>
+                                <div className="space-y-1">
+                                  <div className="text-center p-1 bg-indigo-100 dark:bg-indigo-800/50 rounded">
+                                    <div className="text-sm font-bold text-indigo-600 dark:text-indigo-400">
+                                      {totalWeeks.toLocaleString()}
+                                    </div>
+                                    <div className="text-xs text-indigo-500 dark:text-indigo-400">ทั้งหมด</div>
+                                  </div>
+                                  <div className="text-center p-1 bg-indigo-200 dark:bg-indigo-700/50 rounded">
+                                    <div className="text-sm font-bold text-indigo-700 dark:text-indigo-300">
+                                      {weeksLived.toLocaleString()}
+                                    </div>
+                                    <div className="text-xs text-indigo-600 dark:text-indigo-400">ใช้ไปแล้ว</div>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Hours Card - Mobile */}
+                              <div className="p-3 bg-pink-50 dark:bg-pink-900/30 rounded-lg border border-pink-200 dark:border-pink-700">
+                                <div className="flex items-center justify-center mb-2">
+                                  <div className="w-3 h-3 bg-pink-500 rounded-full mr-2"></div>
+                                  <span className="text-xs font-semibold text-pink-700 dark:text-pink-300">ชั่วโมง</span>
+                                </div>
+                                <div className="space-y-1">
+                                  <div className="text-center p-1 bg-pink-100 dark:bg-pink-800/50 rounded">
+                                    <div className="text-sm font-bold text-pink-600 dark:text-pink-400">
+                                      {totalHours.toLocaleString()}
+                                    </div>
+                                    <div className="text-xs text-pink-500 dark:text-pink-400">ทั้งหมด</div>
+                                  </div>
+                                  <div className="text-center p-1 bg-pink-200 dark:bg-pink-700/50 rounded">
+                                    <div className="text-sm font-bold text-pink-700 dark:text-pink-300">
+                                      {hoursLived.toLocaleString()}
+                                    </div>
+                                    <div className="text-xs text-pink-600 dark:text-pink-400">ใช้ไปแล้ว</div>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Minutes Card - Mobile */}
+                              <div className="p-3 bg-cyan-50 dark:bg-cyan-900/30 rounded-lg border border-cyan-200 dark:border-cyan-700">
+                                <div className="flex items-center justify-center mb-2">
+                                  <div className="w-3 h-3 bg-cyan-500 rounded-full mr-2"></div>
+                                  <span className="text-xs font-semibold text-cyan-700 dark:text-cyan-300">นาที</span>
+                                </div>
+                                <div className="space-y-1">
+                                  <div className="text-center p-1 bg-cyan-100 dark:bg-cyan-800/50 rounded">
+                                    <div className="text-sm font-bold text-cyan-600 dark:text-cyan-400">
+                                      {totalMinutes.toLocaleString()}
+                                    </div>
+                                    <div className="text-xs text-cyan-500 dark:text-cyan-400">ทั้งหมด</div>
+                                  </div>
+                                  <div className="text-center p-1 bg-cyan-200 dark:bg-cyan-700/50 rounded">
+                                    <div className="text-sm font-bold text-cyan-700 dark:text-cyan-300">
+                                      {minutesLived.toLocaleString()}
+                                    </div>
+                                    <div className="text-xs text-cyan-600 dark:text-cyan-400">ใช้ไปแล้ว</div>
+                                  </div>
+                                </div>
+                              </div>
                             </div>
                             
                             {/* Visual Days Grid - Mobile responsive */}
