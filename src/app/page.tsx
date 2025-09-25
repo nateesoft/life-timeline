@@ -270,8 +270,12 @@ const LifeTimelineApp = () => {
   const [showAddExpenseModal, setShowAddExpenseModal] = useState(false);
   const [showEditIncomeModal, setShowEditIncomeModal] = useState(false);
   const [showEditExpenseModal, setShowEditExpenseModal] = useState(false);
+  const [showEditAchievementModal, setShowEditAchievementModal] = useState(false);
+  const [showEditGoalModal, setShowEditGoalModal] = useState(false);
   const [editingIncome, setEditingIncome] = useState<Income | null>(null);
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
+  const [editingAchievement, setEditingAchievement] = useState<any>(null);
+  const [editingGoal, setEditingGoal] = useState<any>(null);
   
   // Import/Export modal states
   const [showImportModal, setShowImportModal] = useState(false);
@@ -560,7 +564,7 @@ const LifeTimelineApp = () => {
 
   // Prevent background scroll when any modal is open without layout shift
   useEffect(() => {
-    const hasAnyModalOpen = showCalendarModal || showTodoModal || showEmotionModal || showAddActivityModal || showAddAchievementModal || showAddGoalModal || showAddIncomeModal || showAddExpenseModal || showEditIncomeModal || showEditExpenseModal || showImportModal || showExportModal || showAddTravelModal;
+    const hasAnyModalOpen = showCalendarModal || showTodoModal || showEmotionModal || showAddActivityModal || showAddAchievementModal || showAddGoalModal || showAddIncomeModal || showAddExpenseModal || showEditIncomeModal || showEditExpenseModal || showEditAchievementModal || showEditGoalModal || showImportModal || showExportModal || showAddTravelModal;
     
     if (hasAnyModalOpen) {
       // Get scrollbar width before hiding it
@@ -606,7 +610,7 @@ const LifeTimelineApp = () => {
       document.body.style.overflow = '';
       document.body.removeAttribute('data-scroll-y');
     };
-  }, [showCalendarModal, showTodoModal, showEmotionModal, showAddActivityModal, showAddAchievementModal, showAddGoalModal, showAddIncomeModal, showAddExpenseModal, showEditIncomeModal, showEditExpenseModal, showImportModal, showExportModal, showAddTravelModal]);
+  }, [showCalendarModal, showTodoModal, showEmotionModal, showAddActivityModal, showAddAchievementModal, showAddGoalModal, showAddIncomeModal, showAddExpenseModal, showEditIncomeModal, showEditExpenseModal, showEditAchievementModal, showEditGoalModal, showImportModal, showExportModal, showAddTravelModal]);
 
   // Emotion data
   const emotions = [
@@ -915,6 +919,48 @@ const LifeTimelineApp = () => {
     }
   };
 
+  const editAchievement = (achievement: any) => {
+    setEditingAchievement(achievement);
+    setShowEditAchievementModal(true);
+  };
+
+  const editGoal = (goal: any) => {
+    setEditingGoal(goal);
+    setShowEditGoalModal(true);
+  };
+
+  const updateAchievement = (achievementData: any) => {
+    if (editingAchievement) {
+      const updatedAchievement = {
+        ...achievementData,
+        id: editingAchievement.id
+      };
+      const updatedAchievements = achievements.map(achievement => 
+        achievement.id === editingAchievement.id ? updatedAchievement : achievement
+      );
+      setAchievements(updatedAchievements);
+      localStorage.setItem('userAchievements', JSON.stringify(updatedAchievements));
+      setShowEditAchievementModal(false);
+      setEditingAchievement(null);
+    }
+  };
+
+  const updateGoal = (goalData: any) => {
+    if (editingGoal) {
+      const updatedGoal = {
+        ...goalData,
+        id: editingGoal.id
+      };
+      const updatedGoals = goals.map(goal => 
+        goal.id === editingGoal.id ? updatedGoal : goal
+      );
+      setGoals(updatedGoals);
+      localStorage.setItem('userGoals', JSON.stringify(updatedGoals));
+      setShowEditGoalModal(false);
+      setEditingGoal(null);
+    }
+  };
+
   // Travel locations management functions
   const saveTravelLocationsToStorage = (locations: TravelLocation[]) => {
     try {
@@ -1186,6 +1232,10 @@ const LifeTimelineApp = () => {
           removeExpense={removeExpense}
           editIncome={editIncome}
           editExpense={editExpense}
+          editAchievement={editAchievement}
+          editGoal={editGoal}
+          removeAchievement={removeAchievement}
+          removeGoal={removeGoal}
           saveUserData={saveUserData}
           birthDate={birthDate}
           maxAge={maxAge}
@@ -1246,6 +1296,8 @@ const LifeTimelineApp = () => {
             removeAchievement={removeAchievement}
             setShowAddGoalModal={setShowAddGoalModal}
             removeGoal={removeGoal}
+            editAchievement={editAchievement}
+            editGoal={editGoal}
             timelineDotSize={timelineDotSize}
             increaseTimelineDotSize={increaseTimelineDotSize}
             decreaseTimelineDotSize={decreaseTimelineDotSize}
@@ -1412,7 +1464,7 @@ const LifeTimelineApp = () => {
 
         <FloatingActionButton 
           setShowAddActivityModal={setShowAddActivityModal}
-          hasModalOpen={showCalendarModal || showTodoModal || showEmotionModal || showAddActivityModal || showAddAchievementModal || showAddGoalModal || showAddIncomeModal || showAddExpenseModal || showEditIncomeModal || showEditExpenseModal || showImportModal || showExportModal || showAddTravelModal}
+          hasModalOpen={showCalendarModal || showTodoModal || showEmotionModal || showAddActivityModal || showAddAchievementModal || showAddGoalModal || showAddIncomeModal || showAddExpenseModal || showEditIncomeModal || showEditExpenseModal || showEditAchievementModal || showEditGoalModal || showImportModal || showExportModal || showAddTravelModal}
         />
 
         <AddActivityModal 
@@ -1483,6 +1535,51 @@ const LifeTimelineApp = () => {
           }}
           onAddExpense={updateExpense}
           editData={editingExpense || undefined}
+        />
+
+        <AddAchievementModal 
+          showAddAchievementModal={showEditAchievementModal}
+          setShowAddAchievementModal={setShowEditAchievementModal}
+          newAchievement={editingAchievement || {
+            title: '',
+            year: new Date().getFullYear(),
+            category: 'education',
+            icon: '🎓'
+          }}
+          setNewAchievement={(achievement: any) => {
+            if (editingAchievement) {
+              setEditingAchievement({ ...editingAchievement, ...achievement });
+            }
+          }}
+          addAchievement={() => {
+            if (editingAchievement) {
+              updateAchievement(editingAchievement);
+            }
+          }}
+          isEditMode={true}
+        />
+
+        <AddGoalModal 
+          showAddGoalModal={showEditGoalModal}
+          setShowAddGoalModal={setShowEditGoalModal}
+          newGoal={editingGoal || {
+            title: '',
+            target: 0,
+            current: 0,
+            category: 'asset',
+            icon: '💰'
+          }}
+          setNewGoal={(goal: any) => {
+            if (editingGoal) {
+              setEditingGoal({ ...editingGoal, ...goal });
+            }
+          }}
+          addGoal={() => {
+            if (editingGoal) {
+              updateGoal(editingGoal);
+            }
+          }}
+          isEditMode={true}
         />
 
         <FileImportModal 

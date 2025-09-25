@@ -81,6 +81,10 @@ interface HeaderMainProps {
   removeExpense: (id: number) => void;
   editIncome: (income: Income) => void;
   editExpense: (expense: Expense) => void;
+  editAchievement: (achievement: Achievement) => void;
+  editGoal: (goal: Goal) => void;
+  removeAchievement: (id: number) => void;
+  removeGoal: (id: number) => void;
   saveUserData: () => void;
   birthDate: string;
   maxAge: number;
@@ -128,6 +132,10 @@ export default function HeaderMain({
   removeExpense,
   editIncome,
   editExpense,
+  editAchievement,
+  editGoal,
+  removeAchievement,
+  removeGoal,
   saveUserData,
   birthDate,
   maxAge,
@@ -1177,11 +1185,27 @@ export default function HeaderMain({
                 </div>
                 <div className="space-y-3">
                   {achievements.map((achievement) => (
-                    <div key={achievement.id} className="flex items-center p-4 bg-white dark:bg-yellow-800/30 rounded-lg shadow-sm border-l-4 border-yellow-500">
+                    <div key={achievement.id} className="flex items-center p-4 bg-white dark:bg-yellow-800/30 rounded-lg shadow-sm border-l-4 border-yellow-500 group">
                       <span className="text-2xl mr-3">{achievement.icon}</span>
                       <div className="flex-1">
                         <h3 className="font-semibold text-gray-800 dark:text-yellow-100">{achievement.title}</h3>
                         <p className="text-sm text-gray-600 dark:text-yellow-200">ปี {achievement.year}</p>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <button
+                          onClick={() => editAchievement(achievement)}
+                          className="opacity-70 hover:opacity-100 transition-opacity p-2 text-blue-500 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded"
+                          title="แก้ไขความสำเร็จ"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => removeAchievement(achievement.id)}
+                          className="opacity-70 hover:opacity-100 transition-opacity p-2 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded"
+                          title="ลบความสำเร็จ"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
                       </div>
                     </div>
                   ))}
@@ -1218,7 +1242,7 @@ export default function HeaderMain({
                   {goals.map((goal) => {
                     const progress = (goal.current / goal.target) * 100;
                     return (
-                      <div key={goal.id} className="p-4 bg-white dark:bg-blue-800/30 rounded-lg shadow-sm border-l-4 border-blue-500">
+                      <div key={goal.id} className="p-4 bg-white dark:bg-blue-800/30 rounded-lg shadow-sm border-l-4 border-blue-500 group">
                         <div className="flex items-center mb-3">
                           <span className="text-2xl mr-3">{goal.icon}</span>
                           <div className="flex-1">
@@ -1226,6 +1250,22 @@ export default function HeaderMain({
                             <p className="text-sm text-gray-600 dark:text-blue-200">
                               {goal.current.toLocaleString()} / {goal.target.toLocaleString()} บาท
                             </p>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <button
+                              onClick={() => editGoal(goal)}
+                              className="opacity-70 hover:opacity-100 transition-opacity p-2 text-blue-500 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded"
+                              title="แก้ไขเป้าหมาย"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => removeGoal(goal.id)}
+                              className="opacity-70 hover:opacity-100 transition-opacity p-2 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded"
+                              title="ลบเป้าหมาย"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
                           </div>
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2 mb-2">

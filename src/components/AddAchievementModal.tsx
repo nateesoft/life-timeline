@@ -15,6 +15,7 @@ interface AddAchievementModalProps {
   newAchievement: NewAchievement;
   setNewAchievement: (achievement: NewAchievement) => void;
   addAchievement: () => void;
+  isEditMode?: boolean;
 }
 
 export default function AddAchievementModal({ 
@@ -22,7 +23,8 @@ export default function AddAchievementModal({
   setShowAddAchievementModal, 
   newAchievement, 
   setNewAchievement, 
-  addAchievement 
+  addAchievement,
+  isEditMode = false
 }: AddAchievementModalProps) {
   if (!showAddAchievementModal) return null;
 
@@ -31,7 +33,7 @@ export default function AddAchievementModal({
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-md w-full transform transition-all duration-300 scale-95 animate-[modal_0.3s_ease-out_forwards]">
         {/* Modal Header */}
         <div className="p-6 border-b border-gray-200 dark:border-gray-600">
-          <h3 className="text-xl font-bold text-gray-800 dark:text-white">เพิ่มความสำเร็จใหม่</h3>
+          <h3 className="text-xl font-bold text-gray-800 dark:text-white">{isEditMode ? 'แก้ไขความสำเร็จ' : 'เพิ่มความสำเร็จใหม่'}</h3>
           <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">บันทึกความสำเร็จที่ผ่านมา</p>
         </div>
 
@@ -105,7 +107,7 @@ export default function AddAchievementModal({
             disabled={!newAchievement.title.trim()}
             className="flex-1 px-4 py-2 bg-yellow-600 hover:bg-yellow-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
           >
-            เพิ่มความสำเร็จ
+{isEditMode ? 'อัปเดตความสำเร็จ' : 'เพิ่มความสำเร็จ'}
           </button>
         </div>
       </div>

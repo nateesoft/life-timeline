@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calendar, Trophy, Target, Plus, Trash2, User } from 'lucide-react';
+import { Calendar, Trophy, Target, Plus, Trash2, User, Edit } from 'lucide-react';
 import { calculateAge, toBuddhistYear, isPersonAliveInYear, getCurrentYear, formatCurrency } from '../utils/ageCalculations';
 
 interface Friend {
@@ -49,6 +49,8 @@ interface MainContentProps {
   removeAchievement: (id: number) => void;
   setShowAddGoalModal: (show: boolean) => void;
   removeGoal: (id: number) => void;
+  editAchievement: (achievement: Achievement) => void;
+  editGoal: (goal: Goal) => void;
   timelineDotSize: number;
   increaseTimelineDotSize: () => void;
   decreaseTimelineDotSize: () => void;
@@ -72,6 +74,8 @@ const MainContent: React.FC<MainContentProps> = ({
   removeAchievement,
   setShowAddGoalModal,
   removeGoal,
+  editAchievement,
+  editGoal,
   timelineDotSize,
   increaseTimelineDotSize,
   decreaseTimelineDotSize
@@ -398,21 +402,28 @@ const MainContent: React.FC<MainContentProps> = ({
           </div>
           <div className="space-y-4">
             {achievements.map((achievement) => (
-              <div key={achievement.id} className="flex items-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border-l-4 border-green-500">
+              <div key={achievement.id} className="flex items-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border-l-4 border-green-500 group">
                 <span className="text-2xl mr-3">{achievement.icon}</span>
                 <div className="flex-1">
                   <h3 className="font-semibold text-gray-800 dark:text-white">{achievement.title}</h3>
                   <p className="text-sm text-gray-600 dark:text-gray-400">ปี {achievement.year}</p>
                 </div>
-                <button
-                  onClick={() => removeAchievement(achievement.id)}
-                  className="ml-2 p-2 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-                  title="ลบความสำเร็จ"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                  </svg>
-                </button>
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => editAchievement(achievement)}
+                    className="opacity-70 hover:opacity-100 transition-opacity p-2 text-blue-500 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded"
+                    title="แก้ไขความสำเร็จ"
+                  >
+                    <Edit className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => removeAchievement(achievement.id)}
+                    className="opacity-70 hover:opacity-100 transition-opacity p-2 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded"
+                    title="ลบความสำเร็จ"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -591,13 +602,18 @@ const MainContent: React.FC<MainContentProps> = ({
                       {progress >= 100 ? '🎉 สำเร็จแล้ว!' : `เหลืออีก ${formatCurrency(goal.target - goal.current)} บาท`}
                     </span>
                     <button
+                      onClick={() => editGoal(goal)}
+                      className="opacity-70 hover:opacity-100 transition-opacity p-2 text-blue-500 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded"
+                      title="แก้ไขเป้าหมาย"
+                    >
+                      <Edit className="w-4 h-4" />
+                    </button>
+                    <button
                       onClick={() => removeGoal(goal.id)}
-                      className="p-1 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
+                      className="opacity-70 hover:opacity-100 transition-opacity p-2 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded"
                       title="ลบเป้าหมาย"
                     >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                      </svg>
+                      <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
                 </div>

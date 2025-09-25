@@ -16,6 +16,7 @@ interface AddGoalModalProps {
   newGoal: NewGoal;
   setNewGoal: (goal: NewGoal) => void;
   addGoal: () => void;
+  isEditMode?: boolean;
 }
 
 export default function AddGoalModal({ 
@@ -23,7 +24,8 @@ export default function AddGoalModal({
   setShowAddGoalModal, 
   newGoal, 
   setNewGoal, 
-  addGoal 
+  addGoal,
+  isEditMode = false
 }: AddGoalModalProps) {
   if (!showAddGoalModal) return null;
 
@@ -32,7 +34,7 @@ export default function AddGoalModal({
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-md w-full transform transition-all duration-300 scale-95 animate-[modal_0.3s_ease-out_forwards]">
         {/* Modal Header */}
         <div className="p-6 border-b border-gray-200 dark:border-gray-600">
-          <h3 className="text-xl font-bold text-gray-800 dark:text-white">เพิ่มเป้าหมายใหม่</h3>
+          <h3 className="text-xl font-bold text-gray-800 dark:text-white">{isEditMode ? 'แก้ไขเป้าหมาย' : 'เพิ่มเป้าหมายใหม่'}</h3>
           <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">ตั้งเป้าหมายในอนาคต</p>
         </div>
 
@@ -117,7 +119,7 @@ export default function AddGoalModal({
             disabled={!newGoal.title.trim()}
             className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
           >
-            เพิ่มเป้าหมาย
+{isEditMode ? 'อัปเดตเป้าหมาย' : 'เพิ่มเป้าหมาย'}
           </button>
         </div>
       </div>
