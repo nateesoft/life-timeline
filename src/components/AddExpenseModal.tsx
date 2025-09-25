@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, DollarSign, Calendar, Clock } from 'lucide-react';
 import { Expense } from '../types';
 
@@ -6,6 +6,7 @@ interface AddExpenseModalProps {
   isOpen: boolean;
   onClose: () => void;
   onAddExpense: (expense: Omit<Expense, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  editData?: Expense;
 }
 
 const expenseIcons = [
@@ -24,7 +25,7 @@ const expenseTypes = [
   { value: 'other', label: 'อื่นๆ' }
 ];
 
-export default function AddExpenseModal({ isOpen, onClose, onAddExpense }: AddExpenseModalProps) {
+export default function AddExpenseModal({ isOpen, onClose, onAddExpense, editData }: AddExpenseModalProps) {
   const [title, setTitle] = useState('');
   const [amount, setAmount] = useState<number>(0);
   const [type, setType] = useState<Expense['type']>('other');
@@ -54,6 +55,65 @@ export default function AddExpenseModal({ isOpen, onClose, onAddExpense }: AddEx
     'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
     'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
   ];
+
+  // Populate form data when editing
+  useEffect(() => {
+    if (editData) {
+      setTitle(editData.title);
+      setAmount(editData.amount);
+      setType(editData.type);
+      setFrequency(editData.frequency);
+      setDuration(editData.duration);
+      setIcon(editData.icon);
+      
+      // Set scheduling options
+      if (editData.schedulingOptions) {
+        setMonthlyDay(editData.schedulingOptions.monthlyDay || 1);
+        setSpecificMonths(editData.schedulingOptions.specificMonths || []);
+        setDailyTime(editData.schedulingOptions.dailyTime || '09:00');
+        setYearlyMonth(editData.schedulingOptions.yearlyMonth || 1);
+        setYearlyDay(editData.schedulingOptions.yearlyDay || 1);
+      }
+      
+      // Set fixed term options
+      if (editData.fixedTermOptions) {
+        setStartDate(editData.fixedTermOptions.startDate);
+        setEndDate(editData.fixedTermOptions.endDate);
+        setTotalPayments(editData.fixedTermOptions.totalPayments);
+        setCurrentPayment(editData.fixedTermOptions.currentPayment);
+        
+        if (editData.fixedTermOptions.reward) {
+          setHasReward(true);
+          setRewardTitle(editData.fixedTermOptions.reward.title);
+          setRewardDescription(editData.fixedTermOptions.reward.description);
+          setRewardIcon(editData.fixedTermOptions.reward.icon);
+          setCompletionDate(editData.fixedTermOptions.reward.completionDate);
+        }
+      }
+    } else {
+      // Reset form when not editing
+      setTitle('');
+      setAmount(0);
+      setType('other');
+      setFrequency('monthly');
+      setDuration('ongoing');
+      setIcon('💸');
+      setMonthlyDay(1);
+      setSpecificMonths([]);
+      setDailyTime('09:00');
+      setYearlyMonth(1);
+      setYearlyDay(1);
+      setStartDate('');
+      setEndDate('');
+      setTotalPayments(12);
+      setCurrentPayment(0);
+      setHasReward(false);
+      setRewardTitle('');
+      setRewardDescription('');
+      setRewardIcon('🎁');
+      setCompletionDate('');
+    }
+  }, [editData, isOpen]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -142,7 +202,7 @@ export default function AddExpenseModal({ isOpen, onClose, onAddExpense }: AddEx
         <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center">
             <DollarSign className="w-6 h-6 mr-2 text-red-500" />
-            สร้างรายจ่าย
+            {editData ? 'แก้ไขรายจ่าย' : 'สร้างรายจ่าย'}
           </h2>
           <button
             onClick={onClose}
@@ -516,7 +576,7 @@ export default function AddExpenseModal({ isOpen, onClose, onAddExpense }: AddEx
               type="submit"
               className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors font-medium"
             >
-              สร้างรายจ่าย
+              {editData ? 'อัปเดตรายจ่าย' : 'สร้างรายจ่าย'}
             </button>
           </div>
         </form>

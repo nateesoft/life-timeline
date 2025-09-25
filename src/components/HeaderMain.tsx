@@ -1,4 +1,4 @@
-import { User, Download, Upload, Calendar, Plus, Trash2 } from 'lucide-react';
+import { User, Download, Upload, Calendar, Plus, Trash2, Edit } from 'lucide-react';
 import { calculateAge, toBuddhistYear, isPersonAliveInYear, getCurrentYear } from '../utils/ageCalculations';
 
 interface Income {
@@ -79,6 +79,8 @@ interface HeaderMainProps {
   setShowAddExpenseModal: (show: boolean) => void;
   removeIncome: (id: number) => void;
   removeExpense: (id: number) => void;
+  editIncome: (income: Income) => void;
+  editExpense: (expense: Expense) => void;
   saveUserData: () => void;
   birthDate: string;
   maxAge: number;
@@ -124,6 +126,8 @@ export default function HeaderMain({
   setShowAddExpenseModal,
   removeIncome,
   removeExpense,
+  editIncome,
+  editExpense,
   saveUserData,
   birthDate,
   maxAge,
@@ -229,6 +233,13 @@ export default function HeaderMain({
                       <span className="font-bold text-green-600 dark:text-green-300">
                         +{income.amount.toLocaleString()}
                       </span>
+                      <button
+                        onClick={() => editIncome(income)}
+                        className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-blue-500 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded"
+                        title="แก้ไขรายรับ"
+                      >
+                        <Edit className="w-4 h-4" />
+                      </button>
                       <button
                         onClick={() => removeIncome(income.id)}
                         className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded"
@@ -592,6 +603,13 @@ export default function HeaderMain({
                       <span className="font-bold text-red-600 dark:text-red-300">
                         -{expense.amount.toLocaleString()}
                       </span>
+                      <button
+                        onClick={() => editExpense(expense)}
+                        className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-blue-500 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded"
+                        title="แก้ไขรายจ่าย"
+                      >
+                        <Edit className="w-4 h-4" />
+                      </button>
                       <button
                         onClick={() => removeExpense(expense.id)}
                         className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded"
@@ -1041,6 +1059,13 @@ export default function HeaderMain({
                           +{income.amount.toLocaleString()}
                         </span>
                         <button
+                          onClick={() => editIncome(income)}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-blue-500 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded"
+                          title="แก้ไขรายรับ"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
+                        <button
                           onClick={() => removeIncome(income.id)}
                           className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded"
                           title="ลบรายรับ"
@@ -1097,6 +1122,13 @@ export default function HeaderMain({
                         <span className="font-bold text-red-600 dark:text-red-300">
                           -{expense.amount.toLocaleString()}
                         </span>
+                        <button
+                          onClick={() => editExpense(expense)}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-blue-500 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded"
+                          title="แก้ไขรายจ่าย"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
                         <button
                           onClick={() => removeExpense(expense.id)}
                           className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded"

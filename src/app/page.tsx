@@ -268,6 +268,10 @@ const LifeTimelineApp = () => {
   const [showAddGoalModal, setShowAddGoalModal] = useState(false);
   const [showAddIncomeModal, setShowAddIncomeModal] = useState(false);
   const [showAddExpenseModal, setShowAddExpenseModal] = useState(false);
+  const [showEditIncomeModal, setShowEditIncomeModal] = useState(false);
+  const [showEditExpenseModal, setShowEditExpenseModal] = useState(false);
+  const [editingIncome, setEditingIncome] = useState<Income | null>(null);
+  const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
   
   // Import/Export modal states
   const [showImportModal, setShowImportModal] = useState(false);
@@ -556,7 +560,7 @@ const LifeTimelineApp = () => {
 
   // Prevent background scroll when any modal is open without layout shift
   useEffect(() => {
-    const hasAnyModalOpen = showCalendarModal || showTodoModal || showEmotionModal || showAddActivityModal || showAddAchievementModal || showAddGoalModal || showAddIncomeModal || showAddExpenseModal || showImportModal || showExportModal || showAddTravelModal;
+    const hasAnyModalOpen = showCalendarModal || showTodoModal || showEmotionModal || showAddActivityModal || showAddAchievementModal || showAddGoalModal || showAddIncomeModal || showAddExpenseModal || showEditIncomeModal || showEditExpenseModal || showImportModal || showExportModal || showAddTravelModal;
     
     if (hasAnyModalOpen) {
       // Get scrollbar width before hiding it
@@ -602,7 +606,7 @@ const LifeTimelineApp = () => {
       document.body.style.overflow = '';
       document.body.removeAttribute('data-scroll-y');
     };
-  }, [showCalendarModal, showTodoModal, showEmotionModal, showAddActivityModal, showAddAchievementModal, showAddGoalModal, showAddIncomeModal, showAddExpenseModal, showImportModal, showExportModal, showAddTravelModal]);
+  }, [showCalendarModal, showTodoModal, showEmotionModal, showAddActivityModal, showAddAchievementModal, showAddGoalModal, showAddIncomeModal, showAddExpenseModal, showEditIncomeModal, showEditExpenseModal, showImportModal, showExportModal, showAddTravelModal]);
 
   // Emotion data
   const emotions = [
@@ -863,6 +867,52 @@ const LifeTimelineApp = () => {
     const updatedExpenses = expenses.filter(expense => expense.id !== id);
     setExpenses(updatedExpenses);
     localStorage.setItem('userExpenses', JSON.stringify(updatedExpenses));
+  };
+
+  const editIncome = (income: Income) => {
+    setEditingIncome(income);
+    setShowEditIncomeModal(true);
+  };
+
+  const editExpense = (expense: Expense) => {
+    setEditingExpense(expense);
+    setShowEditExpenseModal(true);
+  };
+
+  const updateIncome = (incomeData: Omit<Income, 'id' | 'createdAt' | 'updatedAt'>) => {
+    if (editingIncome) {
+      const updatedIncome = {
+        ...incomeData,
+        id: editingIncome.id,
+        createdAt: editingIncome.createdAt,
+        updatedAt: new Date().toISOString()
+      };
+      const updatedIncomes = incomes.map(income => 
+        income.id === editingIncome.id ? updatedIncome : income
+      );
+      setIncomes(updatedIncomes);
+      localStorage.setItem('userIncomes', JSON.stringify(updatedIncomes));
+      setShowEditIncomeModal(false);
+      setEditingIncome(null);
+    }
+  };
+
+  const updateExpense = (expenseData: Omit<Expense, 'id' | 'createdAt' | 'updatedAt'>) => {
+    if (editingExpense) {
+      const updatedExpense = {
+        ...expenseData,
+        id: editingExpense.id,
+        createdAt: editingExpense.createdAt,
+        updatedAt: new Date().toISOString()
+      };
+      const updatedExpenses = expenses.map(expense => 
+        expense.id === editingExpense.id ? updatedExpense : expense
+      );
+      setExpenses(updatedExpenses);
+      localStorage.setItem('userExpenses', JSON.stringify(updatedExpenses));
+      setShowEditExpenseModal(false);
+      setEditingExpense(null);
+    }
   };
 
   // Travel locations management functions
@@ -1134,6 +1184,8 @@ const LifeTimelineApp = () => {
           setShowAddExpenseModal={setShowAddExpenseModal}
           removeIncome={removeIncome}
           removeExpense={removeExpense}
+          editIncome={editIncome}
+          editExpense={editExpense}
           saveUserData={saveUserData}
           birthDate={birthDate}
           maxAge={maxAge}
@@ -1360,7 +1412,7 @@ const LifeTimelineApp = () => {
 
         <FloatingActionButton 
           setShowAddActivityModal={setShowAddActivityModal}
-          hasModalOpen={showCalendarModal || showTodoModal || showEmotionModal || showAddActivityModal || showAddAchievementModal || showAddGoalModal || showAddIncomeModal || showAddExpenseModal || showImportModal || showExportModal || showAddTravelModal}
+          hasModalOpen={showCalendarModal || showTodoModal || showEmotionModal || showAddActivityModal || showAddAchievementModal || showAddGoalModal || showAddIncomeModal || showAddExpenseModal || showEditIncomeModal || showEditExpenseModal || showImportModal || showExportModal || showAddTravelModal}
         />
 
         <AddActivityModal 
@@ -1411,6 +1463,26 @@ const LifeTimelineApp = () => {
           isOpen={showAddExpenseModal}
           onClose={() => setShowAddExpenseModal(false)}
           onAddExpense={addExpense}
+        />
+
+        <AddIncomeModal 
+          isOpen={showEditIncomeModal}
+          onClose={() => {
+            setShowEditIncomeModal(false);
+            setEditingIncome(null);
+          }}
+          onAddIncome={updateIncome}
+          editData={editingIncome || undefined}
+        />
+
+        <AddExpenseModal 
+          isOpen={showEditExpenseModal}
+          onClose={() => {
+            setShowEditExpenseModal(false);
+            setEditingExpense(null);
+          }}
+          onAddExpense={updateExpense}
+          editData={editingExpense || undefined}
         />
 
         <FileImportModal 

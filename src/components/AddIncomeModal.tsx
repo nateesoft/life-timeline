@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Income } from '../types';
 
 interface AddIncomeModalProps {
   isOpen: boolean;
   onClose: () => void;
   onAddIncome: (income: Omit<Income, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  editData?: Income;
 }
 
 const incomeTypeOptions = [
@@ -49,7 +50,7 @@ const monthOptions = [
   { value: 12, label: 'ธันวาคม' }
 ];
 
-export default function AddIncomeModal({ isOpen, onClose, onAddIncome }: AddIncomeModalProps) {
+export default function AddIncomeModal({ isOpen, onClose, onAddIncome, editData }: AddIncomeModalProps) {
   const [formData, setFormData] = useState({
     title: '',
     amount: 0,
@@ -65,6 +66,38 @@ export default function AddIncomeModal({ isOpen, onClose, onAddIncome }: AddInco
       dailyTime: '09:00'
     }
   });
+
+  // Populate form data when editing
+  useEffect(() => {
+    if (editData) {
+      setFormData({
+        title: editData.title,
+        amount: editData.amount,
+        type: editData.type,
+        frequency: editData.frequency,
+        isExpected: editData.isExpected,
+        icon: editData.icon,
+        schedulingOptions: editData.schedulingOptions
+      });
+    } else {
+      // Reset form when not editing
+      setFormData({
+        title: '',
+        amount: 0,
+        type: 'salary' as Income['type'],
+        frequency: 'monthly' as Income['frequency'],
+        isExpected: false,
+        icon: '💼',
+        schedulingOptions: {
+          monthlyDay: 1,
+          specificMonths: [] as number[],
+          weeklyDay: 1,
+          specificWeeks: [] as number[],
+          dailyTime: '09:00'
+        }
+      });
+    }
+  }, [editData, isOpen]);
 
   const handleTypeChange = (type: Income['type']) => {
     const selectedType = incomeTypeOptions.find(option => option.value === type);
@@ -135,7 +168,7 @@ export default function AddIncomeModal({ isOpen, onClose, onAddIncome }: AddInco
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-gray-800 dark:text-white flex items-center">
               <span className="mr-3">💰</span>
-              สร้างรายรับใหม่
+{editData ? 'แก้ไขรายรับ' : 'สร้างรายรับใหม่'}
             </h2>
             <button
               onClick={onClose}
@@ -377,7 +410,7 @@ export default function AddIncomeModal({ isOpen, onClose, onAddIncome }: AddInco
                 type="submit"
                 className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors font-medium"
               >
-                สร้างรายรับ
+{editData ? 'อัปเดตรายรับ' : 'สร้างรายรับ'}
               </button>
             </div>
           </form>
