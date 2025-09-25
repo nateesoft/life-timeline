@@ -440,6 +440,26 @@ const LifeTimelineApp = () => {
       }
     }
 
+    // Load incomes from localStorage
+    const savedIncomes = localStorage.getItem('userIncomes');
+    if (savedIncomes) {
+      try {
+        setIncomes(JSON.parse(savedIncomes));
+      } catch (error) {
+        console.error('Error loading incomes:', error);
+      }
+    }
+
+    // Load expenses from localStorage
+    const savedExpenses = localStorage.getItem('userExpenses');
+    if (savedExpenses) {
+      try {
+        setExpenses(JSON.parse(savedExpenses));
+      } catch (error) {
+        console.error('Error loading expenses:', error);
+      }
+    }
+
     // Load todos from localStorage
     const savedTodos = localStorage.getItem('userTodos');
     if (savedTodos) {
@@ -833,6 +853,18 @@ const LifeTimelineApp = () => {
     localStorage.setItem('userGoals', JSON.stringify(updatedGoals));
   };
 
+  const removeIncome = (id: number) => {
+    const updatedIncomes = incomes.filter(income => income.id !== id);
+    setIncomes(updatedIncomes);
+    localStorage.setItem('userIncomes', JSON.stringify(updatedIncomes));
+  };
+
+  const removeExpense = (id: number) => {
+    const updatedExpenses = expenses.filter(expense => expense.id !== id);
+    setExpenses(updatedExpenses);
+    localStorage.setItem('userExpenses', JSON.stringify(updatedExpenses));
+  };
+
   // Travel locations management functions
   const saveTravelLocationsToStorage = (locations: TravelLocation[]) => {
     try {
@@ -1100,6 +1132,8 @@ const LifeTimelineApp = () => {
           setShowAddGoalModal={setShowAddGoalModal}
           setShowAddIncomeModal={setShowAddIncomeModal}
           setShowAddExpenseModal={setShowAddExpenseModal}
+          removeIncome={removeIncome}
+          removeExpense={removeExpense}
           saveUserData={saveUserData}
           birthDate={birthDate}
           maxAge={maxAge}

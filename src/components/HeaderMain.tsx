@@ -77,6 +77,8 @@ interface HeaderMainProps {
   setShowAddGoalModal: (show: boolean) => void;
   setShowAddIncomeModal: (show: boolean) => void;
   setShowAddExpenseModal: (show: boolean) => void;
+  removeIncome: (id: number) => void;
+  removeExpense: (id: number) => void;
   saveUserData: () => void;
   birthDate: string;
   maxAge: number;
@@ -120,6 +122,8 @@ export default function HeaderMain({
   setShowAddGoalModal,
   setShowAddIncomeModal,
   setShowAddExpenseModal,
+  removeIncome,
+  removeExpense,
   saveUserData,
   birthDate,
   maxAge,
@@ -216,14 +220,23 @@ export default function HeaderMain({
               </h2>
               <div className="space-y-3">
                 {incomes.map((income) => (
-                  <div key={income.id} className="flex items-center justify-between p-3 bg-white dark:bg-green-800/30 rounded-lg">
+                  <div key={income.id} className="flex items-center justify-between p-3 bg-white dark:bg-green-800/30 rounded-lg group">
                     <div className="flex items-center">
                       <span className="text-lg mr-2">{income.icon}</span>
                       <span className="text-gray-700 dark:text-green-100 text-sm">{income.title}</span>
                     </div>
-                    <span className="font-bold text-green-600 dark:text-green-300">
-                      +{income.amount.toLocaleString()}
-                    </span>
+                    <div className="flex items-center space-x-2">
+                      <span className="font-bold text-green-600 dark:text-green-300">
+                        +{income.amount.toLocaleString()}
+                      </span>
+                      <button
+                        onClick={() => removeIncome(income.id)}
+                        className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded"
+                        title="ลบรายรับ"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                 ))}
                 <div className="border-t border-green-300 dark:border-green-700 pt-3 mt-3">
@@ -570,14 +583,23 @@ export default function HeaderMain({
               </h2>
               <div className="space-y-3">
                 {expenses.map((expense) => (
-                  <div key={expense.id} className="flex items-center justify-between p-3 bg-white dark:bg-red-800/30 rounded-lg">
+                  <div key={expense.id} className="flex items-center justify-between p-3 bg-white dark:bg-red-800/30 rounded-lg group">
                     <div className="flex items-center">
                       <span className="text-lg mr-2">{expense.icon}</span>
                       <span className="text-gray-700 dark:text-red-100 text-sm">{expense.title}</span>
                     </div>
-                    <span className="font-bold text-red-600 dark:text-red-300">
-                      -{expense.amount.toLocaleString()}
-                    </span>
+                    <div className="flex items-center space-x-2">
+                      <span className="font-bold text-red-600 dark:text-red-300">
+                        -{expense.amount.toLocaleString()}
+                      </span>
+                      <button
+                        onClick={() => removeExpense(expense.id)}
+                        className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded"
+                        title="ลบรายจ่าย"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                 ))}
                 <div className="border-t border-red-300 dark:border-red-700 pt-3 mt-3">
@@ -1009,14 +1031,23 @@ export default function HeaderMain({
                 </div>
                 <div className="space-y-3">
                   {incomes.map((income) => (
-                    <div key={income.id} className="flex items-center justify-between p-3 bg-white dark:bg-green-800/30 rounded-lg shadow-sm">
+                    <div key={income.id} className="flex items-center justify-between p-3 bg-white dark:bg-green-800/30 rounded-lg shadow-sm group">
                       <div className="flex items-center">
                         <span className="text-lg mr-3">{income.icon}</span>
                         <span className="text-gray-700 dark:text-green-100">{income.title}</span>
                       </div>
-                      <span className="font-bold text-green-600 dark:text-green-300">
-                        +{income.amount.toLocaleString()}
-                      </span>
+                      <div className="flex items-center space-x-2">
+                        <span className="font-bold text-green-600 dark:text-green-300">
+                          +{income.amount.toLocaleString()}
+                        </span>
+                        <button
+                          onClick={() => removeIncome(income.id)}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded"
+                          title="ลบรายรับ"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
                   ))}
                   <div className="border-t border-green-300 dark:border-green-700 pt-3 mt-3">
@@ -1057,14 +1088,23 @@ export default function HeaderMain({
                 </div>
                 <div className="space-y-3">
                   {expenses.map((expense) => (
-                    <div key={expense.id} className="flex items-center justify-between p-3 bg-white dark:bg-red-800/30 rounded-lg shadow-sm">
+                    <div key={expense.id} className="flex items-center justify-between p-3 bg-white dark:bg-red-800/30 rounded-lg shadow-sm group">
                       <div className="flex items-center">
                         <span className="text-lg mr-3">{expense.icon}</span>
                         <span className="text-gray-700 dark:text-red-100">{expense.title}</span>
                       </div>
-                      <span className="font-bold text-red-600 dark:text-red-300">
-                        -{expense.amount.toLocaleString()}
-                      </span>
+                      <div className="flex items-center space-x-2">
+                        <span className="font-bold text-red-600 dark:text-red-300">
+                          -{expense.amount.toLocaleString()}
+                        </span>
+                        <button
+                          onClick={() => removeExpense(expense.id)}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded"
+                          title="ลบรายจ่าย"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
                   ))}
                   <div className="border-t border-red-300 dark:border-red-700 pt-3 mt-3">
