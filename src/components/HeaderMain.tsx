@@ -5,8 +5,19 @@ interface Income {
   id: number;
   title: string;
   amount: number;
-  type: string;
+  type: 'salary' | 'bonus' | 'side_job' | 'interest' | 'investment' | 'other';
+  frequency: 'daily' | 'weekly' | 'monthly';
+  isExpected: boolean;
+  schedulingOptions: {
+    monthlyDay?: number;
+    specificMonths?: number[];
+    weeklyDay?: number;
+    specificWeeks?: number[];
+    dailyTime?: string;
+  };
   icon: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface Achievement {
@@ -64,6 +75,7 @@ interface HeaderMainProps {
   setShowAchievementDrawer: (show: boolean) => void;
   setShowGoalDrawer: (show: boolean) => void;
   setShowAddGoalModal: (show: boolean) => void;
+  setShowAddIncomeModal: (show: boolean) => void;
   saveUserData: () => void;
   birthDate: string;
   maxAge: number;
@@ -105,6 +117,7 @@ export default function HeaderMain({
   setShowAchievementDrawer,
   setShowGoalDrawer,
   setShowAddGoalModal,
+  setShowAddIncomeModal,
   saveUserData,
   birthDate,
   maxAge,
@@ -216,6 +229,15 @@ export default function HeaderMain({
                     <span>รวม:</span>
                     <span className="text-lg">+{incomes.reduce((sum, income) => sum + income.amount, 0).toLocaleString()} บาท</span>
                   </div>
+                </div>
+                <div className="text-center pt-4">
+                  <button
+                    onClick={() => setShowAddIncomeModal(true)}
+                    className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors flex items-center justify-center w-full"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    สร้างรายรับ
+                  </button>
                 </div>
               </div>
             </div>
@@ -991,6 +1013,15 @@ export default function HeaderMain({
                       <span>รวม:</span>
                       <span className="text-lg">+{incomes.reduce((sum, income) => sum + income.amount, 0).toLocaleString()} บาท</span>
                     </div>
+                  </div>
+                  <div className="text-center pt-4">
+                    <button
+                      onClick={() => setShowAddIncomeModal(true)}
+                      className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors flex items-center justify-center w-full"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      สร้างรายรับ
+                    </button>
                   </div>
                 </div>
               </div>

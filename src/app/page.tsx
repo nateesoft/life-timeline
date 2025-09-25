@@ -11,6 +11,7 @@ import ActivityPostIts from '../components/ActivityPostIts';
 import FriendMessagePostIts from '../components/FriendMessagePostIts';
 import AddAchievementModal from '../components/AddAchievementModal';
 import AddGoalModal from '../components/AddGoalModal';
+import AddIncomeModal from '../components/AddIncomeModal';
 import FileImportModal from '../components/FileImportModal';
 import FileExportModal from '../components/FileExportModal';
 import TravelMap from '../components/TravelMap';
@@ -20,7 +21,7 @@ import TimeLifeVisualization from '../components/TimeLifeVisualization';
 import CalendarModal from '../components/CalendarModal';
 import ParallaxStarBackground from '../components/ParallaxStarBackground';
 import { DataManager } from '../utils/dataManager';
-import { AppData } from '../types';
+import { AppData, Income } from '../types';
 import { 
   calculateAge, 
   calculateDetailedAge, 
@@ -87,10 +88,43 @@ const LifeTimelineApp = () => {
   const [timelineDotSize, setTimelineDotSize] = useState(2); // 1 = small, 2 = medium, 3 = large, 4 = extra large
 
   // State for income and expenses
-  const [incomes, setIncomes] = useState([
-    { id: 1, title: 'เงินเดือน', amount: 45000, type: 'monthly', icon: '💼' },
-    { id: 2, title: 'รายได้เสริม', amount: 15000, type: 'monthly', icon: '💻' },
-    { id: 3, title: 'ดอกเบียย์เงินฝาก', amount: 2500, type: 'monthly', icon: '🏦' }
+  const [incomes, setIncomes] = useState<Income[]>([
+    { 
+      id: 1, 
+      title: 'เงินเดือน', 
+      amount: 45000, 
+      type: 'salary' as const, 
+      frequency: 'monthly' as const,
+      isExpected: false,
+      schedulingOptions: { monthlyDay: 1 },
+      icon: '💼',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    },
+    { 
+      id: 2, 
+      title: 'รายได้เสริม', 
+      amount: 15000, 
+      type: 'side_job' as const, 
+      frequency: 'monthly' as const,
+      isExpected: false,
+      schedulingOptions: { monthlyDay: 5 },
+      icon: '💻',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    },
+    { 
+      id: 3, 
+      title: 'ดอกเบียย์เงินฝาก', 
+      amount: 2500, 
+      type: 'interest' as const, 
+      frequency: 'monthly' as const,
+      isExpected: true,
+      schedulingOptions: { monthlyDay: 10 },
+      icon: '🏦',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    }
   ]);
 
   const [expenses, setExpenses] = useState([
@@ -176,6 +210,7 @@ const LifeTimelineApp = () => {
   // Modal states for achievements and goals
   const [showAddAchievementModal, setShowAddAchievementModal] = useState(false);
   const [showAddGoalModal, setShowAddGoalModal] = useState(false);
+  const [showAddIncomeModal, setShowAddIncomeModal] = useState(false);
   
   // Import/Export modal states
   const [showImportModal, setShowImportModal] = useState(false);
@@ -444,7 +479,7 @@ const LifeTimelineApp = () => {
 
   // Prevent background scroll when any modal is open without layout shift
   useEffect(() => {
-    const hasAnyModalOpen = showCalendarModal || showTodoModal || showEmotionModal || showAddActivityModal || showAddAchievementModal || showAddGoalModal || showImportModal || showExportModal || showAddTravelModal;
+    const hasAnyModalOpen = showCalendarModal || showTodoModal || showEmotionModal || showAddActivityModal || showAddAchievementModal || showAddGoalModal || showAddIncomeModal || showImportModal || showExportModal || showAddTravelModal;
     
     if (hasAnyModalOpen) {
       // Get scrollbar width before hiding it
@@ -490,7 +525,7 @@ const LifeTimelineApp = () => {
       document.body.style.overflow = '';
       document.body.removeAttribute('data-scroll-y');
     };
-  }, [showCalendarModal, showTodoModal, showEmotionModal, showAddActivityModal, showAddAchievementModal, showAddGoalModal, showImportModal, showExportModal, showAddTravelModal]);
+  }, [showCalendarModal, showTodoModal, showEmotionModal, showAddActivityModal, showAddAchievementModal, showAddGoalModal, showAddIncomeModal, showImportModal, showExportModal, showAddTravelModal]);
 
   // Emotion data
   const emotions = [
@@ -701,6 +736,19 @@ const LifeTimelineApp = () => {
       });
       setShowAddGoalModal(false);
     }
+  };
+
+  const addIncome = (incomeData: Omit<Income, 'id' | 'createdAt' | 'updatedAt'>) => {
+    const newIncome = {
+      ...incomeData,
+      id: Date.now(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    const updatedIncomes = [...incomes, newIncome];
+    setIncomes(updatedIncomes);
+    localStorage.setItem('userIncomes', JSON.stringify(updatedIncomes));
+    setShowAddIncomeModal(false);
   };
 
   const removeAchievement = (id: number) => {
@@ -980,6 +1028,7 @@ const LifeTimelineApp = () => {
           setShowAchievementDrawer={setShowAchievementDrawer}
           setShowGoalDrawer={setShowGoalDrawer}
           setShowAddGoalModal={setShowAddGoalModal}
+          setShowAddIncomeModal={setShowAddIncomeModal}
           saveUserData={saveUserData}
           birthDate={birthDate}
           maxAge={maxAge}
@@ -1206,7 +1255,7 @@ const LifeTimelineApp = () => {
 
         <FloatingActionButton 
           setShowAddActivityModal={setShowAddActivityModal}
-          hasModalOpen={showCalendarModal || showTodoModal || showEmotionModal || showAddActivityModal || showAddAchievementModal || showAddGoalModal || showImportModal || showExportModal || showAddTravelModal}
+          hasModalOpen={showCalendarModal || showTodoModal || showEmotionModal || showAddActivityModal || showAddAchievementModal || showAddGoalModal || showAddIncomeModal || showImportModal || showExportModal || showAddTravelModal}
         />
 
         <AddActivityModal 
@@ -1245,6 +1294,12 @@ const LifeTimelineApp = () => {
           newGoal={newGoal}
           setNewGoal={setNewGoal}
           addGoal={addGoal}
+        />
+
+        <AddIncomeModal 
+          isOpen={showAddIncomeModal}
+          onClose={() => setShowAddIncomeModal(false)}
+          onAddIncome={addIncome}
         />
 
         <FileImportModal 

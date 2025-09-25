@@ -100,5 +100,27 @@ export interface ExportOptions {
   includeUserProfile: boolean;
 }
 
+export interface Income {
+  id: number;
+  title: string;
+  amount: number;
+  type: 'salary' | 'bonus' | 'side_job' | 'interest' | 'investment' | 'other';
+  frequency: 'daily' | 'weekly' | 'monthly';
+  isExpected: boolean;
+  schedulingOptions: {
+    // For monthly: day of month (1-31) or specific months
+    monthlyDay?: number;
+    specificMonths?: number[];
+    // For weekly: day of week (0-6, 0=Sunday) or specific weeks
+    weeklyDay?: number;
+    specificWeeks?: number[];
+    // For daily: specific time
+    dailyTime?: string;
+  };
+  icon: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export type ImportFileType = 'json' | 'csv';
 export type ExportFileType = 'json' | 'csv';
