@@ -12,6 +12,7 @@ import FriendMessagePostIts from '../components/FriendMessagePostIts';
 import AddAchievementModal from '../components/AddAchievementModal';
 import AddGoalModal from '../components/AddGoalModal';
 import AddIncomeModal from '../components/AddIncomeModal';
+import AddExpenseModal from '../components/AddExpenseModal';
 import FileImportModal from '../components/FileImportModal';
 import FileExportModal from '../components/FileExportModal';
 import TravelMap from '../components/TravelMap';
@@ -21,7 +22,7 @@ import TimeLifeVisualization from '../components/TimeLifeVisualization';
 import CalendarModal from '../components/CalendarModal';
 import ParallaxStarBackground from '../components/ParallaxStarBackground';
 import { DataManager } from '../utils/dataManager';
-import { AppData, Income } from '../types';
+import { AppData, Income, Expense } from '../types';
 import { 
   calculateAge, 
   calculateDetailedAge, 
@@ -127,12 +128,67 @@ const LifeTimelineApp = () => {
     }
   ]);
 
-  const [expenses, setExpenses] = useState([
-    { id: 1, title: 'ค่าเช่าบ้าน', amount: 12000, type: 'monthly', icon: '🏠' },
-    { id: 2, title: 'ค่าอาหาร', amount: 8000, type: 'monthly', icon: '🍽️' },
-    { id: 3, title: 'ค่าน้ำมันรถ', amount: 3000, type: 'monthly', icon: '⛽' },
-    { id: 4, title: 'ค่าโทรศัพท์', amount: 599, type: 'monthly', icon: '📱' },
-    { id: 5, title: 'ค่าไฟฟ้า', amount: 1500, type: 'monthly', icon: '⚡' }
+  const [expenses, setExpenses] = useState<Expense[]>([
+    { 
+      id: 1, 
+      title: 'ค่าเช่าบ้าน', 
+      amount: 12000, 
+      type: 'housing' as const, 
+      frequency: 'monthly' as const,
+      duration: 'ongoing' as const,
+      schedulingOptions: { monthlyDay: 1 },
+      icon: '🏠',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    },
+    { 
+      id: 2, 
+      title: 'ค่าอาหาร', 
+      amount: 8000, 
+      type: 'food' as const, 
+      frequency: 'monthly' as const,
+      duration: 'ongoing' as const,
+      schedulingOptions: { monthlyDay: 15 },
+      icon: '🍽️',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    },
+    { 
+      id: 3, 
+      title: 'ค่าน้ำมันรถ', 
+      amount: 3000, 
+      type: 'transportation' as const, 
+      frequency: 'monthly' as const,
+      duration: 'ongoing' as const,
+      schedulingOptions: { monthlyDay: 20 },
+      icon: '⛽',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    },
+    { 
+      id: 4, 
+      title: 'ค่าโทรศัพท์', 
+      amount: 599, 
+      type: 'utilities' as const, 
+      frequency: 'monthly' as const,
+      duration: 'ongoing' as const,
+      schedulingOptions: { monthlyDay: 5 },
+      icon: '📱',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    },
+    { 
+      id: 5, 
+      title: 'ค่าไฟฟ้า', 
+      amount: 1500, 
+      type: 'utilities' as const, 
+      frequency: 'monthly' as const,
+      duration: 'ongoing' as const,
+      schedulingOptions: { monthlyDay: 10 },
+      icon: '⚡',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    }
   ]);
 
   // State for friends
@@ -211,6 +267,7 @@ const LifeTimelineApp = () => {
   const [showAddAchievementModal, setShowAddAchievementModal] = useState(false);
   const [showAddGoalModal, setShowAddGoalModal] = useState(false);
   const [showAddIncomeModal, setShowAddIncomeModal] = useState(false);
+  const [showAddExpenseModal, setShowAddExpenseModal] = useState(false);
   
   // Import/Export modal states
   const [showImportModal, setShowImportModal] = useState(false);
@@ -479,7 +536,7 @@ const LifeTimelineApp = () => {
 
   // Prevent background scroll when any modal is open without layout shift
   useEffect(() => {
-    const hasAnyModalOpen = showCalendarModal || showTodoModal || showEmotionModal || showAddActivityModal || showAddAchievementModal || showAddGoalModal || showAddIncomeModal || showImportModal || showExportModal || showAddTravelModal;
+    const hasAnyModalOpen = showCalendarModal || showTodoModal || showEmotionModal || showAddActivityModal || showAddAchievementModal || showAddGoalModal || showAddIncomeModal || showAddExpenseModal || showImportModal || showExportModal || showAddTravelModal;
     
     if (hasAnyModalOpen) {
       // Get scrollbar width before hiding it
@@ -525,7 +582,7 @@ const LifeTimelineApp = () => {
       document.body.style.overflow = '';
       document.body.removeAttribute('data-scroll-y');
     };
-  }, [showCalendarModal, showTodoModal, showEmotionModal, showAddActivityModal, showAddAchievementModal, showAddGoalModal, showAddIncomeModal, showImportModal, showExportModal, showAddTravelModal]);
+  }, [showCalendarModal, showTodoModal, showEmotionModal, showAddActivityModal, showAddAchievementModal, showAddGoalModal, showAddIncomeModal, showAddExpenseModal, showImportModal, showExportModal, showAddTravelModal]);
 
   // Emotion data
   const emotions = [
@@ -749,6 +806,19 @@ const LifeTimelineApp = () => {
     setIncomes(updatedIncomes);
     localStorage.setItem('userIncomes', JSON.stringify(updatedIncomes));
     setShowAddIncomeModal(false);
+  };
+
+  const addExpense = (expenseData: Omit<Expense, 'id' | 'createdAt' | 'updatedAt'>) => {
+    const newExpense = {
+      ...expenseData,
+      id: Date.now(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    const updatedExpenses = [...expenses, newExpense];
+    setExpenses(updatedExpenses);
+    localStorage.setItem('userExpenses', JSON.stringify(updatedExpenses));
+    setShowAddExpenseModal(false);
   };
 
   const removeAchievement = (id: number) => {
@@ -1029,6 +1099,7 @@ const LifeTimelineApp = () => {
           setShowGoalDrawer={setShowGoalDrawer}
           setShowAddGoalModal={setShowAddGoalModal}
           setShowAddIncomeModal={setShowAddIncomeModal}
+          setShowAddExpenseModal={setShowAddExpenseModal}
           saveUserData={saveUserData}
           birthDate={birthDate}
           maxAge={maxAge}
@@ -1255,7 +1326,7 @@ const LifeTimelineApp = () => {
 
         <FloatingActionButton 
           setShowAddActivityModal={setShowAddActivityModal}
-          hasModalOpen={showCalendarModal || showTodoModal || showEmotionModal || showAddActivityModal || showAddAchievementModal || showAddGoalModal || showAddIncomeModal || showImportModal || showExportModal || showAddTravelModal}
+          hasModalOpen={showCalendarModal || showTodoModal || showEmotionModal || showAddActivityModal || showAddAchievementModal || showAddGoalModal || showAddIncomeModal || showAddExpenseModal || showImportModal || showExportModal || showAddTravelModal}
         />
 
         <AddActivityModal 
@@ -1300,6 +1371,12 @@ const LifeTimelineApp = () => {
           isOpen={showAddIncomeModal}
           onClose={() => setShowAddIncomeModal(false)}
           onAddIncome={addIncome}
+        />
+
+        <AddExpenseModal 
+          isOpen={showAddExpenseModal}
+          onClose={() => setShowAddExpenseModal(false)}
+          onAddExpense={addExpense}
         />
 
         <FileImportModal 

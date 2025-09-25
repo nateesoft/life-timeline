@@ -122,5 +122,40 @@ export interface Income {
   updatedAt: string;
 }
 
+export interface Expense {
+  id: number;
+  title: string;
+  amount: number;
+  type: 'housing' | 'food' | 'transportation' | 'utilities' | 'entertainment' | 'loan' | 'insurance' | 'other';
+  frequency: 'daily' | 'monthly' | 'yearly';
+  duration: 'ongoing' | 'fixed_term';
+  schedulingOptions: {
+    // For monthly: day of month (1-31) or specific months
+    monthlyDay?: number;
+    specificMonths?: number[];
+    // For daily: specific time
+    dailyTime?: string;
+    // For yearly: month and day
+    yearlyMonth?: number;
+    yearlyDay?: number;
+  };
+  // For fixed-term expenses (e.g., car loan)
+  fixedTermOptions?: {
+    startDate: string;
+    endDate: string;
+    totalPayments: number;
+    currentPayment: number;
+    reward?: {
+      title: string;
+      description: string;
+      icon: string;
+      completionDate: string;
+    };
+  };
+  icon: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export type ImportFileType = 'json' | 'csv';
 export type ExportFileType = 'json' | 'csv';
