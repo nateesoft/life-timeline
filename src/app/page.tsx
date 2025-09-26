@@ -1285,6 +1285,7 @@ const LifeTimelineApp = () => {
             friends={friends}
             achievements={achievements}
             goals={goals}
+            expenses={expenses}
             showAddFriend={showAddFriend}
             newFriend={newFriend}
             setShowAddFriend={setShowAddFriend}

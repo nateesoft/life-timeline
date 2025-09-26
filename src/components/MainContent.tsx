@@ -1,6 +1,7 @@
 import React from 'react';
 import { Calendar, Trophy, Target, Plus, Trash2, User, Edit } from 'lucide-react';
 import { calculateAge, toBuddhistYear, isPersonAliveInYear, getCurrentYear, formatCurrency } from '../utils/ageCalculations';
+import { Expense } from '../types';
 
 interface Friend {
   id: number;
@@ -38,6 +39,7 @@ interface MainContentProps {
   friends: Friend[];
   achievements: Achievement[];
   goals: Goal[];
+  expenses: Expense[];
   showAddFriend: boolean;
   newFriend: NewFriend;
   setShowAddFriend: (show: boolean) => void;
@@ -63,6 +65,7 @@ const MainContent: React.FC<MainContentProps> = ({
   friends,
   achievements,
   goals,
+  expenses,
   showAddFriend,
   newFriend,
   setShowAddFriend,
@@ -135,6 +138,22 @@ const MainContent: React.FC<MainContentProps> = ({
           fontSize: 'text-lg'
         };
     }
+  };
+
+  // Get installment expenses for timeline
+  const getInstallmentExpensesForYear = (year: number) => {
+    return expenses.filter(expense => {
+      if (expense.duration !== 'fixed_term' || !expense.fixedTermOptions) {
+        return false;
+      }
+      
+      const startYear = new Date(expense.fixedTermOptions.startDate).getFullYear();
+      const endYear = new Date(expense.fixedTermOptions.endDate).getFullYear();
+      const rewardYear = expense.fixedTermOptions.reward ? 
+        new Date(expense.fixedTermOptions.reward.completionDate).getFullYear() : endYear;
+        
+      return year === startYear || year === rewardYear;
+    });
   };
 
   const sizeClasses = getSizeClasses();
@@ -353,6 +372,80 @@ const MainContent: React.FC<MainContentProps> = ({
                                   friendAge >= 0 && friendAge <= 99 ? friendAge : ''
                                 )}
                               </div>
+                            </div>
+                          );
+                        })}
+
+                        {/* Installment expenses */}
+                        {getInstallmentExpensesForYear(year).map((expense) => {
+                          const startYear = new Date(expense.fixedTermOptions!.startDate).getFullYear();
+                          const rewardYear = expense.fixedTermOptions!.reward ? 
+                            new Date(expense.fixedTermOptions!.reward.completionDate).getFullYear() : 
+                            new Date(expense.fixedTermOptions!.endDate).getFullYear();
+                          
+                          const isStartYear = year === startYear;
+                          const isRewardYear = year === rewardYear;
+                          const currentPayment = expense.fixedTermOptions!.currentPayment;
+                          const totalPayments = expense.fixedTermOptions!.totalPayments;
+                          const progress = (currentPayment / totalPayments) * 100;
+                          
+                          return (
+                            <div key={`expense-${expense.id}-${year}`} className="mb-2">
+                              <div 
+                                className={`w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-xs transition-all duration-300 transform-gpu perspective-1000 shadow-lg hover:scale-110 cursor-pointer ${
+                                  isRewardYear && expense.fixedTermOptions!.reward
+                                    ? 'bg-gradient-to-br from-yellow-400 via-yellow-500 to-yellow-600 animate-bounce shadow-yellow-500/40' 
+                                    : isStartYear
+                                      ? 'bg-gradient-to-br from-orange-400 via-orange-500 to-orange-600 shadow-orange-500/40'
+                                      : 'bg-gradient-to-br from-purple-400 via-purple-500 to-purple-600 shadow-purple-500/40'
+                                }`}
+                                style={{
+                                  boxShadow: isRewardYear && expense.fixedTermOptions!.reward
+                                    ? '0 8px 20px rgba(251, 191, 36, 0.4), inset 0 2px 4px rgba(255,255,255,0.3), inset 0 -2px 4px rgba(0,0,0,0.2)'
+                                    : isStartYear
+                                      ? '0 8px 20px rgba(249, 115, 22, 0.4), inset 0 2px 4px rgba(255,255,255,0.3), inset 0 -2px 4px rgba(0,0,0,0.2)'
+                                      : '0 8px 20px rgba(147, 51, 234, 0.4), inset 0 2px 4px rgba(255,255,255,0.3), inset 0 -2px 4px rgba(0,0,0,0.2)'
+                                }}
+                                title={isRewardYear && expense.fixedTermOptions!.reward ? 
+                                  `🎁 ${expense.fixedTermOptions!.reward.title} - ${expense.title}` :
+                                  isStartYear ? 
+                                    `📅 เริ่มผ่อน: ${expense.title}` :
+                                    `💰 ${expense.title} (${progress.toFixed(0)}%)`}
+                              >
+                                {isRewardYear && expense.fixedTermOptions!.reward ? (
+                                  <span className="text-lg">
+                                    {expense.fixedTermOptions!.reward.icon}
+                                  </span>
+                                ) : (
+                                  <span className="text-sm">
+                                    {expense.icon}
+                                  </span>
+                                )}
+                              </div>
+                              
+                              {/* Progress indicator */}
+                              {!isRewardYear && (
+                                <div className="w-8 mt-1">
+                                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1">
+                                    <div 
+                                      className="bg-gradient-to-r from-green-400 to-green-600 h-1 rounded-full transition-all duration-500" 
+                                      style={{ width: `${Math.min(progress, 100)}%` }}
+                                    ></div>
+                                  </div>
+                                </div>
+                              )}
+                              
+                              {/* Year labels */}
+                              {(isStartYear || isRewardYear) && (
+                                <div className="text-xs text-center mt-1">
+                                  <div className={`font-bold ${
+                                    isRewardYear ? 'text-yellow-600 dark:text-yellow-400' : 
+                                    'text-orange-600 dark:text-orange-400'
+                                  }`}>
+                                    {isRewardYear ? '🎁' : '📅'} {year}
+                                  </div>
+                                </div>
+                              )}
                             </div>
                           );
                         })}
