@@ -28,6 +28,16 @@ import {
   calculateDetailedAge, 
   getTimelineYears} from '../utils/ageCalculations';
 
+// Import initial data
+import initialAchievements from '../data/achievements.json';
+import initialGoals from '../data/goals.json';
+import initialFriends from '../data/friends.json';
+import initialTodos from '../data/todos.json';
+import initialFriendMessages from '../data/friendMessages.json';
+import initialEmotions from '../data/emotions.json';
+import initialIncomes from '../data/incomes.json';
+import initialExpenses from '../data/expenses.json';
+
 import HeaderMain from '@/components/HeaderMain';
 import WaterTankVisualization from '@/components/WaterTankVisualization';
 import TravelMapSection from '@/components/TravelMapSection';
@@ -60,134 +70,17 @@ const LifeTimelineApp = () => {
   const [maxAge, setMaxAge] = useState(80);
   
   // State for achievements
-  const [achievements, setAchievements] = useState([
-    { id: 1, title: 'จบการศึกษาระดับปริญญาตรี', year: 2020, category: 'education', icon: '🎓' },
-    { id: 2, title: 'ได้งานแรก', year: 2021, category: 'career', icon: '💼' },
-    { id: 3, title: 'เที่ยวญี่ปุ่น', year: 2022, category: 'travel', icon: '✈️' }
-  ]);
-
+  const [achievements, setAchievements] = useState(initialAchievements);
   // State for goals
-  const [goals, setGoals] = useState([
-    { id: 1, title: 'ซื้อรถคันแรก', target: 1000000, current: 650000, category: 'asset', icon: '🚗' },
-    { id: 2, title: 'ซื้อบ้าน', target: 5000000, current: 1200000, category: 'asset', icon: '🏠' },
-    { id: 3, title: 'เงินเก็บ 100 ล้าน', target: 10000000, current: 5500000, category: 'savings', icon: '💰' }
-  ]);
-
+  const [goals, setGoals] = useState(initialGoals);
   // Timeline dot size state
   const [timelineDotSize, setTimelineDotSize] = useState(2); // 1 = small, 2 = medium, 3 = large, 4 = extra large
+  // State for income and expenses (imported from initial data)
 
-  // State for income and expenses
-  const [incomes, setIncomes] = useState<Income[]>([
-    { 
-      id: 1, 
-      title: 'เงินเดือน', 
-      amount: 45000, 
-      type: 'salary' as const, 
-      frequency: 'monthly' as const,
-      isExpected: false,
-      schedulingOptions: { monthlyDay: 1 },
-      icon: '💼',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    },
-    { 
-      id: 2, 
-      title: 'รายได้เสริม', 
-      amount: 15000, 
-      type: 'side_job' as const, 
-      frequency: 'monthly' as const,
-      isExpected: false,
-      schedulingOptions: { monthlyDay: 5 },
-      icon: '💻',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    },
-    { 
-      id: 3, 
-      title: 'ดอกเบียย์เงินฝาก', 
-      amount: 2500, 
-      type: 'interest' as const, 
-      frequency: 'monthly' as const,
-      isExpected: true,
-      schedulingOptions: { monthlyDay: 10 },
-      icon: '🏦',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    }
-  ]);
-
-  const [expenses, setExpenses] = useState<Expense[]>([
-    { 
-      id: 1, 
-      title: 'ค่าเช่าบ้าน', 
-      amount: 12000, 
-      type: 'housing' as const, 
-      frequency: 'monthly' as const,
-      duration: 'ongoing' as const,
-      schedulingOptions: { monthlyDay: 1 },
-      icon: '🏠',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    },
-    { 
-      id: 2, 
-      title: 'ค่าอาหาร', 
-      amount: 8000, 
-      type: 'food' as const, 
-      frequency: 'monthly' as const,
-      duration: 'ongoing' as const,
-      schedulingOptions: { monthlyDay: 15 },
-      icon: '🍽️',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    },
-    { 
-      id: 3, 
-      title: 'ค่าน้ำมันรถ', 
-      amount: 3000, 
-      type: 'transportation' as const, 
-      frequency: 'monthly' as const,
-      duration: 'ongoing' as const,
-      schedulingOptions: { monthlyDay: 20 },
-      icon: '⛽',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    },
-    { 
-      id: 4, 
-      title: 'ค่าโทรศัพท์', 
-      amount: 599, 
-      type: 'utilities' as const, 
-      frequency: 'monthly' as const,
-      duration: 'ongoing' as const,
-      schedulingOptions: { monthlyDay: 5 },
-      icon: '📱',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    },
-    { 
-      id: 5, 
-      title: 'ค่าไฟฟ้า', 
-      amount: 1500, 
-      type: 'utilities' as const, 
-      frequency: 'monthly' as const,
-      duration: 'ongoing' as const,
-      schedulingOptions: { monthlyDay: 10 },
-      icon: '⚡',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    }
-  ]);
-
+  const [incomes, setIncomes] = useState<Income[]>(initialIncomes);
+  const [expenses, setExpenses] = useState<Expense[]>(initialExpenses);
   // State for friends
-  const [friends, setFriends] = useState([
-    { id: 1, name: 'สมชาย', birthDate: '1995-03-15', color: '#E74C3C' },
-    { id: 2, name: 'สมหญิง', birthDate: '1998-07-22', color: '#1ABC9C' },
-    { id: 3, name: 'วิทยา', birthDate: '1997-11-08', color: '#3498DB' },
-    { id: 4, name: 'ปราณี', birthDate: '1996-05-20', color: '#2ECC71' },
-    { id: 5, name: 'สุรชัย', birthDate: '1999-02-14', color: '#F39C12' }
-  ]);
-
+  const [friends, setFriends] = useState(initialFriends);
   // Color palette for friends - distinctive colors
   const friendColorPalette = [
     '#E74C3C', // Vibrant Red
@@ -225,12 +118,7 @@ const LifeTimelineApp = () => {
   
   // Todo modal state
   const [showTodoModal, setShowTodoModal] = useState(false);
-  const [todos, setTodos] = useState({
-    today: [],
-    tomorrow: [],
-    upcoming: [],
-    monthly: []
-  });
+  const [todos, setTodos] = useState(initialTodos);
 
   // States for activity features
   const [showAddActivityModal, setShowAddActivityModal] = useState(false);
@@ -466,61 +354,19 @@ const LifeTimelineApp = () => {
       }
     } else {
       // Set sample todos
-      const sampleTodos = {
-        today: [
-          { id: 1, text: 'อ่านหนังสือ 30 นาที', completed: false },
-          { id: 2, text: 'ออกกำลังกาย', completed: false }
-        ],
-        tomorrow: [
-          { id: 3, text: 'ประชุมกับทีม', completed: false },
-          { id: 4, text: 'จ่ายค่าไฟฟ้า', completed: false }
-        ],
-        upcoming: [
-          { id: 5, text: 'ตรวจสุขภาพประจำปี', completed: false },
-          { id: 6, text: 'วางแผนการลาพักร้อน', completed: false }
-        ],
-        monthly: [
-          { id: 7, text: 'ทบทวนงบประมาณ', completed: false },
-          { id: 8, text: 'เรียนภาษาอังกฤษ', completed: false }
-        ]
-      };
+      const sampleTodos = initialTodos;
       setTodos(sampleTodos);
       localStorage.setItem('userTodos', JSON.stringify(sampleTodos));
     }
 
+    // Check if emotion modal should be shown
+    if (shouldShowEmotionModal()) {
+      setTimeout(() => setShowEmotionModal(true), 1000); // Delay 1 second for better UX
+    }
+
     if (!savedFriends) {
-      // Check if emotion modal should be shown
-      if (shouldShowEmotionModal()) {
-        setTimeout(() => setShowEmotionModal(true), 1000); // Delay 1 second for better UX
-      }
-      
       // Create sample friend messages
-      const sampleMessages: FriendMessage[] = [
-        {
-          id: 1,
-          message: "สวัสดีครับ! ไว้เจอกันนะ 😊",
-          fromName: "แก้ว",
-          fromAvatar: "👩🏻",
-          position: { x: 150, y: 200 },
-          createdAt: new Date().toISOString()
-        },
-        {
-          id: 2,
-          message: "Happy Birthday! 🎂🎉",
-          fromName: "มิกี้",
-          fromAvatar: "🐭",
-          position: { x: 400, y: 150 },
-          createdAt: new Date().toISOString()
-        },
-        {
-          id: 3,
-          message: "จำได้มั้ยที่เราเล่นด้วยกันตอนเด็ก 😄",
-          fromName: "โอ๋",
-          fromAvatar: "👦🏻",
-          position: { x: 300, y: 350 },
-          createdAt: new Date().toISOString()
-        }
-      ];
+      const sampleMessages: FriendMessage[] = initialFriendMessages;
       setFriendMessages(sampleMessages);
       localStorage.setItem('friendMessages', JSON.stringify(sampleMessages));
     }
@@ -601,18 +447,7 @@ const LifeTimelineApp = () => {
   }, [showCalendarModal, showTodoModal, showEmotionModal, showAddActivityModal, showAddAchievementModal, showAddGoalModal, showAddIncomeModal, showAddExpenseModal, showEditIncomeModal, showEditExpenseModal, showEditAchievementModal, showEditGoalModal, showImportModal, showExportModal, showAddTravelModal]);
 
   // Emotion data
-  const emotions = [
-    { id: 1, name: 'มีความสุข', icon: '😊', color: '#FFD93D' },
-    { id: 2, name: 'หัวเราะ', icon: '😂', color: '#FF6B35' },
-    { id: 3, name: 'เศร้า', icon: '😢', color: '#6C63FF' },
-    { id: 4, name: 'เสียใจ', icon: '😞', color: '#8B8B8B' },
-    { id: 5, name: 'หงุดหงิด', icon: '😤', color: '#FF4757' },
-    { id: 6, name: 'ผิดหวัง', icon: '😔', color: '#A8A8A8' },
-    { id: 7, name: 'ตื่นเต้น', icon: '🤩', color: '#FF9F40' },
-    { id: 8, name: 'กังวล', icon: '😰', color: '#70A1FF' },
-    { id: 9, name: 'โกรธ', icon: '😠', color: '#FF3838' },
-    { id: 10, name: 'เหนื่อย', icon: '😴', color: '#95A5A6' }
-  ];
+  const emotions = initialEmotions;
 
   // Handle emotion selection
   const handleEmotionSelect = (emotion) => {

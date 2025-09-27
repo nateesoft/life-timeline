@@ -1,0 +1,62 @@
+[
+    { 
+      "id": 1, 
+      "title": "ค่าเช่าบ้าน", 
+      "amount": 12000, 
+      "type": "housing", 
+      "frequency": "monthly",
+      "duration": "ongoing",
+      "schedulingOptions": { "monthlyDay": 1 },
+      "icon": "🏠",
+      "createdAt": "2025-09-27T00:00:00.000Z",
+      "updatedAt": "2025-09-27T00:00:00.000Z"
+    },
+    { 
+      "id": 2, 
+      "title": "ค่าอาหาร", 
+      "amount": 8000, 
+      "type": "food", 
+      "frequency": "monthly",
+      "duration": "ongoing",
+      "schedulingOptions": { "monthlyDay": 15 },
+      "icon": "🍽️",
+      "createdAt": "2025-09-27T00:00:00.000Z",
+      "updatedAt": "2025-09-27T00:00:00.000Z"
+    },
+    { 
+      "id": 3, 
+      "title": "ค่าน้ำมันรถ", 
+      "amount": 3000, 
+      "type": "transportation", 
+      "frequency": "monthly",
+      "duration": "ongoing",
+      "schedulingOptions": { "monthlyDay": 20 },
+      "icon": "⛽",
+      "createdAt": "2025-09-27T00:00:00.000Z",
+      "updatedAt": "2025-09-27T00:00:00.000Z"
+    },
+    { 
+      "id": 4, 
+      "title": "ค่าโทรศัพท์", 
+      "amount": 599, 
+      "type": "utilities", 
+      "frequency": "monthly",
+      "duration": "ongoing",
+      "schedulingOptions": { "monthlyDay": 5 },
+      "icon": "📱",
+      "createdAt": "2025-09-27T00:00:00.000Z",
+      "updatedAt": "2025-09-27T00:00:00.000Z"
+    },
+    { 
+      "id": 5, 
+      "title": "ค่าไฟฟ้า", 
+      "amount": 1500, 
+      "type": "utilities", 
+      "frequency": "monthly",
+      "duration": "ongoing",
+      "schedulingOptions": { "monthlyDay": 10 },
+      "icon": "⚡",
+      "createdAt": "2025-09-27T00:00:00.000Z",
+      "updatedAt": "2025-09-27T00:00:00.000Z"
+    }
+]
