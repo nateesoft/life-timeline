@@ -157,5 +157,57 @@ export interface Expense {
   updatedAt: string;
 }
 
+export interface Book {
+  id: number;
+  title: string;
+  author: string;
+  genre: string;
+  pages: number;
+  rating: number; // 1-5 stars
+  status: 'reading' | 'completed' | 'want_to_read' | 'dropped';
+  startDate?: string;
+  finishDate?: string;
+  notes?: string;
+  cover?: string; // URL to book cover
+  isbn?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Movie {
+  id: number;
+  title: string;
+  director: string;
+  genre: string;
+  year: number;
+  duration: number; // in minutes
+  rating: number; // 1-5 stars
+  status: 'watching' | 'completed' | 'want_to_watch' | 'dropped';
+  watchDate?: string;
+  notes?: string;
+  poster?: string; // URL to movie poster
+  imdbId?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Sport {
+  id: number;
+  name: string;
+  type: 'individual' | 'team';
+  category: 'fitness' | 'competitive' | 'recreational';
+  skillLevel: 'beginner' | 'intermediate' | 'advanced' | 'expert';
+  frequency: 'daily' | 'weekly' | 'monthly' | 'occasional';
+  startDate: string;
+  endDate?: string; // if stopped playing
+  notes?: string;
+  achievements?: string[]; // any medals, certificates, etc.
+  equipment?: string[]; // required equipment
+  location?: string; // where usually played
+  teammates?: string[]; // for team sports
+  createdAt: string;
+  updatedAt: string;
+}
+
 export type ImportFileType = 'json' | 'csv';
 export type ExportFileType = 'json' | 'csv';

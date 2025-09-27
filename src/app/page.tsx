@@ -22,7 +22,7 @@ import TimeLifeVisualization from '@/components/TimeLifeVisualization';
 import CalendarModal from '@/components/CalendarModal';
 import ParallaxStarBackground from '@/components/ParallaxStarBackground';
 import { DataManager } from '../utils/dataManager';
-import { AppData, Income, Expense } from '../types';
+import { AppData, Income, Expense, Book, Movie, Sport } from '../types';
 import { 
   calculateAge, 
   calculateDetailedAge, 
@@ -41,6 +41,11 @@ import initialExpenses from '../data/expenses.json';
 import HeaderMain from '@/components/HeaderMain';
 import WaterTankVisualization from '@/components/WaterTankVisualization';
 import TravelMapSection from '@/components/TravelMapSection';
+import PriceTrackerSection from '@/components/PriceTrackerSection';
+import MediaSportsSection from '@/components/MediaSportsSection';
+import AddBookModal from '@/components/AddBookModal';
+import AddMovieModal from '@/components/AddMovieModal';
+import AddSportModal from '@/components/AddSportModal';
 
 interface Activity {
   id: number;
@@ -160,6 +165,20 @@ const LifeTimelineApp = () => {
   // Travel locations state
   const [travelLocations, setTravelLocations] = useState<TravelLocation[]>([]);
   const [showAddTravelModal, setShowAddTravelModal] = useState(false);
+  
+  // Media and Sports state
+  const [books, setBooks] = useState<Book[]>([]);
+  const [movies, setMovies] = useState<Movie[]>([]);
+  const [sports, setSports] = useState<Sport[]>([]);
+  const [showAddBookModal, setShowAddBookModal] = useState(false);
+  const [showAddMovieModal, setShowAddMovieModal] = useState(false);
+  const [showAddSportModal, setShowAddSportModal] = useState(false);
+  const [showEditBookModal, setShowEditBookModal] = useState(false);
+  const [showEditMovieModal, setShowEditMovieModal] = useState(false);
+  const [showEditSportModal, setShowEditSportModal] = useState(false);
+  const [editingBook, setEditingBook] = useState<Book | null>(null);
+  const [editingMovie, setEditingMovie] = useState<Movie | null>(null);
+  const [editingSport, setEditingSport] = useState<Sport | null>(null);
   const [newTravelLocation, setNewTravelLocation] = useState({
     name: '',
     description: '',
@@ -324,6 +343,36 @@ const LifeTimelineApp = () => {
       }
     }
 
+    // Load books from localStorage
+    const savedBooks = localStorage.getItem('userBooks');
+    if (savedBooks) {
+      try {
+        setBooks(JSON.parse(savedBooks));
+      } catch (error) {
+        console.error('Error loading books:', error);
+      }
+    }
+
+    // Load movies from localStorage
+    const savedMovies = localStorage.getItem('userMovies');
+    if (savedMovies) {
+      try {
+        setMovies(JSON.parse(savedMovies));
+      } catch (error) {
+        console.error('Error loading movies:', error);
+      }
+    }
+
+    // Load sports from localStorage
+    const savedSports = localStorage.getItem('userSports');
+    if (savedSports) {
+      try {
+        setSports(JSON.parse(savedSports));
+      } catch (error) {
+        console.error('Error loading sports:', error);
+      }
+    }
+
     // Load incomes from localStorage
     const savedIncomes = localStorage.getItem('userIncomes');
     if (savedIncomes) {
@@ -398,7 +447,7 @@ const LifeTimelineApp = () => {
 
   // Prevent background scroll when any modal is open without layout shift
   useEffect(() => {
-    const hasAnyModalOpen = showCalendarModal || showTodoModal || showEmotionModal || showAddActivityModal || showAddAchievementModal || showAddGoalModal || showAddIncomeModal || showAddExpenseModal || showEditIncomeModal || showEditExpenseModal || showEditAchievementModal || showEditGoalModal || showImportModal || showExportModal || showAddTravelModal;
+    const hasAnyModalOpen = showCalendarModal || showTodoModal || showEmotionModal || showAddActivityModal || showAddAchievementModal || showAddGoalModal || showAddIncomeModal || showAddExpenseModal || showEditIncomeModal || showEditExpenseModal || showEditAchievementModal || showEditGoalModal || showImportModal || showExportModal || showAddTravelModal || showAddBookModal || showAddMovieModal || showAddSportModal || showEditBookModal || showEditMovieModal || showEditSportModal;
     
     if (hasAnyModalOpen) {
       // Get scrollbar width before hiding it
@@ -822,6 +871,159 @@ const LifeTimelineApp = () => {
     saveTravelLocationsToStorage(updatedLocations);
   };
 
+  // Books management functions
+  const saveBooksToStorage = (books: Book[]) => {
+    try {
+      localStorage.setItem('userBooks', JSON.stringify(books));
+    } catch (error) {
+      console.error('Error saving books:', error);
+    }
+  };
+
+  const addBook = (bookData: Omit<Book, 'id' | 'createdAt' | 'updatedAt'>) => {
+    const newBook: Book = {
+      ...bookData,
+      id: Date.now(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    const updatedBooks = [...books, newBook];
+    setBooks(updatedBooks);
+    saveBooksToStorage(updatedBooks);
+    setShowAddBookModal(false);
+  };
+
+  const editBook = (book: Book) => {
+    setEditingBook(book);
+    setShowEditBookModal(true);
+  };
+
+  const updateBook = (bookData: Omit<Book, 'id' | 'createdAt' | 'updatedAt'>) => {
+    if (editingBook) {
+      const updatedBook: Book = {
+        ...bookData,
+        id: editingBook.id,
+        createdAt: editingBook.createdAt,
+        updatedAt: new Date().toISOString()
+      };
+      const updatedBooks = books.map(book => 
+        book.id === editingBook.id ? updatedBook : book
+      );
+      setBooks(updatedBooks);
+      saveBooksToStorage(updatedBooks);
+      setShowEditBookModal(false);
+      setEditingBook(null);
+    }
+  };
+
+  const removeBook = (id: number) => {
+    const updatedBooks = books.filter(book => book.id !== id);
+    setBooks(updatedBooks);
+    saveBooksToStorage(updatedBooks);
+  };
+
+  // Movies management functions
+  const saveMoviesToStorage = (movies: Movie[]) => {
+    try {
+      localStorage.setItem('userMovies', JSON.stringify(movies));
+    } catch (error) {
+      console.error('Error saving movies:', error);
+    }
+  };
+
+  const addMovie = (movieData: Omit<Movie, 'id' | 'createdAt' | 'updatedAt'>) => {
+    const newMovie: Movie = {
+      ...movieData,
+      id: Date.now(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    const updatedMovies = [...movies, newMovie];
+    setMovies(updatedMovies);
+    saveMoviesToStorage(updatedMovies);
+    setShowAddMovieModal(false);
+  };
+
+  const editMovie = (movie: Movie) => {
+    setEditingMovie(movie);
+    setShowEditMovieModal(true);
+  };
+
+  const updateMovie = (movieData: Omit<Movie, 'id' | 'createdAt' | 'updatedAt'>) => {
+    if (editingMovie) {
+      const updatedMovie: Movie = {
+        ...movieData,
+        id: editingMovie.id,
+        createdAt: editingMovie.createdAt,
+        updatedAt: new Date().toISOString()
+      };
+      const updatedMovies = movies.map(movie => 
+        movie.id === editingMovie.id ? updatedMovie : movie
+      );
+      setMovies(updatedMovies);
+      saveMoviesToStorage(updatedMovies);
+      setShowEditMovieModal(false);
+      setEditingMovie(null);
+    }
+  };
+
+  const removeMovie = (id: number) => {
+    const updatedMovies = movies.filter(movie => movie.id !== id);
+    setMovies(updatedMovies);
+    saveMoviesToStorage(updatedMovies);
+  };
+
+  // Sports management functions
+  const saveSportsToStorage = (sports: Sport[]) => {
+    try {
+      localStorage.setItem('userSports', JSON.stringify(sports));
+    } catch (error) {
+      console.error('Error saving sports:', error);
+    }
+  };
+
+  const addSport = (sportData: Omit<Sport, 'id' | 'createdAt' | 'updatedAt'>) => {
+    const newSport: Sport = {
+      ...sportData,
+      id: Date.now(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    const updatedSports = [...sports, newSport];
+    setSports(updatedSports);
+    saveSportsToStorage(updatedSports);
+    setShowAddSportModal(false);
+  };
+
+  const editSport = (sport: Sport) => {
+    setEditingSport(sport);
+    setShowEditSportModal(true);
+  };
+
+  const updateSport = (sportData: Omit<Sport, 'id' | 'createdAt' | 'updatedAt'>) => {
+    if (editingSport) {
+      const updatedSport: Sport = {
+        ...sportData,
+        id: editingSport.id,
+        createdAt: editingSport.createdAt,
+        updatedAt: new Date().toISOString()
+      };
+      const updatedSports = sports.map(sport => 
+        sport.id === editingSport.id ? updatedSport : sport
+      );
+      setSports(updatedSports);
+      saveSportsToStorage(updatedSports);
+      setShowEditSportModal(false);
+      setEditingSport(null);
+    }
+  };
+
+  const removeSport = (id: number) => {
+    const updatedSports = sports.filter(sport => sport.id !== id);
+    setSports(updatedSports);
+    saveSportsToStorage(updatedSports);
+  };
+
   // Friend messages management functions
   const saveFriendMessagesToStorage = (messages: FriendMessage[]) => {
     try {
@@ -1136,6 +1338,25 @@ const LifeTimelineApp = () => {
           removeTravelLocation={removeTravelLocation}
         />
 
+        {/* Price Tracker Section */}
+        <PriceTrackerSection />
+
+        {/* Media and Sports Section */}
+        <MediaSportsSection
+          books={books}
+          movies={movies}
+          sports={sports}
+          onAddBook={() => setShowAddBookModal(true)}
+          onAddMovie={() => setShowAddMovieModal(true)}
+          onAddSport={() => setShowAddSportModal(true)}
+          onEditBook={editBook}
+          onEditMovie={editMovie}
+          onEditSport={editSport}
+          onRemoveBook={removeBook}
+          onRemoveMovie={removeMovie}
+          onRemoveSport={removeSport}
+        />
+
         <TodoModal 
           showTodoModal={showTodoModal}
           setShowTodoModal={setShowTodoModal}
@@ -1150,7 +1371,7 @@ const LifeTimelineApp = () => {
 
         <FloatingActionButton 
           setShowAddActivityModal={setShowAddActivityModal}
-          hasModalOpen={showCalendarModal || showTodoModal || showEmotionModal || showAddActivityModal || showAddAchievementModal || showAddGoalModal || showAddIncomeModal || showAddExpenseModal || showEditIncomeModal || showEditExpenseModal || showEditAchievementModal || showEditGoalModal || showImportModal || showExportModal || showAddTravelModal}
+          hasModalOpen={showCalendarModal || showTodoModal || showEmotionModal || showAddActivityModal || showAddAchievementModal || showAddGoalModal || showAddIncomeModal || showAddExpenseModal || showEditIncomeModal || showEditExpenseModal || showEditAchievementModal || showEditGoalModal || showImportModal || showExportModal || showAddTravelModal || showAddBookModal || showAddMovieModal || showAddSportModal || showEditBookModal || showEditMovieModal || showEditSportModal}
         />
 
         <AddActivityModal 
@@ -1286,6 +1507,57 @@ const LifeTimelineApp = () => {
           onAdd={addTravelLocation}
           newLocation={newTravelLocation}
           setNewLocation={setNewTravelLocation}
+        />
+
+        {/* Book Modals */}
+        <AddBookModal
+          isOpen={showAddBookModal}
+          onClose={() => setShowAddBookModal(false)}
+          onAddBook={addBook}
+        />
+
+        <AddBookModal
+          isOpen={showEditBookModal}
+          onClose={() => {
+            setShowEditBookModal(false);
+            setEditingBook(null);
+          }}
+          onAddBook={updateBook}
+          editData={editingBook || undefined}
+        />
+
+        {/* Movie Modals */}
+        <AddMovieModal
+          isOpen={showAddMovieModal}
+          onClose={() => setShowAddMovieModal(false)}
+          onAddMovie={addMovie}
+        />
+
+        <AddMovieModal
+          isOpen={showEditMovieModal}
+          onClose={() => {
+            setShowEditMovieModal(false);
+            setEditingMovie(null);
+          }}
+          onAddMovie={updateMovie}
+          editData={editingMovie || undefined}
+        />
+
+        {/* Sport Modals */}
+        <AddSportModal
+          isOpen={showAddSportModal}
+          onClose={() => setShowAddSportModal(false)}
+          onAddSport={addSport}
+        />
+
+        <AddSportModal
+          isOpen={showEditSportModal}
+          onClose={() => {
+            setShowEditSportModal(false);
+            setEditingSport(null);
+          }}
+          onAddSport={updateSport}
+          editData={editingSport || undefined}
         />
       </div>
     </div>
