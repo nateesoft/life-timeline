@@ -413,7 +413,7 @@ const LifeTimelineApp = () => {
       setTimeout(() => setShowEmotionModal(true), 1000); // Delay 1 second for better UX
     }
 
-    if (!savedFriends) {
+    if (localStorage.getItem('friendMessages')) {
       // Create sample friend messages
       const sampleMessages: FriendMessage[] = initialFriendMessages;
       setFriendMessages(sampleMessages);
