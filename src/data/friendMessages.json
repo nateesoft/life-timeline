@@ -1,0 +1,35 @@
+[
+  {
+    "id": 1,
+    "message": "สวัสดีครับ! ไว้เจอกันนะ 😊",
+    "fromName": "แก้ว",
+    "fromAvatar": "👩🏻",
+    "position": {
+      "x": 150,
+      "y": 200
+    },
+    "createdAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 2,
+    "message": "Happy Birthday! 🎂🎉",
+    "fromName": "มิกี้",
+    "fromAvatar": "🐭",
+    "position": {
+      "x": 400,
+      "y": 150
+    },
+    "createdAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 3,
+    "message": "จำได้มั้ยที่เราเล่นด้วยกันตอนเด็ก 😄",
+    "fromName": "โอ๋",
+    "fromAvatar": "👦🏻",
+    "position": {
+      "x": 300,
+      "y": 350
+    },
+    "createdAt": "2024-01-01T00:00:00.000Z"
+  }
+]

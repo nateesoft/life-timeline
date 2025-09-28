@@ -1,0 +1,50 @@
+{
+  "today": [
+    {
+      "id": 1,
+      "text": "อ่านหนังสือ 30 นาที",
+      "completed": false
+    },
+    {
+      "id": 2,
+      "text": "ออกกำลังกาย",
+      "completed": false
+    }
+  ],
+  "tomorrow": [
+    {
+      "id": 3,
+      "text": "ประชุมกับทีม",
+      "completed": false
+    },
+    {
+      "id": 4,
+      "text": "จ่ายค่าไฟฟ้า",
+      "completed": false
+    }
+  ],
+  "upcoming": [
+    {
+      "id": 5,
+      "text": "ตรวจสุขภาพประจำปี",
+      "completed": false
+    },
+    {
+      "id": 6,
+      "text": "วางแผนการลาพักร้อน",
+      "completed": false
+    }
+  ],
+  "monthly": [
+    {
+      "id": 7,
+      "text": "ทบทวนงบประมาณ",
+      "completed": false
+    },
+    {
+      "id": 8,
+      "text": "เรียนภาษาอังกฤษ",
+      "completed": false
+    }
+  ]
+}

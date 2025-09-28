@@ -1,0 +1,38 @@
+[
+  {
+    "id": 1,
+    "title": "เงินเดือน",
+    "amount": 45000,
+    "type": "salary",
+    "frequency": "monthly",
+    "isExpected": false,
+    "schedulingOptions": { "monthlyDay": 1 },
+    "icon": "💼",
+    "createdAt": "2025-09-27T00:00:00.000Z",
+    "updatedAt": "2025-09-27T00:00:00.000Z"
+  },
+  {
+    "id": 2,
+    "title": "รายได้เสริม",
+    "amount": 15000,
+    "type": "side_job",
+    "frequency": "monthly",
+    "isExpected": false,
+    "schedulingOptions": { "monthlyDay": 5 },
+    "icon": "💻",
+    "createdAt": "2025-09-27T00:00:00.000Z",
+    "updatedAt": "2025-09-27T00:00:00.000Z"
+  },
+  {
+    "id": 3,
+    "title": "ดอกเบียย์เงินฝาก",
+    "amount": 2500,
+    "type": "interest",
+    "frequency": "monthly",
+    "isExpected": true,
+    "schedulingOptions": { "monthlyDay": 10 },
+    "icon": "🏦",
+    "createdAt": "2025-09-27T00:00:00.000Z",
+    "updatedAt": "2025-09-27T00:00:00.000Z"
+  }
+]

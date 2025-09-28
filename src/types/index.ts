@@ -1,0 +1,213 @@
+// Data types for Life Timeline App
+
+export interface Activity {
+  id: number;
+  name: string;
+  description: string;
+  displayType: 'daily' | 'weekly' | 'monthly' | 'yearly';
+  color: string;
+  backgroundColor: string;
+  position: { x: number; y: number };
+  createdAt: string;
+}
+
+export interface Achievement {
+  id: number;
+  title: string;
+  year: number;
+  category: string;
+  icon: string;
+}
+
+export interface Goal {
+  id: number;
+  title: string;
+  target: number;
+  current: number;
+  category: string;
+  icon: string;
+}
+
+export interface FriendMessage {
+  id: number;
+  message: string;
+  fromName: string;
+  fromAvatar: string;
+  position: { x: number; y: number };
+  createdAt: string;
+}
+
+export interface Friend {
+  id: number;
+  name: string;
+  birthDate: string;
+  color: string;
+}
+
+export interface Todo {
+  id: number;
+  text: string;
+  completed: boolean;
+}
+
+export interface TodoCollection {
+  today: Todo[];
+  tomorrow: Todo[];
+  upcoming: Todo[];
+  monthly: Todo[];
+}
+
+export interface EmotionData {
+  date: string;
+  emotion: string;
+  timestamp: number;
+}
+
+export interface UserProfile {
+  birthDate: string;
+  maxAge: number;
+}
+
+// Import/Export interfaces
+export interface AppData {
+  userProfile: UserProfile;
+  activities: Activity[];
+  achievements: Achievement[];
+  goals: Goal[];
+  friends: Friend[];
+  friendMessages: FriendMessage[];
+  todos: TodoCollection;
+  todayEmotion: EmotionData | null;
+  exportDate: string;
+  version: string;
+}
+
+export interface ImportResult {
+  success: boolean;
+  message: string;
+  data?: AppData;
+  errors?: string[];
+}
+
+export interface ExportOptions {
+  includeActivities: boolean;
+  includeAchievements: boolean;
+  includeGoals: boolean;
+  includeFriends: boolean;
+  includeFriendMessages: boolean;
+  includeTodos: boolean;
+  includeEmotions: boolean;
+  includeUserProfile: boolean;
+}
+
+export interface Income {
+  id: number;
+  title: string;
+  amount: number;
+  type: 'salary' | 'bonus' | 'side_job' | 'interest' | 'investment' | 'other';
+  frequency: 'daily' | 'weekly' | 'monthly';
+  isExpected: boolean;
+  schedulingOptions: {
+    // For monthly: day of month (1-31) or specific months
+    monthlyDay?: number;
+    specificMonths?: number[];
+    // For weekly: day of week (0-6, 0=Sunday) or specific weeks
+    weeklyDay?: number;
+    specificWeeks?: number[];
+    // For daily: specific time
+    dailyTime?: string;
+  };
+  icon: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Expense {
+  id: number;
+  title: string;
+  amount: number;
+  type: 'housing' | 'food' | 'transportation' | 'utilities' | 'entertainment' | 'loan' | 'insurance' | 'other';
+  frequency: 'daily' | 'monthly' | 'yearly';
+  duration: 'ongoing' | 'fixed_term';
+  schedulingOptions: {
+    // For monthly: day of month (1-31) or specific months
+    monthlyDay?: number;
+    specificMonths?: number[];
+    // For daily: specific time
+    dailyTime?: string;
+    // For yearly: month and day
+    yearlyMonth?: number;
+    yearlyDay?: number;
+  };
+  // For fixed-term expenses (e.g., car loan)
+  fixedTermOptions?: {
+    startDate: string;
+    endDate: string;
+    totalPayments: number;
+    currentPayment: number;
+    reward?: {
+      title: string;
+      description: string;
+      icon: string;
+      completionDate: string;
+    };
+  };
+  icon: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Book {
+  id: number;
+  title: string;
+  author: string;
+  genre: string;
+  pages: number;
+  rating: number; // 1-5 stars
+  status: 'reading' | 'completed' | 'want_to_read' | 'dropped';
+  startDate?: string;
+  finishDate?: string;
+  notes?: string;
+  cover?: string; // URL to book cover
+  isbn?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Movie {
+  id: number;
+  title: string;
+  director: string;
+  genre: string;
+  year: number;
+  duration: number; // in minutes
+  rating: number; // 1-5 stars
+  status: 'watching' | 'completed' | 'want_to_watch' | 'dropped';
+  watchDate?: string;
+  notes?: string;
+  poster?: string; // URL to movie poster
+  imdbId?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Sport {
+  id: number;
+  name: string;
+  type: 'individual' | 'team';
+  category: 'fitness' | 'competitive' | 'recreational';
+  skillLevel: 'beginner' | 'intermediate' | 'advanced' | 'expert';
+  frequency: 'daily' | 'weekly' | 'monthly' | 'occasional';
+  startDate: string;
+  endDate?: string; // if stopped playing
+  notes?: string;
+  achievements?: string[]; // any medals, certificates, etc.
+  equipment?: string[]; // required equipment
+  location?: string; // where usually played
+  teammates?: string[]; // for team sports
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type ImportFileType = 'json' | 'csv';
+export type ExportFileType = 'json' | 'csv';
