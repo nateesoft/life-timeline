@@ -1,0 +1,23 @@
+[
+  {
+    "id": 1,
+    "title": "จบการศึกษาระดับปริญญาตรี",
+    "year": 2020,
+    "category": "education",
+    "icon": "🎓"
+  },
+  {
+    "id": 2,
+    "title": "ได้งานแรก",
+    "year": 2021,
+    "category": "career",
+    "icon": "💼"
+  },
+  {
+    "id": 3,
+    "title": "เที่ยวญี่ปุ่น",
+    "year": 2022,
+    "category": "travel",
+    "icon": "✈️"
+  }
+]

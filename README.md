@@ -1,37 +1,194 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🌟 Life Timeline - แอปพลิเคชันจัดการชีวิตส่วนตัว
 
-## Getting Started
+แอปพลิเคชันจัดการชีวิตส่วนตัวแบบครบครันที่ช่วยให้คุณติดตามและวางแผนชีวิตได้อย่างเป็นระบบ
 
-First, run the development server:
+## 🚀 ฟีเจอร์หลัก
+
+### ⏰ **ระบบ Timeline และการจัดการเวลา**
+- **Timeline ชีวิต** - แสดงไทม์ไลน์ชีวิตพร้อมเพื่อนและครอบครัว
+- **การนับถอยหลัง** - นับเวลาที่เหลือในแต่ละวัน
+- **คำนวณอายุแบบละเอียด** - แสดงอายุเป็นปี เดือน วัน ชั่วโมง นาที วินาที
+- **เปอร์เซ็นต์ชีวิต** - แสดงเปอร์เซ็นต์ชีวิตที่ผ่านไปแล้ว
+
+### 👥 **การจัดการเพื่อนและครอบครัว**
+- เพิ่ม/ลบ/แก้ไขข้อมูลเพื่อนและครอบครัว
+- แสดงอายุและไทม์ไลน์ของทุกคน
+- ระบบสีที่แตกต่างกันสำหรับแต่ละคน
+- ข้อความจากเพื่อน (Friend Messages) แบบ Post-it
+
+### 🎯 **เป้าหมายและผลสำเร็จ**
+- **ผลสำเร็จ (Achievements)** - บันทึกความสำเร็จในชีวิต
+- **เป้าหมาย (Goals)** - ตั้งเป้าหมายและติดตามความก้าวหน้า
+- ระบบหมวดหมู่และไอคอน
+- การแก้ไขและลบข้อมูล
+
+### 💰 **การจัดการการเงิน**
+- **รายรับ (Income)** - บันทึกแหล่งรายได้
+- **รายจ่าย (Expenses)** - ติดตามค่าใช้จ่าย
+- **ระบบตารางการเงิน** - วางแผนรายรับ-รายจ่ายล่วงหน้า
+- **วิชวลไลเซชั่น Water Tank** - แสดงฐานะการเงินแบบกราฟิก
+
+### 🗺️ **การท่องเที่ยว**
+- **แผนที่ท่องเที่ยว** - บันทึกสถานที่ที่เคยไป
+- Google Maps Integration
+- ระบบให้คะแนนสถานที่
+- แยกเป็นในประเทศและต่างประเทศ
+- บันทึกวันที่เดินทางและรายละเอียด
+
+### 📊 **ข้อมูลราคาและตลาด**
+- **ราคาทองคำ** 🏆 - ข้อมูลจริงจาก API
+- **ราคาน้ำมัน** ⛽ - ราคาเบนซิน ดีเซล ทุกประเภท
+- **ราคาอาหารสด** 🥩 - เนื้อสัตว์ ข้าว ไข่ นม
+- **อัตราแลกเปลี่ยน** 💱 - 8 สกุลเงินหลัก (USD, EUR, JPY, CNY, KRW, SGD, GBP, AUD)
+- รีเฟรชอัตโนมัติทุก 5 นาที
+
+### 📚 **สื่อและกีฬา**
+- **หนังสือ** 📖 - ติดตามหนังสือที่อ่าน/อยากอ่าน
+- **หนัง** 🎬 - บันทึกหนังที่ดู/อยากดู
+- **กีฬา** ⚽ - ติดตามกีฬาที่เล่น
+- ระบบให้คะแนน 1-5 ดาว
+- สถานะ: กำลังทำ, เสร็จแล้ว, อยากทำ, หยุดทำ
+- ข้อมูลรายละเอียด: ผู้แต่ง, ผู้กำกับ, อุปกรณ์กีฬา
+
+### 🎭 **อารมณ์และกิจกรรม**
+- **บันทึกอารมณ์รายวัน** - Emotion Tracking
+- **กิจกรรม Post-it** - กิจกรรมที่ลากวางได้
+- **Todo List** - รายการสิ่งที่ต้องทำ
+- **ปฏิทิน** - ดูกิจกรรมแต่ละเดือน
+
+### 🌐 **ระบบและการจัดการข้อมูล**
+- **Dark/Light Mode** 🌙☀️ - รองรับธีมมืดและสว่าง
+- **Responsive Design** 📱💻 - ใช้งานได้ทุกอุปกรณ์
+- **LocalStorage** - บันทึกข้อมูลในเครื่อง
+- **Import/Export** - นำเข้า/ส่งออกข้อมูล
+- **Background Animation** - ดาวเคลื่อนไหวพื้นหลัง
+
+## 🛠️ เทคโนโลยีที่ใช้
+
+- **Frontend**: Next.js 15, React, TypeScript
+- **Styling**: Tailwind CSS
+- **Maps**: Google Maps API
+- **APIs**: 
+  - thaigold.info (ราคาทองคำ)
+  - exchangerate-api.com (อัตราแลกเปลี่ยน)
+- **Storage**: LocalStorage
+- **Icons**: SVG Icons, Emoji
+
+## 🚦 การติดตั้งและใช้งาน
+
+### ข้อกำหนดระบบ
+- Node.js 18+ 
+- npm หรือ yarn
+
+### การติดตั้ง
 
 ```bash
+# Clone repository
+git clone <repository-url>
+cd life-timeline
+
+# ติดตั้ง dependencies
+npm install
+# หรือ
+yarn install
+
+# รันในโหมด development
 npm run dev
-# or
+# หรือ
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+เปิดเบราว์เซอร์ไปที่ [http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### การตั้งค่า
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. **Google Maps API**: เพิ่ม API key ในไฟล์ `src/app/page.tsx`
+2. **การปรับแต่ง**: แก้ไขข้อมูลเริ่มต้นในโฟลเดอร์ `src/data/`
 
-## Learn More
+## 📁 โครงสร้างโปรเจค
 
-To learn more about Next.js, take a look at the following resources:
+```
+src/
+├── app/                    # Next.js App Router
+├── components/             # React Components
+│   ├── MediaSportsSection.tsx
+│   ├── PriceTrackerSection.tsx
+│   ├── TravelMapSection.tsx
+│   └── ...
+├── data/                   # ข้อมูลเริ่มต้น (JSON)
+├── types/                  # TypeScript Types
+├── utils/                  # Utility Functions
+└── ...
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🔧 การพัฒนา
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### การเพิ่มฟีเจอร์ใหม่
+1. สร้าง Component ใหม่ในโฟลเดอร์ `components/`
+2. เพิ่ม Types ใน `types/index.ts`
+3. เชื่อมต่อกับ main page ใน `app/page.tsx`
+4. เพิ่ม localStorage สำหรับบันทึกข้อมูล
 
-## Deploy on Vercel
+### การเพิ่ม API ใหม่
+1. เพิ่มฟังก์ชัน fetch ใน component ที่เกี่ยวข้อง
+2. จัดการ CORS และ Error Handling
+3. เพิ่ม fallback data กรณี API ไม่ทำงาน
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🎨 การปรับแต่ง UI
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-# life-timeline
+- **สี**: แก้ไขใน Tailwind classes
+- **ธีม**: รองรับ Dark Mode อัตโนมัติ
+- **ขนาด**: Responsive Design ครอบคลุมทุกหน้าจอ
+
+## 📱 การใช้งานบนมือถือ
+
+- Touch-friendly interface
+- Swipe gestures
+- Mobile-optimized modals
+- Drawer navigation สำหรับข้อมูลการเงิน
+
+## 🔐 ความปลอดภัย
+
+- ข้อมูลเก็บใน LocalStorage (ไม่ส่งไปเซิร์ฟเวอร์)
+- ไม่มีการส่งข้อมูลส่วนตัวไปยัง third-party
+- API calls เป็น read-only เท่านั้น
+
+## 🚀 การ Deploy
+
+### Vercel (แนะนำ)
+```bash
+npm install -g vercel
+vercel
+```
+
+### การ Build
+```bash
+npm run build
+npm start
+```
+
+## 🤝 การมีส่วนร่วม
+
+1. Fork repository
+2. สร้าง feature branch
+3. Commit การเปลี่ยนแปลง
+4. สร้าง Pull Request
+
+## 📝 License
+
+MIT License - ใช้งานได้อย่างอิสระ
+
+## 💡 ไอเดียสำหรับอนาคต
+
+- [ ] Backup ไปยัง Cloud Storage
+- [ ] การแชร์ข้อมูลกับเพื่อน
+- [ ] AI Insights และคำแนะนำ
+- [ ] Mobile App (React Native)
+- [ ] การแจ้งเตือน (Notifications)
+- [ ] การซิงค์ข้อมูลระหว่างอุปกรณ์
+
+---
+
+🎉 **สนุกกับการจัดการชีวิตของคุณ!** 
+
+หากมีปัญหาหรือข้อเสนอแนะ กรุณาสร้าง Issue ใน GitHub Repository

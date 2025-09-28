@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "title": "ซื้อรถคันแรก",
+    "target": 1000000,
+    "current": 650000,
+    "category": "asset",
+    "icon": "🚗"
+  },
+  {
+    "id": 2,
+    "title": "ซื้อบ้าน",
+    "target": 5000000,
+    "current": 1200000,
+    "category": "asset",
+    "icon": "🏠"
+  },
+  {
+    "id": 3,
+    "title": "เงินเก็บ 100 ล้าน",
+    "target": 10000000,
+    "current": 5500000,
+    "category": "savings",
+    "icon": "💰"
+  }
+]
